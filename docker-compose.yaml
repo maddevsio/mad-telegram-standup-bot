@@ -12,7 +12,7 @@ services:
       MYSQL_USER: telegram
       MYSQL_PASSWORD: telegram
 
-  tgbot:
+  bot:
     build: .
     restart: on-failure
     links:
