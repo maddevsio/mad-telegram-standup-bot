@@ -1,0 +1,38 @@
+version: '2.2'
+
+networks:
+  integration-tests:
+    driver: bridge
+
+services:
+  tgbot:
+    image: golang:1.11.4
+    links:
+      - db:db
+    networks:
+      - integration-tests
+    environment:
+      - DATABASE_URL=tgbot:tgbot@tcp(db:3306)/tgbot?parseTime=true
+    working_dir: /go/src/github.com/maddevsio/tgsbot
+    volumes:
+      - ./:/go/src/github.com/maddevsio/tgsbot
+    command: bash -c "./goose -dir migrations mysql 'tgbot:tgbot@tcp(db:3306)/tgbot' up && go test -v -timeout 30s ./... "
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: tgbot
+      MYSQL_PASSWORD: tgbot
+      MYSQL_DATABASE: tgbot
+    healthcheck:
+      test: "mysql -utgbot --password=tgbot -e 'show databases;' |grep tgbot"
+      interval: 30s
+      timeout: 20s
+      retries: 10
+    networks:
+      - integration-tests
+

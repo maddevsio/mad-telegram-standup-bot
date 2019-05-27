@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+
+  db:
+    image: mysql:5.7
+    volumes:
+      - "database:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: telegram
+      MYSQL_USER: telegram
+      MYSQL_PASSWORD: telegram
+
+  tgbot:
+    build: .
+    restart: on-failure
+    links:
+      - db:db
+    ports:
+      - 8080:8080
+    environment:
+      TZ: Asia/Bishkek
+      DATABASE_URL: telegram:telegram@tcp(db:3306)/telegram?parseTime=true
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
+      DEBUG: ${DEBUG}
+    depends_on:
+      - db
+
+volumes:
+  database:
