@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/maddevsio/tgsbot/bot"
-	"github.com/maddevsio/tgsbot/config"
+	"github.com/maddevsio/mad-internship-bot/bot"
+	"github.com/maddevsio/mad-internship-bot/config"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -26,5 +26,6 @@ make run
 ```
 To run tests: 
 ```
+make clear
 make test
 ```
