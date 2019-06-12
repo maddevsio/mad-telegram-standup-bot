@@ -1,5 +1,8 @@
 run:
 	docker-compose up --build
+
+install_dependencies:
+	go get -v ./...
 	
 clear:
 	docker-compose down --remove-orphans

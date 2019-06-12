@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/maddevsio/tgsbot/model"
+	"github.com/maddevsio/mad-internship-bot/model"
 )
 
 func isStandup(message string) bool {

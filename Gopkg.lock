@@ -54,6 +54,19 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:e2539a1ca362a9410292b3088e20466eccb4bceb634410cb4ee9dc8241f7265d"
+  name = "github.com/maddevsio/tgsbot"
+  packages = [
+    "bot",
+    "config",
+    "model",
+    "storage",
+  ]
+  pruneopts = "UT"
+  revision = "aaf12cbd6d148175deb3af87481508f87e3888ff"
+
+[[projects]]
+  branch = "master"
   digest = "1:0870734581fede93c3c37bc8ce0437ad9d5aa1491713e9848b08ba9003e5ff7c"
   name = "github.com/olebedev/when"
   packages = [
@@ -115,6 +128,9 @@
     "github.com/go-telegram-bot-api/telegram-bot-api",
     "github.com/jmoiron/sqlx",
     "github.com/kelseyhightower/envconfig",
+    "github.com/maddevsio/tgsbot/bot",
+    "github.com/maddevsio/tgsbot/config",
+    "github.com/maddevsio/tgsbot/model",
     "github.com/olebedev/when",
     "github.com/olebedev/when/rules/en",
     "github.com/olebedev/when/rules/ru",
