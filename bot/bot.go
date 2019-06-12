@@ -25,9 +25,9 @@ type Bot struct {
 	wg           sync.WaitGroup
 }
 
-var yesterdayWorkKeywords = []string{"yesterday"}
-var todayPlansKeywords = []string{"today"}
-var issuesKeywords = []string{"block"}
+var yesterdayWorkKeywords = []string{"yesterday", "вчера", "пятниц"}
+var todayPlansKeywords = []string{"today", "сегодня"}
+var issuesKeywords = []string{"block", "мешает", "проблемы"}
 
 // New creates a new bot instance
 func New(c *config.BotConfig) (*Bot, error) {
