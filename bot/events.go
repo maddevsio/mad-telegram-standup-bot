@@ -12,19 +12,26 @@ import (
 
 func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 
-	if update.Message.IsCommand() {
+	message := update.Message
+
+	if message == nil {
+		//need to check for edited message content.
+		return nil
+	}
+
+	if message.IsCommand() {
 		return b.HandleCommand(update)
 	}
 
-	if update.Message.Text != "" {
+	if message.Text != ""  {
 		return b.HandleMessageEvent(update)
 	}
 
-	if update.Message.LeftChatMember != nil {
+	if message.LeftChatMember != nil {
 		return b.HandleChannelLeftEvent(update)
 	}
 
-	if update.Message.NewChatMembers != nil {
+	if message.NewChatMembers != nil {
 		return b.HandleChannelJoinEvent(update)
 	}
 
