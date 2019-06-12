@@ -160,6 +160,16 @@ func (b *Bot) LeaveStandupers(event tgbotapi.Update) error {
 
 //EditDeadline modifies standup time
 func (b *Bot) EditDeadline(event tgbotapi.Update) error {
+	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
+	if err != nil {
+		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+	}
+
+	if !isAdmin {
+		log.Warn("User not an admin", event.Message.From.UserName)
+		return nil
+	}
+
 	deadline := event.Message.CommandArguments()
 
 	team := b.findTeam(event.Message.Chat.ID)
@@ -172,7 +182,7 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) error {
 
 	log.Info(team.Group)
 
-	_, err := b.db.UpdateGroup(team.Group)
+	_, err = b.db.UpdateGroup(team.Group)
 	if err != nil {
 		log.Error("UpdateGroup in EditDeadline failed: ", err)
 		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Could not update deadline")
@@ -218,6 +228,16 @@ func (b *Bot) ShowDeadline(event tgbotapi.Update) error {
 
 //RemoveDeadline sets standup deadline to empty string
 func (b *Bot) RemoveDeadline(event tgbotapi.Update) error {
+	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
+	if err != nil {
+		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+	}
+
+	if !isAdmin {
+		log.Warn("User not an admin", event.Message.From.UserName)
+		return nil
+	}
+
 	team := b.findTeam(event.Message.Chat.ID)
 	if team == nil {
 		group, err := b.db.CreateGroup(&model.Group{
@@ -236,7 +256,7 @@ func (b *Bot) RemoveDeadline(event tgbotapi.Update) error {
 
 	team.Group.StandupDeadline = ""
 
-	_, err := b.db.UpdateGroup(team.Group)
+	_, err = b.db.UpdateGroup(team.Group)
 	if err != nil {
 		log.Error("UpdateGroup in RemoveDeadline failed: ", err)
 		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Could not remove deadline")
@@ -253,6 +273,16 @@ func (b *Bot) RemoveDeadline(event tgbotapi.Update) error {
 
 //ChangeGroupTimeZone modifies time zone of the group
 func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
+	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
+	if err != nil {
+		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+	}
+
+	if !isAdmin {
+		log.Warn("User not an admin", event.Message.From.UserName)
+		return nil
+	}
+
 	tz := event.Message.CommandArguments()
 
 	team := b.findTeam(event.Message.Chat.ID)
@@ -273,7 +303,7 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
 
 	team.Group.TZ = tz
 
-	_, err := time.LoadLocation(tz)
+	_, err = time.LoadLocation(tz)
 	if err != nil {
 		log.Error("UpdateGroup in ChangeTimeZone failed: ", err)
 		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Could not Change Time Zone, please, check your TZ name and try again")
@@ -333,4 +363,20 @@ func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) error {
 	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
+}
+
+func (b *Bot) senderIsAdminInChannel(sendername string, chatID int64) (bool, error) {
+	isAdmin := false
+	chat := tgbotapi.ChatConfig{chatID, ""}
+	admins, err := b.tgAPI.GetChatAdministrators(chat)
+	if err != nil {
+		return false, err
+	}
+	for _, admin := range admins {
+		if admin.User.UserName == sendername {
+			isAdmin = true
+			return true, nil
+		}
+	}
+	return isAdmin, nil
 }
