@@ -22,8 +22,11 @@ func (m *MySQL) CreateStandup(s *model.Standup) (*model.Standup, error) {
 	if err != nil {
 		return s, err
 	}
-	s.ID = id
-	return s, nil
+	standup, err := m.SelectStandup(id)
+	if err != nil {
+		return s, err
+	}
+	return standup, nil
 }
 
 // UpdateStandup updates standup entry in database

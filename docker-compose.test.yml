@@ -13,6 +13,8 @@ services:
       - integration-tests
     environment:
       - DATABASE_URL=bot:bot@tcp(db:3306)/bot?parseTime=true
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - TZ=Asia/Bishkek
     working_dir: /go/src/github.com/maddevsio/mad-internship-bot
     volumes:
       - ./:/go/src/github.com/maddevsio/mad-internship-bot
