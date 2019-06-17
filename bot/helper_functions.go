@@ -4,6 +4,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/maddevsio/mad-internship-bot/model"
 )
 
@@ -38,7 +40,12 @@ func (b *Bot) submittedStandupToday(standuper *model.Standuper) bool {
 	if err != nil {
 		return false
 	}
-	if standup.Created.Day() == time.Now().Day() {
+	loc, err := time.LoadLocation(standuper.TZ)
+	if err != nil {
+		logrus.Error("failed to load location for ", standuper)
+		return true
+	}
+	if standup.Created.In(loc).Day() == time.Now().Day() {
 		return true
 	}
 	return false
