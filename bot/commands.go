@@ -172,6 +172,10 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) error {
 
 	deadline := event.Message.CommandArguments()
 
+	if strings.TrimSpace(deadline) == "" {
+		return nil
+	}
+
 	team := b.findTeam(event.Message.Chat.ID)
 	if team == nil {
 		log.Error("findTeam failed")
