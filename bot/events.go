@@ -23,7 +23,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		return b.HandleCommand(update)
 	}
 
-	if message.Text != ""  {
+	if message.Text != "" {
 		return b.HandleMessageEvent(update)
 	}
 
@@ -63,7 +63,7 @@ func (b *Bot) HandleMessageEvent(event tgbotapi.Update) error {
 		return err
 	}
 
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Thanks, standup accepted!")
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Спасибо, стендап принят!")
 	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
@@ -126,12 +126,12 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 				b.watchersChan <- group
 			}
 			// Send greeting message after success group save
-			text := "Hello! Nice to meet you all! I am here to help you with standups :)"
+			text := "Всем привет! Я буду помогать вам не забывать о сдаче стендапов вовремя. За все мои ошибки отвечает @anatoliyfedorenko :)"
 			_, err = b.tgAPI.Send(tgbotapi.NewMessage(event.Message.Chat.ID, text))
 			return err
 		}
 		//if it is a regular user, greet with welcoming message
-		text := fmt.Sprintf("Hello, @%v! Welcome to %v! To start standuping, click on /join", member.UserName, event.Message.Chat.Title)
+		text := fmt.Sprintf("Привет, @%v! Добро пожаловать в %v!", member.UserName, event.Message.Chat.Title)
 		_, err := b.tgAPI.Send(tgbotapi.NewMessage(event.Message.Chat.ID, text))
 		return err
 	}

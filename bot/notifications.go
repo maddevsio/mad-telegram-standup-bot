@@ -112,7 +112,7 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 		return
 	}
 
-	msg := tgbotapi.NewMessage(group.ChatID, fmt.Sprintf("Attention! Missed deadline: %v. Please, submit standups ASAP. Next time you will be kicked from the group", strings.Join(missed, ", ")))
+	msg := tgbotapi.NewMessage(group.ChatID, fmt.Sprintf("Внимание, %v, вы пропустили крайний срок сдачи стендапов! Срочно пишите стендапы, не подводите команду. Еще один пропуск и я удалю вас из группы", strings.Join(missed, ", ")))
 	_, err = b.tgAPI.Send(msg)
 	if err != nil {
 		log.Error(err)
