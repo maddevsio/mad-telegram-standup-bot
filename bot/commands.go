@@ -289,6 +289,10 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
 
 	tz := event.Message.CommandArguments()
 
+	if strings.TrimSpace(tz) == "" {
+		return nil
+	}
+
 	team := b.findTeam(event.Message.Chat.ID)
 	if team == nil {
 		group, err := b.db.CreateGroup(&model.Group{
@@ -334,6 +338,10 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
 //ChangeUserTimeZone assign user a different time zone
 func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) error {
 	tz := event.Message.CommandArguments()
+
+	if strings.TrimSpace(tz) == "" {
+		return nil
+	}
 
 	st, err := b.db.FindStanduper(event.Message.From.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err != nil {
