@@ -130,9 +130,53 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 			_, err = b.tgAPI.Send(tgbotapi.NewMessage(event.Message.Chat.ID, text))
 			return err
 		}
-		//if it is a regular user, greet with welcoming message
-		text := fmt.Sprintf("Привет, @%v! Добро пожаловать в %v!", member.UserName, event.Message.Chat.Title)
-		_, err := b.tgAPI.Send(tgbotapi.NewMessage(event.Message.Chat.ID, text))
+		//if it is a regular user, greet with welcoming message and add to standupers
+		_, err := b.db.FindStanduper(member.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
+		if err == nil {
+			return nil
+		}
+
+		_, err = b.db.CreateStanduper(&model.Standuper{
+			UserID:       member.ID,
+			Username:     member.UserName,
+			ChatID:       event.Message.Chat.ID,
+			LanguageCode: member.LanguageCode,
+			TZ:           "Asia/Bishkek", // default value...
+		})
+		if err != nil {
+			log.Error("CreateStanduper failed: ", err)
+			return nil
+		}
+
+		group, err := b.db.FindGroup(event.Message.Chat.ID)
+		if err != nil {
+			group, err = b.db.CreateGroup(&model.Group{
+				ChatID:          event.Message.Chat.ID,
+				Title:           event.Message.Chat.Title,
+				Description:     event.Message.Chat.Description,
+				StandupDeadline: "10:00",
+				TZ:              "Asia/Bishkek", // default value...
+			})
+			if err != nil {
+				return err
+			}
+		}
+
+		var welcome, onbording, deadline, closing string
+
+		welcome = fmt.Sprintf("Привет, @%v! Добро пожаловать в %v!\n", member.UserName, event.Message.Chat.Title)
+
+		onbording = b.c.OnbordingMessage + "\n"
+
+		if group.StandupDeadline != "" {
+			deadline = fmt.Sprintf("Срок сдачи стендапов ежедневно до %s. В выходные пишите стендапы по желанию.\n", group.StandupDeadline)
+		}
+
+		closing = "Если по каким-либо серьезным причинам нужно перестать ждать стендапы от вас, сделайте /leave .\n\nЗа все мои ошибки отвечает @anatolifedorenko"
+
+		text := welcome + onbording + deadline + closing
+
+		_, err = b.tgAPI.Send(tgbotapi.NewMessage(event.Message.Chat.ID, text))
 		return err
 	}
 	return nil

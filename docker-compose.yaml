@@ -24,6 +24,7 @@ services:
       DATABASE_URL: telegram:telegram@tcp(db:3306)/telegram?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci
       TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
       DEBUG: ${DEBUG}
+      ONBORDING_MESSAGE: ${ONBORDING_MESSAGE}
     depends_on:
       - db
 
