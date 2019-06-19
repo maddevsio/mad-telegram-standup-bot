@@ -51,7 +51,7 @@ func (b *Bot) Help(event tgbotapi.Update) error {
 	/group_tz - Изменить часовой пояс группы (по умолчнию: Asia/Bishkek)
 	/tz - Изменить часовой пояс стендапера (по умолчанию: Asia/Bishkek)
 
-	С нетерпением жду ваших стендапов!
+	С нетерпением жду ваших стендапов! За все мои ошибки отвечает @anatoliyfedorenko
 	`
 	msg := tgbotapi.NewMessage(event.Message.Chat.ID, text)
 	_, err := b.tgAPI.Send(msg)
