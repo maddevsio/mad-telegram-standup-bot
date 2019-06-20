@@ -27,7 +27,7 @@ type Bot struct {
 
 var yesterdayWorkKeywords = []string{"yesterday", "вчера", "пятниц"}
 var todayPlansKeywords = []string{"today", "сегодня"}
-var issuesKeywords = []string{"block", "мешает", "проблемы"}
+var issuesKeywords = []string{"block", "мешает", "проблем"}
 
 // New creates a new bot instance
 func New(c *config.BotConfig) (*Bot, error) {
