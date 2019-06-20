@@ -166,13 +166,13 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 
 		welcome = fmt.Sprintf("Привет, @%v! Добро пожаловать в %v!\n", member.UserName, event.Message.Chat.Title)
 
-		onbording = b.c.OnbordingMessage + "\n"
+		onbording = b.c.OnbordingMessage + "\n\n"
 
 		if group.StandupDeadline != "" {
-			deadline = fmt.Sprintf("Срок сдачи стендапов ежедневно до %s. В выходные пишите стендапы по желанию.\n", group.StandupDeadline)
+			deadline = fmt.Sprintf("Срок сдачи стендапов ежедневно до %s. В выходные пишите стендапы по желанию.\n\n", group.StandupDeadline)
 		}
 
-		closing = "Если по каким-либо серьезным причинам нужно перестать ждать стендапы от вас, сделайте /leave .\n\nЗа все мои ошибки отвечает @anatolifedorenko"
+		closing = "Я менеджер, который не принимает отговорок. Если вы пропустили стендап два раза, я удалю вас из группы на второй пропуск. Если по каким-либо серьезным причинам нужно перестать ждать стендапы от вас, сделайте /leave .\n\nЗа все мои ошибки отвечает @anatolifedorenko"
 
 		text := welcome + onbording + deadline + closing
 
