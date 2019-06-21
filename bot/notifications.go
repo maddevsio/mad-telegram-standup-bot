@@ -2,7 +2,6 @@ package bot
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -12,6 +11,8 @@ import (
 	"github.com/olebedev/when/rules/ru"
 	log "github.com/sirupsen/logrus"
 )
+
+const allowedSkips = 3
 
 //StartWatchers looks for new gropus from the channel and start watching it
 func (b *Bot) StartWatchers() {
@@ -80,12 +81,12 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 		return
 	}
 
-	missed := []string{}
+	missed := map[string]int{}
 
 	for _, standuper := range standupers {
 		if !b.submittedStandupToday(standuper) {
-			if standuper.Warnings >= 1 {
-				log.Info("Missed more than 1 standup! Should kick member!")
+			if standuper.Warnings >= allowedSkips {
+				log.Infof("Missed more than %v standup! Should kick member!", allowedSkips)
 				resp, err := b.tgAPI.KickChatMember(tgbotapi.KickChatMemberConfig{
 					ChatMemberConfig: tgbotapi.ChatMemberConfig{
 						ChatID:             standuper.ChatID,
@@ -101,8 +102,8 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 				log.Info(resp)
 				continue
 			}
-			missed = append(missed, "@"+standuper.Username)
 			standuper.Warnings++
+			missed["@"+standuper.Username] = standuper.Warnings
 			b.db.UpdateStanduper(standuper)
 		}
 	}
@@ -112,7 +113,13 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 		return
 	}
 
-	msg := tgbotapi.NewMessage(group.ChatID, fmt.Sprintf("Внимание, %v, вы пропустили крайний срок сдачи стендапов! Срочно пишите стендапы, не подводите команду. Еще один пропуск и я удалю вас из группы", strings.Join(missed, ", ")))
+	var text string
+
+	for key, value := range missed {
+		text += fmt.Sprintf("Внимание, %v, вы пропустили крайний срок сдачи стендапов! Срочно пишите стендапы и не подводите команду! Осталось пропусков: %v", key, allowedSkips-value)
+	}
+
+	msg := tgbotapi.NewMessage(group.ChatID, text)
 	_, err = b.tgAPI.Send(msg)
 	if err != nil {
 		log.Error(err)
