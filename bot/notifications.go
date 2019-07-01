@@ -116,7 +116,7 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 	var text string
 
 	for key, value := range missed {
-		text += fmt.Sprintf("Внимание, %v, вы пропустили крайний срок сдачи стендапов! Срочно пишите стендапы и не подводите команду! Осталось пропусков: %v", key, allowedSkips-value)
+		text += fmt.Sprintf("Внимание, %v, вы пропустили крайний срок сдачи стендапов! Срочно пишите стендап и не подводите команду! Осталось пропусков: %v \n\n", key, allowedSkips-value)
 	}
 
 	msg := tgbotapi.NewMessage(group.ChatID, text)
