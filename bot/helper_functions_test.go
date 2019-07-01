@@ -1,8 +1,11 @@
 package bot
 
 import (
+	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/sirupsen/logrus"
 
@@ -44,4 +47,11 @@ func TestSubmittedStandupToday(t *testing.T) {
 	})
 
 	require.True(t, submitted)
+}
+
+func TestStringReplace(t *testing.T) {
+	text := `"test "`
+	new := strings.Replace(text, `"`, "", -1)
+	new = strings.TrimSpace(new)
+	assert.Equal(t, "test", new)
 }
