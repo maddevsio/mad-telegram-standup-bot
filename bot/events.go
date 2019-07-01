@@ -15,8 +15,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 	message := update.Message
 
 	if message == nil {
-		//need to check for edited message content.
-		return nil
+		message = update.EditedMessage
 	}
 
 	if message.IsCommand() {
@@ -24,7 +23,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 	}
 
 	if message.Text != "" {
-		return b.HandleMessageEvent(update)
+		return b.HandleMessageEvent(message)
 	}
 
 	if message.LeftChatMember != nil {
@@ -35,36 +34,50 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		return b.HandleChannelJoinEvent(update)
 	}
 
-	//? need to handle user change username
 	return nil
 }
 
 //HandleMessageEvent function to analyze and save standups
-func (b *Bot) HandleMessageEvent(event tgbotapi.Update) error {
+func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 
-	if !strings.Contains(event.Message.Text, b.tgAPI.Self.UserName) {
+	if !strings.Contains(message.Text, b.tgAPI.Self.UserName) {
 		return nil
 	}
 
-	if !isStandup(event.Message.Text) {
+	if !isStandup(message.Text) {
 		return fmt.Errorf("Message is not a standup")
 	}
 
-	_, err := b.db.CreateStandup(&model.Standup{
-		MessageID: event.Message.MessageID,
-		Created:   time.Now().UTC(),
-		Modified:  time.Now().UTC(),
-		Username:  event.Message.From.UserName,
-		Text:      event.Message.Text,
-		ChatID:    event.Message.Chat.ID,
-	})
-
+	st, err := b.db.SelectStandupByMessageID(message.MessageID)
 	if err != nil {
+		log.Info("standup does not yet exist, create new standup")
+		_, err := b.db.CreateStandup(&model.Standup{
+			MessageID: message.MessageID,
+			Created:   time.Now().UTC(),
+			Modified:  time.Now().UTC(),
+			Username:  message.From.UserName,
+			Text:      message.Text,
+			ChatID:    message.Chat.ID,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		msg := tgbotapi.NewMessage(message.Chat.ID, "Спасибо, стендап принят!")
+		msg.ReplyToMessageID = message.MessageID
+		_, err = b.tgAPI.Send(msg)
 		return err
 	}
 
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Спасибо, стендап принят!")
-	msg.ReplyToMessageID = event.Message.MessageID
+	_, err = b.db.UpdateStandup(st)
+	if err != nil {
+		log.Error("Could not update standup: ", err)
+		return err
+	}
+
+	msg := tgbotapi.NewMessage(message.Chat.ID, "Cтендап обновлён!")
+	msg.ReplyToMessageID = message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
 }

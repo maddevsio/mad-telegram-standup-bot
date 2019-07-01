@@ -32,11 +32,18 @@ func (m *MySQL) CreateStandup(s *model.Standup) (*model.Standup, error) {
 // UpdateStandup updates standup entry in database
 func (m *MySQL) UpdateStandup(s *model.Standup) (*model.Standup, error) {
 	standup := &model.Standup{}
-	m.conn.Exec(
-		"UPDATE `standups` SET message_id=?, modified=?, username=?, text=? WHERE id=?",
-		s.MessageID, time.Now().UTC(), s.Username, s.Text, s.ID,
+	_, err := m.conn.Exec(
+		"UPDATE `standups` SET modified=?, text=? WHERE id=?",
+		time.Now().UTC(), s.Text, s.ID,
 	)
-	err := m.conn.Get(&standup, "SELECT * FROM `standups` WHERE id=?", s.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	standup, err = m.SelectStandup(s.ID)
+	if err != nil {
+		return nil, err
+	}
 	return standup, err
 }
 
@@ -44,6 +51,13 @@ func (m *MySQL) UpdateStandup(s *model.Standup) (*model.Standup, error) {
 func (m *MySQL) SelectStandup(id int64) (*model.Standup, error) {
 	s := &model.Standup{}
 	err := m.conn.Get(s, "SELECT * FROM `standups` WHERE id=?", id)
+	return s, err
+}
+
+// SelectStandupByMessageID selects standup entry from database
+func (m *MySQL) SelectStandupByMessageID(messageID int) (*model.Standup, error) {
+	s := &model.Standup{}
+	err := m.conn.Get(s, "SELECT * FROM `standups` WHERE message_id=?", messageID)
 	return s, err
 }
 
