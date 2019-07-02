@@ -35,6 +35,26 @@ func isStandup(message string) bool {
 	return mentionsProblem && mentionsYesterdayWork && mentionsTodayPlans
 }
 
+func analyzeStandup(standup string) (qualityPoints int) {
+
+	/* a good standup contains:
+
+	- structure (yesterday, today, blockers)
+	- points (- * or any other indicator)
+	- questions (? questions marks or words like why, how, etc)
+	- tags of people
+	- links to sources
+	- amount of text in each block should be fine to avoid yesterday today blockers none
+	*/
+
+	// count how many questions inter has
+	qualityPoints += strings.Count(standup, "?")
+	// count how many mentors and other interns was tagged
+	qualityPoints += strings.Count(standup, "@") - 1 // -1 since it always had bot tag in it
+
+	return qualityPoints
+}
+
 func (b *Bot) submittedStandupToday(standuper *model.Standuper) bool {
 	standup, err := b.db.LastStandupFor(standuper.Username, standuper.ChatID)
 	if err != nil {

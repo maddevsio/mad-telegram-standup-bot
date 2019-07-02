@@ -55,3 +55,19 @@ func TestStringReplace(t *testing.T) {
 	new = strings.TrimSpace(new)
 	assert.Equal(t, "test", new)
 }
+
+func TestAnalyzeStandup(t *testing.T) {
+	testCases := []struct {
+		points int
+		text   string
+	}{
+		{-1, "yesterday, today, blockers"},
+		{0, "@comedian yesterday, today, blockers"},
+		{2, "@comedian yesterday, today @bot can you help me?, blockers"},
+	}
+
+	for _, tc := range testCases {
+		points := analyzeStandup(tc.text)
+		assert.Equal(t, tc.points, points)
+	}
+}
