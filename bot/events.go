@@ -18,6 +18,10 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		message = update.EditedMessage
 	}
 
+	if message.Chat.Type == "private" {
+		return nil
+	}
+
 	if message.IsCommand() {
 		return b.HandleCommand(update)
 	}
