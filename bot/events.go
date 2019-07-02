@@ -48,7 +48,7 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 		return fmt.Errorf("Message is not a standup")
 	}
 
-	st, err := b.db.SelectStandupByMessageID(message.MessageID)
+	st, err := b.db.SelectStandupByMessageID(message.MessageID, message.Chat.ID)
 	if err != nil {
 		log.Info("standup does not yet exist, create new standup")
 		_, err := b.db.CreateStandup(&model.Standup{

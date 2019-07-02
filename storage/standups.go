@@ -55,9 +55,9 @@ func (m *MySQL) SelectStandup(id int64) (*model.Standup, error) {
 }
 
 // SelectStandupByMessageID selects standup entry from database
-func (m *MySQL) SelectStandupByMessageID(messageID int) (*model.Standup, error) {
+func (m *MySQL) SelectStandupByMessageID(messageID int, chatID int64) (*model.Standup, error) {
 	s := &model.Standup{}
-	err := m.conn.Get(s, "SELECT * FROM `standups` WHERE message_id=?", messageID)
+	err := m.conn.Get(s, "SELECT * FROM `standups` WHERE message_id=? and chat_id=?", messageID, chatID)
 	return s, err
 }
 
