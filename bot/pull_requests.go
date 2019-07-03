@@ -51,8 +51,8 @@ func containsPullRequests(message string) (bool, []github.PullRequest) {
 }
 
 func convertToAPIEndpoint(link string) string {
-	link = strings.ReplaceAll(link, "https://github.com", "https://api.github.com/repos")
-	link = strings.ReplaceAll(link, "/pull/", "/pulls/")
+	link = strings.Replace(link, "https://github.com", "https://api.github.com/repos", -1)
+	link = strings.Replace(link, "/pull/", "/pulls/", -1)
 	return link
 }
 
