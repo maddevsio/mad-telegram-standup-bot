@@ -34,24 +34,9 @@ func isStandup(message string) bool {
 	return mentionsProblem && mentionsYesterdayWork && mentionsTodayPlans
 }
 
-func analyzeStandup(standup string) (qualityPoints int) {
-
-	/* a good standup contains:
-
-	- structure (yesterday, today, blockers)
-	- points (- * or any other indicator)
-	- questions (? questions marks or words like why, how, etc)
-	- tags of people
-	- links to sources
-	- amount of text in each block should be fine to avoid yesterday today blockers none
-	*/
-
-	// count how many questions inter has
-	qualityPoints += strings.Count(standup, "?")
-	// count how many mentors and other interns was tagged
-	qualityPoints += strings.Count(standup, "@") - 1 // -1 since it always had bot tag in it
-
-	return qualityPoints
+func analyzeStandup(standup string) []string {
+	var advises []string
+	return advises
 }
 
 func (b *Bot) submittedStandupToday(standuper *model.Standuper) bool {
@@ -68,4 +53,56 @@ func (b *Bot) submittedStandupToday(standuper *model.Standuper) bool {
 		return true
 	}
 	return false
+}
+
+func containsProblems(standup string) (bool, int) {
+	var wordsAfterProblemsKeyword int
+	var positionOfProblemsKeyword int
+	words := strings.Fields(standup)
+	for i, word := range words {
+		for _, problem := range issuesKeywords {
+			if strings.Contains(word, problem) {
+				positionOfProblemsKeyword = i
+				break
+			}
+		}
+	}
+	wordsAfterProblemsKeyword = len(words) - positionOfProblemsKeyword
+
+	if wordsAfterProblemsKeyword > 5 {
+		return true, wordsAfterProblemsKeyword
+	}
+	return false, wordsAfterProblemsKeyword
+}
+
+func containsLists(standup string) (bool, int) {
+	lists := strings.Count(standup, "-")
+	if lists > 1 {
+		return true, lists
+	}
+	return false, lists
+}
+
+func containsQuestions(standup string) (bool, int) {
+	questions := strings.Count(standup, "?")
+	if questions != 0 {
+		return true, questions
+	}
+	return false, questions
+}
+
+func containsMentions(standup string) (bool, int) {
+	tags := strings.Count(standup, "@") - 1
+	if tags != 0 {
+		return true, tags
+	}
+	return false, tags
+}
+
+func containsLinks(standup string) (bool, int) {
+	links := strings.Count(standup, "http")
+	if links != 0 {
+		return true, links
+	}
+	return false, links
 }
