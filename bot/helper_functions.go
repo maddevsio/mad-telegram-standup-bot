@@ -4,9 +4,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/maddevsio/mad-internship-bot/model"
+	"github.com/sirupsen/logrus"
 )
 
 func isStandup(message string) bool {
