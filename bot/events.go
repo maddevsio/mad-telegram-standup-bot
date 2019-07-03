@@ -32,7 +32,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 				msg.DisableWebPagePreview = true
 				b.tgAPI.Send(msg)
 			}
-			text := *pr.HTMLURL + " - PR надо поправить. Найдены косяки: \n"
+			text := *pr.HTMLURL + " - PR надо поправить. Найдены недочёты: \n"
 			text += strings.Join(warnings, "\n")
 			msg := tgbotapi.NewMessage(message.Chat.ID, text)
 			msg.ReplyToMessageID = message.MessageID
@@ -87,7 +87,15 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 			return err
 		}
 
-		msg := tgbotapi.NewMessage(message.Chat.ID, "Спасибо, стендап принят!")
+		advises, _ := analyzeStandup(message.Text)
+
+		text := "Спасибо, стендап принят, и, кажется, он классный!"
+
+		if len(advises) != 0 {
+			text = "Стендап принимается, но позволь дать пару советов: \n" + strings.Join(advises, "\n")
+		}
+
+		msg := tgbotapi.NewMessage(message.Chat.ID, text)
 		msg.ReplyToMessageID = message.MessageID
 		_, err = b.tgAPI.Send(msg)
 		return err

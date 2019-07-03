@@ -34,9 +34,34 @@ func isStandup(message string) bool {
 	return mentionsProblem && mentionsYesterdayWork && mentionsTodayPlans
 }
 
-func analyzeStandup(standup string) []string {
+func analyzeStandup(standup string) ([]string, int) {
 	var advises []string
-	return advises
+	ok, pB := containsProblems(standup)
+	if !ok {
+		advises = append(advises, "- Кажется в стендапе нет проблем. Проблемы и всё, что мешает это показатель роста. Если их нет, это плохо. не бойся об этом говорить")
+	}
+
+	ok, qB := containsQuestions(standup)
+	if !ok {
+		advises = append(advises, "- Кажется в стендапе не задано вопросов. На стажировке надо задавать вопросы, самое лучше место это общий чат и стендапы. Без вопросов нет развития")
+	}
+
+	ok, mB := containsMentions(standup)
+	if !ok {
+		advises = append(advises, "- Кажется в стендапе нет тегов. Тегай менторов, чтобы получить их опыт, иначе прогресс будет медленный")
+	}
+
+	ok, lB := containsLinks(standup)
+	if !ok {
+		advises = append(advises, "- Кажется в стендапе нет ни одной ссылки. Желательно отправлять ссылки на PRы либо на изученные ресурсы")
+	}
+
+	ok, sB := hasGoodSize(standup)
+	if !ok {
+		advises = append(advises, "- Подумай над размером стендапа. Напишешь мало - непонятно, грач, без уважения. Много - тяжело читать. Оптимально от 50 до 150 слов")
+	}
+
+	return advises, pB + qB + mB + lB + sB
 }
 
 func (b *Bot) submittedStandupToday(standuper *model.Standuper) bool {
@@ -75,14 +100,6 @@ func containsProblems(standup string) (bool, int) {
 	return false, wordsAfterProblemsKeyword
 }
 
-func containsLists(standup string) (bool, int) {
-	lists := strings.Count(standup, "-")
-	if lists > 1 {
-		return true, lists
-	}
-	return false, lists
-}
-
 func containsQuestions(standup string) (bool, int) {
 	questions := strings.Count(standup, "?")
 	if questions != 0 {
@@ -105,4 +122,20 @@ func containsLinks(standup string) (bool, int) {
 		return true, links
 	}
 	return false, links
+}
+
+func containsLists(standup string) (bool, int) {
+	lists := strings.Count(standup, "-")
+	if lists > 1 {
+		return true, lists
+	}
+	return false, lists
+}
+
+func hasGoodSize(standup string) (bool, int) {
+	words := strings.Fields(standup)
+	if len(words) > 50 && len(words) < 150 {
+		return true, 1
+	}
+	return false, 0
 }
