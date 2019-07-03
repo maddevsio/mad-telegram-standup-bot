@@ -27,12 +27,12 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		for _, pr := range prs {
 			warnings := analyzePullRequest(pr)
 			if len(warnings) == 0 {
-				msg := tgbotapi.NewMessage(message.Chat.ID, *pr.HTMLURL+" - хороший PR, можно смотреть")
+				msg := tgbotapi.NewMessage(message.Chat.ID, *pr.HTMLURL+" - хороший PR, можно смотреть!")
 				msg.ReplyToMessageID = message.MessageID
 				msg.DisableWebPagePreview = true
 				b.tgAPI.Send(msg)
 			}
-			text := *pr.HTMLURL + " - PR надо поправить. Найдены косяки: \n\n"
+			text := *pr.HTMLURL + " - PR надо поправить. Найдены косяки: \n"
 			text += strings.Join(warnings, "\n")
 			msg := tgbotapi.NewMessage(message.Chat.ID, text)
 			msg.ReplyToMessageID = message.MessageID

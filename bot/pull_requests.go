@@ -60,27 +60,27 @@ func analyzePullRequest(pr github.PullRequest) []string {
 	errors := []string{}
 
 	if len(*pr.Body) < 50 {
-		errors = append(errors, "-Недостаточно описания в PR")
+		errors = append(errors, "- нужно больше описания PRа")
 	}
 
 	if pr.Assignee == nil || len(pr.Assignees) == 0 {
-		errors = append(errors, "-Не назначен проверяющий")
+		errors = append(errors, "- не назначен проверяющий")
 	}
 
 	if !*pr.Mergeable {
-		errors = append(errors, "-Нельза смержить, нужно перепроверить код на конфликты")
+		errors = append(errors, "- нельза смержить, нужно перепроверить код на конфликты")
 	}
 
 	if !strings.ContainsAny(*pr.Title, "#") && !strings.ContainsAny(*pr.Body, "#") {
-		errors = append(errors, "-Нет ссылок на тикеты, надо добавить.")
+		errors = append(errors, "- нет ссылок на тикеты которые закроет этот PR")
 	}
 
-	if *pr.Additions > 500 {
-		errors = append(errors, "-Слишком много проверять, надо раздробить PR на части")
+	if *pr.Additions > 300 {
+		errors = append(errors, "- слишком много проверять, надо раздробить PR на части")
 	}
 
 	if strings.Contains(*pr.Title, "[WIP]") {
-		errors = append(errors, "-PR содержит незаконченную работу. проверить как будет всё готово!")
+		errors = append(errors, "- PR содержит незаконченную работу. переотправьте как будет всё готово")
 	}
 
 	return errors
