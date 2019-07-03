@@ -166,6 +166,11 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 			_, err = b.tgAPI.Send(tgbotapi.NewMessage(event.Message.Chat.ID, text))
 			return err
 		}
+
+		if member.IsBot {
+			//Skip adding bot to standupers
+			return nil
+		}
 		//if it is a regular user, greet with welcoming message and add to standupers
 		_, err := b.db.FindStanduper(member.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
 		if err == nil {
