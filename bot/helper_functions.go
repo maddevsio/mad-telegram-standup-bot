@@ -38,7 +38,7 @@ func analyzeStandup(standup string) ([]string, int) {
 	var advises []string
 	ok, pB := containsProblems(standup)
 	if !ok {
-		advises = append(advises, "- Кажется в стендапе нет проблем. Проблемы и всё, что мешает это показатель роста. Если их нет, это плохо. не бойся об этом говорить")
+		advises = append(advises, "- Кажется в стендапе нет или мало проблем. Проблемы и всё, что мешает это показатель роста. Если их нет, это плохо. не бойся об этом говорить")
 	}
 
 	ok, qB := containsQuestions(standup)
@@ -81,6 +81,7 @@ func (b *Bot) submittedStandupToday(standuper *model.Standuper) bool {
 }
 
 func containsProblems(standup string) (bool, int) {
+	standup = strings.ToLower(standup)
 	var wordsAfterProblemsKeyword int
 	var positionOfProblemsKeyword int
 	words := strings.Fields(standup)
