@@ -64,7 +64,7 @@ func analyzePullRequest(pr github.PullRequest) []string {
 	}
 
 	if pr.Assignee == nil || len(pr.Assignees) == 0 {
-		errors = append(errors, "- не назначен проверяющий")
+		errors = append(errors, "- не назначен проверяющий, который должен посмотреть PR")
 	}
 
 	if !*pr.Mergeable {
@@ -72,7 +72,7 @@ func analyzePullRequest(pr github.PullRequest) []string {
 	}
 
 	if !strings.ContainsAny(*pr.Title, "#") && !strings.ContainsAny(*pr.Body, "#") {
-		errors = append(errors, "- нет ссылок на тикеты которые закроет этот PR")
+		errors = append(errors, "- нет ссылок на тикеты которые закроет этот PR. необходимо всегда писать код по тикетам!")
 	}
 
 	if *pr.Additions > 300 {

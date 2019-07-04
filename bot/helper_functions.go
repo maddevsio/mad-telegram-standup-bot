@@ -58,7 +58,7 @@ func analyzeStandup(standup string) ([]string, int) {
 
 	ok, sB := hasGoodSize(standup)
 	if !ok {
-		advises = append(advises, "- Подумай над размером стендапа. Напишешь мало - непонятно, грач, без уважения. Много - тяжело читать. Оптимально от 50 до 150 слов")
+		advises = append(advises, "- Подумай над размером стендапа. Напишешь мало - непонятно, грач, без уважения. Много - тяжело читать. Оптимально от 80 до 200 слов")
 	}
 
 	return advises, pB + qB + mB + lB + sB
@@ -142,7 +142,7 @@ func containsLists(standup string) (bool, int) {
 
 func hasGoodSize(standup string) (bool, int) {
 	words := strings.Fields(standup)
-	if len(words) > 50 && len(words) < 150 {
+	if len(words) > 80 && len(words) < 200 {
 		return true, 1
 	}
 	return false, 0
