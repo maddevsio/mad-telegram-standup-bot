@@ -84,15 +84,22 @@ func containsProblems(standup string) (bool, int) {
 	standup = strings.ToLower(standup)
 	var wordsAfterProblemsKeyword int
 	var positionOfProblemsKeyword int
+	var found bool
 	words := strings.Fields(standup)
+
 	for i, word := range words {
 		for _, problem := range issuesKeywords {
 			if strings.Contains(word, problem) {
 				positionOfProblemsKeyword = i
+				found = true
 				break
 			}
 		}
+		if found {
+			break
+		}
 	}
+
 	wordsAfterProblemsKeyword = len(words) - positionOfProblemsKeyword
 
 	if wordsAfterProblemsKeyword > 5 {

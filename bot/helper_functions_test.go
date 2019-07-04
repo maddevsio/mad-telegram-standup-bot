@@ -67,7 +67,25 @@ func TestAnalyzeStandup(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		points := analyzeStandup(tc.text)
+		_, points := analyzeStandup(tc.text)
 		assert.Equal(t, tc.points, points)
 	}
+}
+
+func TestContainsProblems(t *testing.T) {
+	testCases := []struct {
+		text        string
+		result      bool
+		bonusPoints int
+	}{
+		{"*Проблемы* много разных, раз два три 4 5", true, 8},
+		{"*Проблемы* много разных, раз два три 4 5 проблем", true, 9},
+	}
+
+	for _, tc := range testCases {
+		ok, points := containsProblems(tc.text)
+		assert.Equal(t, tc.result, ok)
+		assert.Equal(t, tc.bonusPoints, points)
+	}
+
 }
