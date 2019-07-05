@@ -8,7 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func isStandup(message string) bool {
+func isStandup(message string) (bool, []string) {
+	errors := []string{}
 	message = strings.ToLower(message)
 
 	var mentionsYesterdayWork, mentionsTodayPlans, mentionsProblem bool
@@ -31,7 +32,17 @@ func isStandup(message string) bool {
 		}
 	}
 
-	return mentionsProblem && mentionsYesterdayWork && mentionsTodayPlans
+	if !mentionsYesterdayWork {
+		errors = append(errors, "- не увидел ключевых слов блока 'вчера': "+strings.Join(yesterdayWorkKeywords, ", "))
+	}
+	if !mentionsTodayPlans {
+		errors = append(errors, "- не увидел ключевых слов блока 'сегодня': "+strings.Join(todayPlansKeywords, ", "))
+	}
+	if !mentionsYesterdayWork {
+		errors = append(errors, "- не увидел ключевых слов блока 'проблемы': "+strings.Join(issuesKeywords, ", "))
+	}
+
+	return mentionsProblem && mentionsYesterdayWork && mentionsTodayPlans, errors
 }
 
 func analyzeStandup(standup string) ([]string, int) {

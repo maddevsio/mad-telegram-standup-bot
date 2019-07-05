@@ -19,7 +19,28 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 	}
 
 	if message.Chat.Type == "private" {
-		return nil
+		ok, errors := isStandup(message.Text)
+		if !ok {
+			text := "Не похоже что это стендап\n\n"
+			text += strings.Join(errors, "\n")
+			msg := tgbotapi.NewMessage(message.Chat.ID, text)
+			msg.ReplyToMessageID = message.MessageID
+			_, err := b.tgAPI.Send(msg)
+			return err
+		}
+
+		advises, _ := analyzeStandup(message.Text)
+
+		text := "Это хороший стендап который не стыдно постить в группу!"
+
+		if len(advises) != 0 {
+			text = "Чтобы стендап был более полезен вот несколько советов: \n" + strings.Join(advises, "\n")
+		}
+
+		msg := tgbotapi.NewMessage(message.Chat.ID, text)
+		msg.ReplyToMessageID = message.MessageID
+		_, err := b.tgAPI.Send(msg)
+		return err
 	}
 
 	if message.From.IsBot {
@@ -72,7 +93,9 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 		return nil
 	}
 
-	if !isStandup(message.Text) {
+	ok, _ := isStandup(message.Text)
+
+	if !ok {
 		return fmt.Errorf("Message is not a standup")
 	}
 
