@@ -18,3 +18,18 @@ jobs:
             go fmt ./...
             go vet ./...
             go test -v ./...
+  test:
+    docker:
+      - image: circleci/golang:1.12
+    working_directory: /go/src/github.com/maddevsio/mad-internship-bot
+    steps:
+      - checkout
+      - run: go get -u github.com/mattn/goveralls
+      - run:
+          name: run test
+          command: |
+            go test -v -cover -race ./... -coverprofile=coverage.out
+      - run:
+          name: send report to coveralls
+          command: |
+            goveralls -coverprofile=coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
