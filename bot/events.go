@@ -22,6 +22,10 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		return nil
 	}
 
+	if message.From.IsBot {
+		return nil
+	}
+
 	containsPR, prs := containsPullRequests(message.Text)
 	if containsPR {
 		for _, pr := range prs {
@@ -31,13 +35,14 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 				msg.ReplyToMessageID = message.MessageID
 				msg.DisableWebPagePreview = true
 				b.tgAPI.Send(msg)
+			} else {
+				text := *pr.HTMLURL + " - PR надо поправить. Найдены недочёты: \n"
+				text += strings.Join(warnings, "\n")
+				msg := tgbotapi.NewMessage(message.Chat.ID, text)
+				msg.ReplyToMessageID = message.MessageID
+				msg.DisableWebPagePreview = true
+				b.tgAPI.Send(msg)
 			}
-			text := *pr.HTMLURL + " - PR надо поправить. Найдены недочёты: \n"
-			text += strings.Join(warnings, "\n")
-			msg := tgbotapi.NewMessage(message.Chat.ID, text)
-			msg.ReplyToMessageID = message.MessageID
-			msg.DisableWebPagePreview = true
-			b.tgAPI.Send(msg)
 		}
 	}
 

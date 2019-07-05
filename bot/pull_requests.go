@@ -64,7 +64,11 @@ func analyzePullRequest(pr github.PullRequest) []string {
 	}
 
 	if pr.Assignee == nil || len(pr.Assignees) == 0 {
-		errors = append(errors, "- не назначен проверяющий, который должен посмотреть PR")
+		errors = append(errors, "- непонятно кто работает над PR. в Assignees пусто")
+	}
+
+	if pr.RequestedReviewers == nil || len(pr.RequestedReviewers) == 0 {
+		errors = append(errors, "- не назначен тот, который должен оставить ревью на PR")
 	}
 
 	if !*pr.Mergeable {
