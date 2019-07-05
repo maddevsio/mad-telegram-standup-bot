@@ -379,7 +379,10 @@ func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) error {
 
 func (b *Bot) senderIsAdminInChannel(sendername string, chatID int64) (bool, error) {
 	isAdmin := false
-	chat := tgbotapi.ChatConfig{chatID, ""}
+	chat := tgbotapi.ChatConfig{
+		ChatID:             chatID,
+		SuperGroupUsername: "",
+	}
 	admins, err := b.tgAPI.GetChatAdministrators(chat)
 	if err != nil {
 		return false, err
