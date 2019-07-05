@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.12
+    working_directory: /go/src/github.com/maddevsio/mad-internship-bot
+    steps:
+      - checkout
+      - run: go get -u github.com/golang/dep/cmd/dep
+      - run:
+          name: run build
+          command: |
+            dep ensure
+            go build -v
+      - run:
+          name: run tests
+          command: |
+            go fmt ./...
+            go vet ./...
+            go test -v ./...
