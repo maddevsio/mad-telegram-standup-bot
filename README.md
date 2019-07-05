@@ -1,6 +1,6 @@
 # Internship Bot for Telegram
 [![Go Report Card](https://goreportcard.com/badge/github.com/maddevsio/mad-internship-bot)](https://goreportcard.com/report/github.com/maddevsio/mad-internship-bot)
-
+[![CircleCI](https://circleci.com/gh/maddevsio/mad-internship-bot.svg?style=svg)](https://circleci.com/gh/maddevsio/mad-internship-bot)
 
 Automates workflow of Mad Devs Internship program requiring mentors to spend less time on repeatative tasks and actions
 
