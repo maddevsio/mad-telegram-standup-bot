@@ -12,12 +12,6 @@ jobs:
           command: |
             dep ensure
             go build -v
-      - run:
-          name: run tests
-          command: |
-            go fmt ./...
-            go vet ./...
-            go test -v ./...
   test:
     docker:
       - image: circleci/golang:1.12

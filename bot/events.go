@@ -249,9 +249,11 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 			deadline = fmt.Sprintf("Срок сдачи стендапов ежедневно до %s. В выходные пишите стендапы по желанию.\n\n", group.StandupDeadline)
 		}
 
+		standups := "Если сомневаетесь в стендапе, напишите мне в личку, я проверю, всё ли в порядке. Не стесняйтесь \n"
+
 		closing = "Я менеджер, который не принимает отговорок. Если вы пропустили стендап два раза, я удалю вас из группы на третий пропуск. Если по каким-либо серьезным причинам нужно перестать ждать стендапы от вас, сделайте /leave .\n\nЗа все мои ошибки отвечает @anatoliyfedorenko"
 
-		text := welcome + onbording + deadline + closing
+		text := welcome + onbording + deadline + standups + closing
 
 		_, err = b.tgAPI.Send(tgbotapi.NewMessage(event.Message.Chat.ID, text))
 		return err
