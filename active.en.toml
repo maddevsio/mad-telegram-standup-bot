@@ -1,1 +1,4 @@
-"not standup" = "Seems like this is not a standup, double check keywords for errors \n\n"
+"bad PR" = "- bad PR, pay attention to the following advises: \\n"
+"good PR" = "- good PR, review indeed needed!"
+"good standup" = "Good standup, post it to the group!"
+"not standup" = "Seems like this is not a standup, double check keywords for errors \\n\\n"

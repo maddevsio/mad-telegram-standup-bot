@@ -6,7 +6,7 @@
 
 Automates workflow of Mad Devs Internship program requiring mentors to spend less time on repeatative tasks and actions
 
-Currently speaks only Russian language
+Currently in the process of transtion into multiple languages. 
 
 ## Bot Skills
 
@@ -18,6 +18,7 @@ Currently speaks only Russian language
 - Interns join and leave standup teams on their own (no time from mentors needed)
 - Can adjust to different timezones 
 - Detects standups by watching messages with bot tag and defined keywords
+- supports English and Runssian languages. To add more, see https://github.com/nicksnyder/go-i18n for language reference
 
 ## Available commands
 ```
@@ -47,6 +48,13 @@ To run tests:
 make clear
 make test
 ```
+To debug locally without docker use:
+```
+make clear
+make setup
+go run main.go
+```
+This should setup a database and run all the migrations for you. 
 
 ## Install on your server 
 1. Build and push bot's image to Dockerhub or any other container registry: 

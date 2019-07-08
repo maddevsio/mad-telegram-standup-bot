@@ -40,15 +40,23 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 
 		advises, _ := analyzeStandup(message.Text)
 
-		text := "Это хороший стендап который не стыдно постить в группу!"
-
+		localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
+		text, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "good standup",
+				Other: "Good standup, post it to the group!",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
 		if len(advises) != 0 {
 			text = "Чтобы стендап был более полезен вот несколько советов: \n" + strings.Join(advises, "\n")
 		}
 
 		msg := tgbotapi.NewMessage(message.Chat.ID, text)
 		msg.ReplyToMessageID = message.MessageID
-		_, err := b.tgAPI.Send(msg)
+		_, err = b.tgAPI.Send(msg)
 		return err
 	}
 
@@ -61,12 +69,32 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		for _, pr := range prs {
 			warnings := analyzePullRequest(pr)
 			if len(warnings) == 0 {
-				msg := tgbotapi.NewMessage(message.Chat.ID, *pr.HTMLURL+" - хороший PR, можно смотреть!")
+				localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
+				goodPR, err := localizer.Localize(&i18n.LocalizeConfig{
+					DefaultMessage: &i18n.Message{
+						ID:    "good PR",
+						Other: "- good PR, review indeed needed!",
+					},
+				})
+				if err != nil {
+					log.Error(err)
+				}
+				msg := tgbotapi.NewMessage(message.Chat.ID, *pr.HTMLURL+goodPR)
 				msg.ReplyToMessageID = message.MessageID
 				msg.DisableWebPagePreview = true
 				b.tgAPI.Send(msg)
 			} else {
-				text := *pr.HTMLURL + " - PR надо поправить. Найдены недочёты: \n"
+				localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
+				badPR, err := localizer.Localize(&i18n.LocalizeConfig{
+					DefaultMessage: &i18n.Message{
+						ID:    "bad PR",
+						Other: "- bad PR, pay attention to the following advises: \n",
+					},
+				})
+				if err != nil {
+					log.Error(err)
+				}
+				text := *pr.HTMLURL + badPR
 				text += strings.Join(warnings, "\n")
 				msg := tgbotapi.NewMessage(message.Chat.ID, text)
 				msg.ReplyToMessageID = message.MessageID
