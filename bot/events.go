@@ -80,7 +80,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 	containsPR, prs := containsPullRequests(message.Text)
 	if containsPR {
 		for _, pr := range prs {
-			warnings := analyzePullRequest(pr)
+			warnings := b.analyzePullRequest(pr, message.From.LanguageCode)
 			if len(warnings) == 0 {
 				localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 				goodPR, err := localizer.Localize(&i18n.LocalizeConfig{
