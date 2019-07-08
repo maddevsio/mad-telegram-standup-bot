@@ -12,8 +12,6 @@ import (
 )
 
 func (b *Bot) handleUpdate(update tgbotapi.Update) error {
-	localizer := i18n.NewLocalizer(b.bundle, "en_US")
-
 	message := update.Message
 
 	if message == nil {
@@ -23,10 +21,11 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 	if message.Chat.Type == "private" {
 		ok, errors := isStandup(message.Text)
 		if !ok {
+			localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 			text, err := localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
 					ID:    "not standup",
-					Other: "Seems like this is not a standup, double check keywords for errors",
+					Other: "Seems like this is not a standup, double check keywords for errors \n\n",
 				},
 			})
 			if err != nil {
