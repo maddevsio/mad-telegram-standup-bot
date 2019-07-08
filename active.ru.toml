@@ -1,15 +1,125 @@
+[acceptStandupWithAdvises]
+few = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
+hash = "sha1-005d5e6867ed202e904c8fee1d622403f37d89ec"
+many = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
+one = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
+other = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
+
 ["bad PR"]
 hash = "sha1-7df112903b8328763bd8fe09d1295fbb4156cd23"
 other = "- пересмотри PR, удели внимание следующим советам: \\n"
+
+[checkStandup]
+hash = "sha1-a7eb979ca3562c99e48d8f411692b50a29bb7cbf"
+other = "Good standup, post it to the group!"
+
+[checkStandupWithAdvises]
+few = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
+hash = "sha1-b2472c9321d610bb48401208ebb5aabda09076d8"
+many = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
+one = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
+other = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
+
+[closingPart]
+hash = "sha1-d75bb3e99630fefe1bbe7bd257803eb77df0b2fc"
+other = "I will kick you from the group if you miss 3 standups. In case of any unexpected behaviour DM @anatoliyfedorenko"
+
+["create standuper failed"]
+hash = "sha1-0c2c7f510c062191a09701b7d62a1f7ce754054b"
+other = "Could not add you to standup team"
+
+[failedLeaveStanupers]
+hash = "sha1-c7374272c4a00a4dc1b1d8f6ac46c75a5e2f8129"
+other = "Could not remove you from standup team"
+
+[failedRecognizeTZ]
+hash = "sha1-a31bd479bb70e1789ef1b53beaca1f4ee22931c5"
+other = "Failed to recognize new TZ you entered, double check the tz name and try again"
+
+[failedRemoveStandupDeadline]
+hash = "sha1-20b5795d14f0bb6c66529d224bb91271b86470f9"
+other = "Could not remove standup deadline"
+
+[failedUpdateStandupDeadline]
+hash = "sha1-f216fc7d2c8ea294b46d350e21eac60153f85465"
+other = "Could not edit standup deadline"
+
+[failedUpdateTZ]
+hash = "sha1-ce1fbc677f0e60cb0930a0daffc6cf3effeea900"
+other = "Failed to update Timezone"
 
 ["good PR"]
 hash = "sha1-5379ae28a52e0459744cb0e23f01df2556b87b30"
 other = "- хороший PR, можно смотреть!"
 
-["good standup"]
-hash = "sha1-a7eb979ca3562c99e48d8f411692b50a29bb7cbf"
-other = "Хороший стендап, можно постить в группу!"
+[greatStandup]
+hash = "sha1-4efb9052545374bb15381f6c6560a36f0e3a6621"
+other = "Standup accepted and it looks awesome!"
+
+[leaveStanupers]
+hash = "sha1-aa349b49e8cfa8132c055dabfa72436424101503"
+other = "You no longer have to submit standups, thanks for all your standups and messages"
+
+[noStandupDeadline]
+hash = "sha1-a1e4959733ee1f6f257bc4e5b81be38cf58ecc6b"
+other = "Standup deadline is not set"
 
 ["not standup"]
 hash = "sha1-241823387c28531a67f9e9d0a29ac62a6d9dd92f"
 other = "Кажется это не стендап, перепроверь ключевые слова на ошибки \\n\\n"
+
+[notStanduper]
+hash = "sha1-1c88a37c3eb3279a3f0cf6b8cb6f0a0ee737f61b"
+other = "You do not standup yet"
+
+[removeStandupDeadline]
+hash = "sha1-6444dd89936abbd9a8cc0a99e16394a0ca1b9dc6"
+other = "Standup deadline removed"
+
+[standupDeadline]
+hash = "sha1-ea3081ccdecf6671ddcec3241e9fa1ed89d856ce"
+other = "Standup deadline set for everyday at {{.Deadline}} exept weekeds"
+
+[standupDeadlinePart]
+hash = "sha1-613de00f5a0dcd150ffd3a3952473475a4ac80ef"
+other = "Submit your standups before, {{.Deadline}}! You do not have to write standups on weekends"
+
+[standupUpdated]
+hash = "sha1-273954d72c1f9d0289de4deb0c141877bf9a6796"
+other = "Standup was successfully updated!"
+
+[standupsCheckPart]
+hash = "sha1-c882038121c7508042c30bd406817fdc5b6a315c"
+other = "If you would like to validate your standup, direct message me with the text and I can check it to give advises. \\n"
+
+[updateStandupDeadline]
+hash = "sha1-bfd3f195e36e139ad0643664950c0dd74da9fde2"
+other = "Edited standup deadline, new deadline is {{.Deadline}}"
+
+[updateTZ]
+hash = "sha1-ec2a5b809759814ed5dbe1020c591babb0443c28"
+other = "Group timezone is updated, new TZ is {{.TZ}}"
+
+[updateUserTZ]
+hash = "sha1-32171fe98964d605c38ef1811374a3f4000cdf70"
+other = "your timezone is updated, new TZ is {{.TZ}}"
+
+[welcomeMessage]
+hash = "sha1-d9516b2433ca3473e04d7523ec08314e482cfb51"
+other = "Hello! I will help you to not forget about standups and write them properly. tag @anatoliyfedorenko if you find any bug or unexpected behaiviour :)"
+
+[welcomeNoDedline]
+hash = "sha1-e57fbe3ef11584376832f8981aa8728f0b291e32"
+other = "Welcome to the standup team, no standup deadline has been setup yet"
+
+[welcomePart]
+hash = "sha1-8c3852e47b6c068fdf1b0b6f1d2f491f923af3d0"
+other = "Hello, {{.Intern}}! Welcome to {{.GroupName}}"
+
+[welcomeWithDedline]
+hash = "sha1-9c0fb2113888323c689d5d30bd4641f5caf57505"
+other = "Welcome to the standup team, please, submit your standups no later than {{.Deadline}}"
+
+[youAlreadyStandup]
+hash = "sha1-3a2af532b419e8e30e0668a9880805acd5a2a8be"
+other = "You already a part of standup team"

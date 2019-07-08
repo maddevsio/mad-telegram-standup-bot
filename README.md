@@ -20,6 +20,12 @@ Currently in the process of transtion into multiple languages.
 - Detects standups by watching messages with bot tag and defined keywords
 - supports English and Runssian languages. To add more, see https://github.com/nicksnyder/go-i18n for language reference
 
+```
+goi18n extract
+goi18n merge active.*.toml
+goi18n merge active.*.toml translate.*.toml
+```
+
 ## Available commands
 ```
 /help - Display list of available commands
