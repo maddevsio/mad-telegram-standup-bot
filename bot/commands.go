@@ -27,8 +27,6 @@ func (b *Bot) HandleCommand(event tgbotapi.Update) error {
 		return b.EditDeadline(event)
 	case "show_deadline":
 		return b.ShowDeadline(event)
-	case "remove_deadline":
-		return b.RemoveDeadline(event)
 	case "group_tz":
 		return b.ChangeGroupTimeZone(event)
 	case "tz":
@@ -43,13 +41,11 @@ func (b *Bot) HandleCommand(event tgbotapi.Update) error {
 //Help displays help message
 func (b *Bot) Help(event tgbotapi.Update) error {
 	text := `Список доступных команд:
-	/help - Показывает список команд
 	/join - Добавляет вас в стендаперы группы
 	/show - Показывает кто сдает стендапы в группе
 	/leave - Бот перестаёт отслеживать ваши стендапы 
 	/edit_deadline - Назначить крайний срок сдачи стендапов (форматы: 13:50, 1:50pm)
 	/show_deadline - Показывает срок сдачи стендапов
-	/remove_deadline - Убирает срок сдачи дедлайнов 
 	/group_tz - Изменить часовой пояс группы (по умолчнию: Asia/Bishkek)
 	/tz - Изменить часовой пояс стендапера (по умолчанию: Asia/Bishkek)
 
@@ -154,14 +150,10 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 
 //Show standupers
 func (b *Bot) Show(event tgbotapi.Update) error {
+	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
+
 	standupers, err := b.db.ListChatStandupers(event.Message.Chat.ID)
 	if err != nil {
-		return err
-	}
-
-	if len(standupers) == 0 {
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Никто не пишет стендапы. Можно присоединиться с помощью команды /join")
-		_, err := b.tgAPI.Send(msg)
 		return err
 	}
 
@@ -170,31 +162,80 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 		list = append(list, "@"+standuper.Username)
 	}
 
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, fmt.Sprintf("Стендапят: %v", strings.Join(list, ", ")))
+	showStandupers, err := localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "checkStandupWithAdvises",
+			Zero:  "No standupers in the team, /join to start standuping",
+			One:   "Only {{.Standupers}} standups in the team, /join to start standuping",
+			Two:   "{{.Standupers}} submit standups in the team",
+			Few:   "{{.Standupers}} submit standups in the team",
+			Many:  "{{.Standupers}} submit standups in the team",
+			Other: "{{.Standupers}} submit standups in the team",
+		},
+		TemplateData: map[string]interface{}{
+			"Standupers": strings.Join(list, "\n"),
+		},
+		PluralCount: len(list),
+	})
+	if err != nil {
+		log.Error(err)
+	}
+
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, showStandupers)
 	_, err = b.tgAPI.Send(msg)
 	return err
 }
 
 //LeaveStandupers standupers
 func (b *Bot) LeaveStandupers(event tgbotapi.Update) error {
+	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
+
 	standuper, err := b.db.FindStanduper(event.Message.From.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err != nil {
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Вы не стендапите")
+		notStanduper, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "notStanduper",
+				Other: "You do not standup yet",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, notStanduper)
 		msg.ReplyToMessageID = event.Message.MessageID
-		_, err := b.tgAPI.Send(msg)
+		_, err = b.tgAPI.Send(msg)
 		return err
 	}
 
 	err = b.db.DeleteStanduper(standuper.ID)
 	if err != nil {
 		log.Error("DeleteStanduper failed: ", err)
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Не смог убрать из стендап команды")
+		failedLeaveStanupers, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "failedLeaveStanupers",
+				Other: "Could not remove you from standup team",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedLeaveStanupers)
 		msg.ReplyToMessageID = event.Message.MessageID
-		_, err := b.tgAPI.Send(msg)
+		_, err = b.tgAPI.Send(msg)
 		return err
 	}
 
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Вы больше не стендапите, спасибо за все ваши сообщения!")
+	leaveStanupers, err := localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "leaveStanupers",
+			Other: "You no longer have to submit standups, thanks for all your standups and messages",
+		},
+	})
+	if err != nil {
+		log.Error(err)
+	}
+
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, leaveStanupers)
 	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
@@ -214,14 +255,48 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) error {
 
 	deadline := event.Message.CommandArguments()
 
-	if strings.TrimSpace(deadline) == "" {
-		return nil
-	}
-
 	team := b.findTeam(event.Message.Chat.ID)
 	if team == nil {
 		log.Error("findTeam failed")
 		return fmt.Errorf("failed to find sutable team for edit deadline")
+	}
+
+	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
+
+	if strings.TrimSpace(deadline) == "" {
+		team.Group.StandupDeadline = ""
+
+		_, err = b.db.UpdateGroup(team.Group)
+		if err != nil {
+			log.Error("Remove Deadline failed: ", err)
+			failedRemoveStandupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "failedRemoveStandupDeadline",
+					Other: "Could not remove standup deadline",
+				},
+			})
+			if err != nil {
+				log.Error(err)
+			}
+			msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedRemoveStandupDeadline)
+			msg.ReplyToMessageID = event.Message.MessageID
+			_, err = b.tgAPI.Send(msg)
+			return err
+		}
+		log.Error("Remove Deadline failed: ", err)
+		removeStandupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "removeStandupDeadline",
+				Other: "Standup deadline removed",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, removeStandupDeadline)
+		msg.ReplyToMessageID = event.Message.MessageID
+		_, err = b.tgAPI.Send(msg)
+		return err
 	}
 
 	team.Group.StandupDeadline = deadline
@@ -231,13 +306,34 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) error {
 	_, err = b.db.UpdateGroup(team.Group)
 	if err != nil {
 		log.Error("UpdateGroup in EditDeadline failed: ", err)
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Не смог установить срок сдачи стендапов")
+		failedUpdateStandupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "failedUpdateStandupDeadline",
+				Other: "Could not edit standup deadline",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateStandupDeadline)
 		msg.ReplyToMessageID = event.Message.MessageID
 		_, err = b.tgAPI.Send(msg)
 		return err
 	}
 
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, fmt.Sprintf("Срок сдачи стендапов обновлён! Писать стендапы до %s", deadline))
+	updateStandupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "updateStandupDeadline",
+			Other: "Edited standup deadline, new deadline is {{.Deadline}}",
+		},
+		TemplateData: map[string]interface{}{
+			"Deadline": deadline,
+		},
+	})
+	if err != nil {
+		log.Error(err)
+	}
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateStandupDeadline)
 	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
@@ -245,6 +341,7 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) error {
 
 //ShowDeadline shows current standup time
 func (b *Bot) ShowDeadline(event tgbotapi.Update) error {
+
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
 	if err != nil {
 		group, err = b.db.CreateGroup(&model.Group{
@@ -258,60 +355,37 @@ func (b *Bot) ShowDeadline(event tgbotapi.Update) error {
 			return err
 		}
 	}
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
 	var msg tgbotapi.MessageConfig
 
 	if group.StandupDeadline == "" {
-		msg = tgbotapi.NewMessage(event.Message.Chat.ID, "Срок сдачи стендапов не установлен.")
-	} else {
-		msg = tgbotapi.NewMessage(event.Message.Chat.ID, fmt.Sprintf("Срок сдачи стендапов ежедневно до %s кроме выходных", group.StandupDeadline))
-	}
-
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
-}
-
-//RemoveDeadline sets standup deadline to empty string
-func (b *Bot) RemoveDeadline(event tgbotapi.Update) error {
-	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
-	if err != nil {
-		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
-	}
-
-	if !isAdmin {
-		log.Warn("User not an admin", event.Message.From.UserName)
-		return nil
-	}
-
-	team := b.findTeam(event.Message.Chat.ID)
-	if team == nil {
-		group, err := b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "10:00",
-			TZ:              "Asia/Bishkek", // default value...
+		noStandupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "noStandupDeadline",
+				Other: "Standup deadline is not set",
+			},
 		})
 		if err != nil {
-			return err
+			log.Error(err)
 		}
-		b.watchersChan <- group
-		team = b.findTeam(event.Message.Chat.ID)
+		msg = tgbotapi.NewMessage(event.Message.Chat.ID, noStandupDeadline)
+	} else {
+		standupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "standupDeadline",
+				Other: "Standup deadline set for everyday at {{.Deadline}} exept weekeds",
+			},
+			TemplateData: map[string]interface{}{
+				"Deadline": group.StandupDeadline,
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg = tgbotapi.NewMessage(event.Message.Chat.ID, standupDeadline)
 	}
 
-	team.Group.StandupDeadline = ""
-
-	_, err = b.db.UpdateGroup(team.Group)
-	if err != nil {
-		log.Error("UpdateGroup in RemoveDeadline failed: ", err)
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Не удалось убрать срок сдачи стендапов")
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
-	}
-
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Срок сдачи стендапов успешно удалён")
 	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
@@ -319,6 +393,7 @@ func (b *Bot) RemoveDeadline(event tgbotapi.Update) error {
 
 //ChangeGroupTimeZone modifies time zone of the group
 func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
+
 	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
 	if err != nil {
 		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
@@ -353,10 +428,21 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
 
 	team.Group.TZ = tz
 
+	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
+
 	_, err = time.LoadLocation(tz)
 	if err != nil {
 		log.Error("UpdateGroup in ChangeTimeZone failed: ", err)
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Не смог изменить часовой пояс, пожалуйста проверьте название часовой зоны и повторите")
+		failedRecognizeTZ, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "failedRecognizeTZ",
+				Other: "Failed to recognize new TZ you entered, double check the tz name and try again",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedRecognizeTZ)
 		msg.ReplyToMessageID = event.Message.MessageID
 		_, err = b.tgAPI.Send(msg)
 		return err
@@ -365,13 +451,34 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
 	_, err = b.db.UpdateGroup(team.Group)
 	if err != nil {
 		log.Error("UpdateGroup in ChangeTimeZone failed: ", err)
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Не смог изменить часовой пояс")
+		failedUpdateTZ, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "failedUpdateTZ",
+				Other: "Failed to update Timezone",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateTZ)
 		msg.ReplyToMessageID = event.Message.MessageID
 		_, err = b.tgAPI.Send(msg)
 		return err
 	}
 
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, fmt.Sprintf("Часовой пояс группы обновлён на: %s", tz))
+	updateTZ, err := localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "updateTZ",
+			Other: "Group timezone is updated, new TZ is {{.TZ}}",
+		},
+		TemplateData: map[string]interface{}{
+			"TZ": tz,
+		},
+	})
+	if err != nil {
+		log.Error(err)
+	}
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateTZ)
 	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
@@ -379,6 +486,8 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
 
 //ChangeUserTimeZone assign user a different time zone
 func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) error {
+	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
+
 	tz := event.Message.CommandArguments()
 
 	if strings.TrimSpace(tz) == "" {
@@ -387,9 +496,18 @@ func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) error {
 
 	st, err := b.db.FindStanduper(event.Message.From.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err != nil {
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Вы не стендапите, для начала присоединитесь с помощью /join а потом сможете поменять свой часовой пояс")
+		notStanduper, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "notStanduper",
+				Other: "You do not standup yet",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, notStanduper)
 		msg.ReplyToMessageID = event.Message.MessageID
-		_, err := b.tgAPI.Send(msg)
+		_, err = b.tgAPI.Send(msg)
 		return err
 	}
 
@@ -398,7 +516,16 @@ func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) error {
 	_, err = time.LoadLocation(tz)
 	if err != nil {
 		log.Error("LoadLocation in ChangeUserTimeZone failed: ", err)
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Не смог изменить часовой пояс, пожалуйста проверьте название часовой зоны и повторите")
+		failedRecognizeTZ, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "failedRecognizeTZ",
+				Other: "Failed to recognize new TZ you entered, double check the tz name and try again",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedRecognizeTZ)
 		msg.ReplyToMessageID = event.Message.MessageID
 		_, err = b.tgAPI.Send(msg)
 		return err
@@ -407,13 +534,34 @@ func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) error {
 	_, err = b.db.UpdateStanduper(st)
 	if err != nil {
 		log.Error("UpdateStanduper in ChangeUserTimeZone failed: ", err)
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Не смог изменить часовой пояс")
+		failedUpdateTZ, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "failedUpdateTZ",
+				Other: "Failed to update Timezone",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateTZ)
 		msg.ReplyToMessageID = event.Message.MessageID
 		_, err = b.tgAPI.Send(msg)
 		return err
 	}
 
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, fmt.Sprintf("Ваш часовой пояс изменен. Новый: %s", tz))
+	updateTZ, err := localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "updateUserTZ",
+			Other: "your timezone is updated, new TZ is {{.TZ}}",
+		},
+		TemplateData: map[string]interface{}{
+			"TZ": tz,
+		},
+	})
+	if err != nil {
+		log.Error(err)
+	}
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateTZ)
 	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
