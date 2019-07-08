@@ -95,7 +95,7 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 		log.Error("CreateStanduper failed: ", err)
 		createStanduperFailed, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
-				ID:    "create standuper failed",
+				ID:    "createStanduperFailed",
 				Other: "Could not add you to standup team",
 			},
 		})

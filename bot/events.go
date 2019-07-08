@@ -24,7 +24,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 			localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 			text, err := localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
-					ID:    "not standup",
+					ID:    "notStandup",
 					Other: "Seems like this is not a standup, double check keywords for errors \n\n",
 				},
 			})
@@ -85,7 +85,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 				localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 				goodPR, err := localizer.Localize(&i18n.LocalizeConfig{
 					DefaultMessage: &i18n.Message{
-						ID:    "good PR",
+						ID:    "goodPR",
 						Other: "- good PR, review indeed needed!",
 					},
 				})
@@ -100,7 +100,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 				localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 				badPR, err := localizer.Localize(&i18n.LocalizeConfig{
 					DefaultMessage: &i18n.Message{
-						ID:    "bad PR",
+						ID:    "badPR",
 						Other: "- bad PR, pay attention to the following advises: \n",
 					},
 				})

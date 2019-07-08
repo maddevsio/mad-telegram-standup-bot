@@ -2,12 +2,60 @@
 few = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
 hash = "sha1-005d5e6867ed202e904c8fee1d622403f37d89ec"
 many = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
-one = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
+one = "Standup is accepted, but let me give you one advise: \\n {{.Advises}}"
 other = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
 
-["bad PR"]
+[analyzeNoBlockers]
+hash = "sha1-aedec71919630864ecaf7e8af462c790ac0a13af"
+other = "- seems like standups does not contain any prolem or blocker. Remember that problems help us grow. No problems == no development. Dont hesitate to report them"
+
+[analyzeNoLinks]
+hash = "sha1-c3f750829123d654db50584067247508ec9e3041"
+other = "- seems like standups does not contain any links, that means that probably no work was done or no research was conducted. Poor you."
+
+[analyzeNoQuestions]
+hash = "sha1-d98699e1d4898ca9445af3daf6f209c6e8c168e6"
+other = "- seems like standups does not contain any questions. Internship is made up of questions, so ask as many as you can!"
+
+[analyzeNoSize]
+hash = "sha1-31a010735979000ed3947ccd7c2c198cc09ce122"
+other = "- seems like standups does is either small or too large. Appropriate size is about 80 - 200 words."
+
+[analyzeNoTags]
+hash = "sha1-98c8cfb93d369dc6eaa8c9cdbf18305d0e2967da"
+other = "- seems like standups does not contain any tags. If you want your mentors to notice you, tag them right away!"
+
+[analyzePRAsignee]
+hash = "sha1-d332a08e33f553b7cfd51006ea040f46510b1176"
+other = "- need to add who is assigned to implement changes to this PR"
+
+[analyzePRConflicts]
+hash = "sha1-8f8ff97663bb62971ac044871cdcb75abf3df908"
+other = "- no way to merge it. Fix conflicts first"
+
+[analyzePRDescription]
+hash = "sha1-4785e9a64f59345277b486cd4a737ecaedc9a8f1"
+other = "- need more words in PR Description field"
+
+[analyzePRLinks]
+hash = "sha1-627352c1915d3026d54f82a72d7e3e2c388ba09d"
+other = "- need to include links on tickets which would be closed by this PR"
+
+[analyzePRReviewer]
+hash = "sha1-eb683d76347f5253d9499138f4129d36c81e29ef"
+other = "- no reviewers tagged, please, assign at least one"
+
+[analyzePRSize]
+hash = "sha1-f4e39b0f948bb7f30df7d8fbaa5c160267b4e8d5"
+other = "- PR contains too much changes. Divide it and resend."
+
+[analyzePRWIP]
+hash = "sha1-701ddb91c869576bb99794a040bc13f592471fce"
+other = "- PR contains unfinished work, please, finish it and resend the link"
+
+[badPR]
 hash = "sha1-7df112903b8328763bd8fe09d1295fbb4156cd23"
-other = "- пересмотри PR, удели внимание следующим советам: \\n"
+other = "- bad PR, pay attention to the following advises: \\n"
 
 [checkStandup]
 hash = "sha1-a7eb979ca3562c99e48d8f411692b50a29bb7cbf"
@@ -17,14 +65,14 @@ other = "Good standup, post it to the group!"
 few = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
 hash = "sha1-b2472c9321d610bb48401208ebb5aabda09076d8"
 many = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
-one = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
+one = "Standup is going to be more usefull with one advise: \\n {{.Advises}}"
 other = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
 
 [closingPart]
 hash = "sha1-d75bb3e99630fefe1bbe7bd257803eb77df0b2fc"
 other = "I will kick you from the group if you miss 3 standups. In case of any unexpected behaviour DM @anatoliyfedorenko"
 
-["create standuper failed"]
+[createStanduperFailed]
 hash = "sha1-0c2c7f510c062191a09701b7d62a1f7ce754054b"
 other = "Could not add you to standup team"
 
@@ -48,29 +96,49 @@ other = "Could not edit standup deadline"
 hash = "sha1-ce1fbc677f0e60cb0930a0daffc6cf3effeea900"
 other = "Failed to update Timezone"
 
-["good PR"]
+[goodPR]
 hash = "sha1-5379ae28a52e0459744cb0e23f01df2556b87b30"
-other = "- хороший PR, можно смотреть!"
+other = "- good PR, review indeed needed!"
 
 [greatStandup]
 hash = "sha1-4efb9052545374bb15381f6c6560a36f0e3a6621"
 other = "Standup accepted and it looks awesome!"
 
+[helpText]
+hash = "sha1-13b29cbe9fc8342d176d8c8a6ad7e618311c14ed"
+other = "List of awailable commands:\n\t\t\t/join - add you to standup team\n\t\t\t/show - shows who is in standup team\n\t\t\t/leave - leave standup team to stop submit standups\n\t\t\t/edit_deadline - Set standups deadline (formats: 13:50, 1:50pm)\n\t\t\t/show_deadline - Show current standup deadline\n\t\t\t/group_tz - Change group time zone (defaulting to : Asia/Bishkek)\n\t\t\t/tz - Change individual Time Zone (defaulting to: Asia/Bishkek)\n\t\t\n\t\t\tLooking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaiviour"
+
 [leaveStanupers]
 hash = "sha1-aa349b49e8cfa8132c055dabfa72436424101503"
 other = "You no longer have to submit standups, thanks for all your standups and messages"
+
+[noProblemsMention]
+hash = "sha1-fd5ada3d46270c013bc30233b94e7c12a304fbc0"
+other = "- no 'problems' keywords detected: {{.Keywords}}"
 
 [noStandupDeadline]
 hash = "sha1-a1e4959733ee1f6f257bc4e5b81be38cf58ecc6b"
 other = "Standup deadline is not set"
 
-["not standup"]
+[noTodayMention]
+hash = "sha1-a414039575828892ae739899cf3303299a3094f7"
+other = "- no 'today' keywords detected: {{.Keywords}}"
+
+[noYesterdayMention]
+hash = "sha1-bdff0c3bc740bf4fb242f13c35b3f78894e49b0e"
+other = "- no 'yesterday' keywords detected: {{.Keywords}}"
+
+[notStandup]
 hash = "sha1-241823387c28531a67f9e9d0a29ac62a6d9dd92f"
-other = "Кажется это не стендап, перепроверь ключевые слова на ошибки \\n\\n"
+other = "Seems like this is not a standup, double check keywords for errors \\n\\n"
 
 [notStanduper]
 hash = "sha1-1c88a37c3eb3279a3f0cf6b8cb6f0a0ee737f61b"
 other = "You do not standup yet"
+
+[notifyNonReporters]
+hash = "sha1-142938d8dffdb407f513f995075d07f6f57b0da0"
+other = "Attention, {{.Intern}}! you have just missed the deadline! submit standups ASAP. {{.Skips}} skips left \\n\\n"
 
 [removeStandupDeadline]
 hash = "sha1-6444dd89936abbd9a8cc0a99e16394a0ca1b9dc6"
@@ -103,6 +171,10 @@ other = "Group timezone is updated, new TZ is {{.TZ}}"
 [updateUserTZ]
 hash = "sha1-32171fe98964d605c38ef1811374a3f4000cdf70"
 other = "your timezone is updated, new TZ is {{.TZ}}"
+
+[warnNonReporters]
+hash = "sha1-110c285a568b1e30afc054d7e53416842c418bf6"
+other = "Attention, {{.Intern}} {{.Warn}} minutes till deadline, submit standups ASAP. {{.Skips}} skips left \\n\\n"
 
 [welcomeMessage]
 hash = "sha1-d9516b2433ca3473e04d7523ec08314e482cfb51"

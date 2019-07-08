@@ -1,113 +1,60 @@
-[acceptStandupWithAdvises]
-few = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
-hash = "sha1-005d5e6867ed202e904c8fee1d622403f37d89ec"
-many = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
-one = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
-other = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
+analyzeNoBlockers = "- seems like standups does not contain any prolem or blocker. Remember that problems help us grow. No problems == no development. Dont hesitate to report them"
+analyzeNoLinks = "- seems like standups does not contain any links, that means that probably no work was done or no research was conducted. Poor you."
+analyzeNoQuestions = "- seems like standups does not contain any questions. Internship is made up of questions, so ask as many as you can!"
+analyzeNoSize = "- seems like standups does is either small or too large. Appropriate size is about 80 - 200 words."
+analyzeNoTags = "- seems like standups does not contain any tags. If you want your mentors to notice you, tag them right away!"
+analyzePRAsignee = "- need to add who is assigned to implement changes to this PR"
+analyzePRConflicts = "- no way to merge it. Fix conflicts first"
+analyzePRDescription = "- need more words in PR Description field"
+analyzePRLinks = "- need to include links on tickets which would be closed by this PR"
+analyzePRReviewer = "- no reviewers tagged, please, assign at least one"
+analyzePRSize = "- PR contains too much changes. Divide it and resend."
+analyzePRWIP = "- PR contains unfinished work, please, finish it and resend the link"
+badPR = "- плохой PR, Обрати внимание на советы: \\n"
+checkStandup = "Хороший стендап! Можно постить в группу"
+closingPart = "I will kick you from the group if you miss 3 standups. In case of any unexpected behaviour DM @anatoliyfedorenko"
+createStanduperFailed = "не удалось добавить вас в команду стендаперов"
+failedLeaveStanupers = "Не удалось убрать вас из стендаперов"
+failedRecognizeTZ = "Failed to recognize new TZ you entered, double check the tz name and try again"
+failedRemoveStandupDeadline = "Не удалось убрать крайний срок сдачи стендапов"
+failedUpdateStandupDeadline = "Не смог обновить срок сдачи стендапов"
+failedUpdateTZ = "Не удалось обновить часовой пояс"
+goodPR = "- хороший PR, нужно сделать ревью!"
+greatStandup = "Стендап принят и кажется он шикарный!"
+helpText = "Список доступных команд:\n\t\t\t/help - Показывает список команд\n\t\t\t/join - Добавляет вас в стендаперы группы\n\t\t\t/show - Показывает кто сдает стендапы в группе\n\t\t\t/leave - Бот перестаёт отслеживать ваши стендапы\n\t\t\t/edit_deadline - Назначить крайний срок сдачи стендапов (форматы: 13:50, 1:50pm)\n\t\t\t/show_deadline - Показывает срок сдачи стендапов\n\t\t\t/group_tz - Изменить часовой пояс группы (по умолчнию: Asia/Bishkek)\n\t\t\t/tz - Изменить часовой пояс стендапера (по умолчанию: Asia/Bishkek)\n\t\t\tС нетерпением жду ваших стендапов! За все мои ошибки отвечает @anatoliyfedorenko
+leaveStanupers = "Вам больше не нужно сдавать стендапы, спасибо за все ваши сообщения!"
+noProblemsMention = "- нет ключевых слов блока 'проблемы' {{.Keywords}}"
+noStandupDeadline = "Крайний срок сдачи стендапов не установлен"
+noTodayMention = "- нет ключевых слов блока 'сегодня': {{.Keywords}}"
+noYesterdayMention = "- нет ключевых слов блока 'вчера': {{.Keywords}}"
+notStandup = "Кажется это вообще не стендап, перепроверьте ключевые слова \\n\\n"
+notStanduper = "Вы еще не стендапите"
+notifyNonReporters = "Внимение, {{.Intern}}! ты только что пропустил дедлайн! Отправь стендап как можно скорее и не подводи команду! осталось пропусков: {{.Skips}} \\n\\n"
+removeStandupDeadline = "Крайний срок сдачи стендапов отменён"
+standupDeadline = "Пишите стендапы каждый день до {{.Deadline}} кроме выходных"
+standupDeadlinePart = "Сдавайте стендапы до {{.Deadline}}! Можете не писать стендапы на выходных"
+standupUpdated = "Стендап успешно обновлен"
+standupsCheckPart = "Если хотите узнать приму ли я стендап или увидеть советы по его улучшению, напишите мне текст в личные сообщения. \\n"
+updateStandupDeadline = "Крайний срок сдачи стендапов изменён на {{.Deadline}}"
+updateTZ = "Часовой пояс группы обновлен на {{.TZ}}"
+updateUserTZ = "ваш часовой пояс обновлен на {{.TZ}}"
+warnNonReporters = "Attention, {{.Intern}} {{.Warn}} minutes till deadline, submit standups ASAP. {{.Skips}} skips left \\n\\n"
+welcomeMessage = "Приветствую! Я буду помогать вам не забывать о стендапах и улучшать их качество и пользу. За все мои проблемы в ответе @anatoliyfedorenko :)"
+welcomeNoDedline = "Добро пожаловать в стендап команду, дедлайна пока не установлено"
+welcomePart = "Привет, {{.Intern}}! Добро пожаловать в {{.GroupName}}"
+welcomeWithDedline = "Добро пожаловать в команду стендаперов. Пишите стендапы до {{.Deadline}}"
+youAlreadyStandup = "Вы уже в команде стендаперов"
 
-[checkStandup]
-hash = "sha1-a7eb979ca3562c99e48d8f411692b50a29bb7cbf"
-other = "Good standup, post it to the group!"
+[acceptStandupWithAdvises]
+few = "Стендап принят, но дам несколько советов: \\n {{.Advises}}"
+many = "Стендап принят, но дам несколько советов: \\n {{.Advises}}"
+one = "Стендап принят, но дам один совет: \\n {{.Advises}}"
+other = "Стендап принят, но дам несколько советов: \\n {{.Advises}}"
+two = "Стендап принят, но дам парочку советов: \\n {{.Advises}}"
 
 [checkStandupWithAdvises]
-few = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
-hash = "sha1-b2472c9321d610bb48401208ebb5aabda09076d8"
-many = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
-one = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
-other = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
-
-[closingPart]
-hash = "sha1-d75bb3e99630fefe1bbe7bd257803eb77df0b2fc"
-other = "I will kick you from the group if you miss 3 standups. In case of any unexpected behaviour DM @anatoliyfedorenko"
-
-["create standuper failed"]
-hash = "sha1-0c2c7f510c062191a09701b7d62a1f7ce754054b"
-other = "Could not add you to standup team"
-
-[failedLeaveStanupers]
-hash = "sha1-c7374272c4a00a4dc1b1d8f6ac46c75a5e2f8129"
-other = "Could not remove you from standup team"
-
-[failedRecognizeTZ]
-hash = "sha1-a31bd479bb70e1789ef1b53beaca1f4ee22931c5"
-other = "Failed to recognize new TZ you entered, double check the tz name and try again"
-
-[failedRemoveStandupDeadline]
-hash = "sha1-20b5795d14f0bb6c66529d224bb91271b86470f9"
-other = "Could not remove standup deadline"
-
-[failedUpdateStandupDeadline]
-hash = "sha1-f216fc7d2c8ea294b46d350e21eac60153f85465"
-other = "Could not edit standup deadline"
-
-[failedUpdateTZ]
-hash = "sha1-ce1fbc677f0e60cb0930a0daffc6cf3effeea900"
-other = "Failed to update Timezone"
-
-[greatStandup]
-hash = "sha1-4efb9052545374bb15381f6c6560a36f0e3a6621"
-other = "Standup accepted and it looks awesome!"
-
-[leaveStanupers]
-hash = "sha1-aa349b49e8cfa8132c055dabfa72436424101503"
-other = "You no longer have to submit standups, thanks for all your standups and messages"
-
-[noStandupDeadline]
-hash = "sha1-a1e4959733ee1f6f257bc4e5b81be38cf58ecc6b"
-other = "Standup deadline is not set"
-
-[notStanduper]
-hash = "sha1-1c88a37c3eb3279a3f0cf6b8cb6f0a0ee737f61b"
-other = "You do not standup yet"
-
-[removeStandupDeadline]
-hash = "sha1-6444dd89936abbd9a8cc0a99e16394a0ca1b9dc6"
-other = "Standup deadline removed"
-
-[standupDeadline]
-hash = "sha1-ea3081ccdecf6671ddcec3241e9fa1ed89d856ce"
-other = "Standup deadline set for everyday at {{.Deadline}} exept weekeds"
-
-[standupDeadlinePart]
-hash = "sha1-613de00f5a0dcd150ffd3a3952473475a4ac80ef"
-other = "Submit your standups before, {{.Deadline}}! You do not have to write standups on weekends"
-
-[standupUpdated]
-hash = "sha1-273954d72c1f9d0289de4deb0c141877bf9a6796"
-other = "Standup was successfully updated!"
-
-[standupsCheckPart]
-hash = "sha1-c882038121c7508042c30bd406817fdc5b6a315c"
-other = "If you would like to validate your standup, direct message me with the text and I can check it to give advises. \\n"
-
-[updateStandupDeadline]
-hash = "sha1-bfd3f195e36e139ad0643664950c0dd74da9fde2"
-other = "Edited standup deadline, new deadline is {{.Deadline}}"
-
-[updateTZ]
-hash = "sha1-ec2a5b809759814ed5dbe1020c591babb0443c28"
-other = "Group timezone is updated, new TZ is {{.TZ}}"
-
-[updateUserTZ]
-hash = "sha1-32171fe98964d605c38ef1811374a3f4000cdf70"
-other = "your timezone is updated, new TZ is {{.TZ}}"
-
-[welcomeMessage]
-hash = "sha1-d9516b2433ca3473e04d7523ec08314e482cfb51"
-other = "Hello! I will help you to not forget about standups and write them properly. tag @anatoliyfedorenko if you find any bug or unexpected behaiviour :)"
-
-[welcomeNoDedline]
-hash = "sha1-e57fbe3ef11584376832f8981aa8728f0b291e32"
-other = "Welcome to the standup team, no standup deadline has been setup yet"
-
-[welcomePart]
-hash = "sha1-8c3852e47b6c068fdf1b0b6f1d2f491f923af3d0"
-other = "Hello, {{.Intern}}! Welcome to {{.GroupName}}"
-
-[welcomeWithDedline]
-hash = "sha1-9c0fb2113888323c689d5d30bd4641f5caf57505"
-other = "Welcome to the standup team, please, submit your standups no later than {{.Deadline}}"
-
-[youAlreadyStandup]
-hash = "sha1-3a2af532b419e8e30e0668a9880805acd5a2a8be"
-other = "You already a part of standup team"
+few = "Дам несколько советов по стендапу \\n {{.Advises}}"
+many = "Дам несколько советов по стендапу \\n {{.Advises}}"
+one = "Дам один совет по стендапу: \\n {{.Advises}}"
+other = "Дам несколько советов по стендапу \\n {{.Advises}}"
+two = "Дам пару советов по стендапу: \\n {{.Advises}}"
