@@ -7,6 +7,8 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/maddevsio/mad-internship-bot/model"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -60,11 +62,22 @@ func (b *Bot) Help(event tgbotapi.Update) error {
 
 //JoinStandupers assign user a standuper role
 func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
+	log.Info(event.Message.From.LanguageCode)
+	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
 	_, err := b.db.FindStanduper(event.Message.From.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err == nil {
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Вы уже стендапите")
+		youAlreadyStandup, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "youAlreadyStandup",
+				Other: "You already a part of standup team",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, youAlreadyStandup)
 		msg.ReplyToMessageID = event.Message.MessageID
-		_, err := b.tgAPI.Send(msg)
+		_, err = b.tgAPI.Send(msg)
 		return err
 	}
 
@@ -77,9 +90,18 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 	})
 	if err != nil {
 		log.Error("CreateStanduper failed: ", err)
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "Не смог добавить в стендаперы")
+		createStanduperFailed, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "create standuper failed",
+				Other: "Could not add you to standup team",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, createStanduperFailed)
 		msg.ReplyToMessageID = event.Message.MessageID
-		_, err := b.tgAPI.Send(msg)
+		_, err = b.tgAPI.Send(msg)
 		return err
 	}
 
@@ -100,9 +122,30 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 	var msg tgbotapi.MessageConfig
 
 	if group.StandupDeadline == "" {
-		msg = tgbotapi.NewMessage(event.Message.Chat.ID, "Добро пожаловать в команду! Срок сдачи стендапов пока не установлен")
+		welcomeWithNoDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "welcomeNoDedline",
+				Other: "Welcome to the standup team, no standup deadline has been setup yet",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg = tgbotapi.NewMessage(event.Message.Chat.ID, welcomeWithNoDeadline)
 	} else {
-		msg = tgbotapi.NewMessage(event.Message.Chat.ID, fmt.Sprintf("Добро пожаловать в команду! Пишите ваши стендапы ежедневно до %s. В выходные пишите стендапы по желанию", group.StandupDeadline))
+		welcomeWithDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "welcomeWithDedline",
+				Other: "Welcome to the standup team, please, submit your standups no later than {{.Deadline}}",
+			},
+			TemplateData: map[string]interface{}{
+				"Deadline": group.StandupDeadline,
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg = tgbotapi.NewMessage(event.Message.Chat.ID, welcomeWithDeadline)
 	}
 
 	msg.ReplyToMessageID = event.Message.MessageID

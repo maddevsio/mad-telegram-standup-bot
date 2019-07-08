@@ -21,6 +21,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 	if message.Chat.Type == "private" {
 		ok, errors := isStandup(message.Text)
 		if !ok {
+			log.Info(message.From.LanguageCode)
 			localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 			text, err := localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
