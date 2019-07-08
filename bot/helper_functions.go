@@ -5,10 +5,13 @@ import (
 	"time"
 
 	"github.com/maddevsio/mad-internship-bot/model"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/sirupsen/logrus"
 )
 
-func isStandup(message string) (bool, []string) {
+func (b *Bot) isStandup(message, language string) (bool, []string) {
+	localizer := i18n.NewLocalizer(b.bundle, language)
+
 	errors := []string{}
 	message = strings.ToLower(message)
 
@@ -33,43 +36,126 @@ func isStandup(message string) (bool, []string) {
 	}
 
 	if !mentionsYesterdayWork {
-		errors = append(errors, "- не увидел ключевых слов блока 'вчера': "+strings.Join(yesterdayWorkKeywords, ", "))
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "noYesterdayMention",
+				Other: "- no 'yesterday' keywords detected: {{.Keywords}}",
+			},
+			TemplateData: map[string]interface{}{
+				"Keywords": strings.Join(yesterdayWorkKeywords, ", "),
+			},
+		})
+		if err != nil {
+			logrus.Error(err)
+		}
+		errors = append(errors, warnings)
 	}
 	if !mentionsTodayPlans {
-		errors = append(errors, "- не увидел ключевых слов блока 'сегодня': "+strings.Join(todayPlansKeywords, ", "))
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "noTodayMention",
+				Other: "- no 'today' keywords detected: {{.Keywords}}",
+			},
+			TemplateData: map[string]interface{}{
+				"Keywords": strings.Join(todayPlansKeywords, ", "),
+			},
+		})
+		if err != nil {
+			logrus.Error(err)
+		}
+		errors = append(errors, warnings)
 	}
-	if !mentionsYesterdayWork {
-		errors = append(errors, "- не увидел ключевых слов блока 'проблемы': "+strings.Join(issuesKeywords, ", "))
+	if !mentionsProblem {
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "noProblemsMention",
+				Other: "- no 'problems' keywords detected: {{.Keywords}}",
+			},
+			TemplateData: map[string]interface{}{
+				"Keywords": strings.Join(issuesKeywords, ", "),
+			},
+		})
+		if err != nil {
+			logrus.Error(err)
+		}
+		errors = append(errors, warnings)
 	}
 
 	return mentionsProblem && mentionsYesterdayWork && mentionsTodayPlans, errors
 }
 
-func analyzeStandup(standup string) ([]string, int) {
+func (b *Bot) analyzeStandup(standup, language string) ([]string, int) {
+	localizer := i18n.NewLocalizer(b.bundle, language)
+
 	var advises []string
 	ok, pB := containsProblems(standup)
 	if !ok {
-		advises = append(advises, "- Кажется в стендапе нет или мало проблем. Проблемы и всё, что мешает это показатель роста. Если их нет, это плохо. не бойся об этом говорить")
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "analyzeNoBlockers",
+				Other: "- seems like standups does not contain any prolem or blocker. Remember that problems help us grow. No problems == no development. Dont hesitate to report them",
+			},
+		})
+		if err != nil {
+			logrus.Error(err)
+		}
+		advises = append(advises, warnings)
 	}
 
 	ok, qB := containsQuestions(standup)
 	if !ok {
-		advises = append(advises, "- Кажется в стендапе не задано вопросов. На стажировке надо задавать вопросы, самое лучше место это общий чат и стендапы. Без вопросов нет развития")
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "analyzeNoQuestions",
+				Other: "- seems like standups does not contain any questions. Internship is made up of questions, so ask as many as you can!",
+			},
+		})
+		if err != nil {
+			logrus.Error(err)
+		}
+		advises = append(advises, warnings)
 	}
 
 	ok, mB := containsMentions(standup)
 	if !ok {
-		advises = append(advises, "- Кажется в стендапе нет тегов. Тегай менторов, чтобы получить их опыт, иначе прогресс будет медленный")
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "analyzeNoTags",
+				Other: "- seems like standups does not contain any tags. If you want your mentors to notice you, tag them right away!",
+			},
+		})
+		if err != nil {
+			logrus.Error(err)
+		}
+		advises = append(advises, warnings)
 	}
 
 	ok, lB := containsLinks(standup)
 	if !ok {
-		advises = append(advises, "- Кажется в стендапе нет ни одной ссылки. Желательно отправлять ссылки на PRы либо на изученные ресурсы")
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "analyzeNoLinks",
+				Other: "- seems like standups does not contain any links, that means that probably no work was done or no research was conducted. Poor you.",
+			},
+		})
+		if err != nil {
+			logrus.Error(err)
+		}
+		advises = append(advises, warnings)
 	}
 
 	ok, sB := hasGoodSize(standup)
 	if !ok {
-		advises = append(advises, "- Подумай над размером стендапа. Напишешь мало - непонятно, грач, без уважения. Много - тяжело читать. Оптимально от 80 до 200 слов")
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "analyzeNoSize",
+				Other: "- seems like standups does is either small or too large. Appropriate size is about 80 - 200 words.",
+			},
+		})
+		if err != nil {
+			logrus.Error(err)
+		}
+		advises = append(advises, warnings)
 	}
 
 	return advises, pB + qB + mB + lB + sB

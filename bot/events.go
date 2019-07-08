@@ -19,7 +19,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 	}
 
 	if message.Chat.Type == "private" {
-		ok, errors := isStandup(message.Text)
+		ok, errors := b.isStandup(message.Text, message.From.LanguageCode)
 		if !ok {
 			localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 			text, err := localizer.Localize(&i18n.LocalizeConfig{
@@ -38,7 +38,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 			return err
 		}
 
-		advises, _ := analyzeStandup(message.Text)
+		advises, _ := b.analyzeStandup(message.Text, message.From.LanguageCode)
 
 		localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 		text, err := localizer.Localize(&i18n.LocalizeConfig{
@@ -144,7 +144,7 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 		return nil
 	}
 
-	ok, _ := isStandup(message.Text)
+	ok, _ := b.isStandup(message.Text, message.From.LanguageCode)
 
 	if !ok {
 		return fmt.Errorf("Message is not a standup")
@@ -166,7 +166,7 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 			return err
 		}
 
-		advises, _ := analyzeStandup(message.Text)
+		advises, _ := b.analyzeStandup(message.Text, message.From.LanguageCode)
 		greatStandup, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "greatStandup",
