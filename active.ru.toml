@@ -1,84 +1,84 @@
 [acceptStandupWithAdvises]
-few = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
+few = "Стендап принят, но дам несколько советов: \\n {{.Advises}}"
 hash = "sha1-005d5e6867ed202e904c8fee1d622403f37d89ec"
-many = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
-one = "Standup is accepted, but let me give you one advise: \\n {{.Advises}}"
-other = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
+many = "Стендап принят, но дам несколько советов: \\n {{.Advises}}"
+one = "Стендап принят, но дам один совет: \\n {{.Advises}}"
+other = "Стендап принят, но дам несколько советов: \\n {{.Advises}}"
 
 [analyzeNoBlockers]
 hash = "sha1-aedec71919630864ecaf7e8af462c790ac0a13af"
-other = "- seems like standups does not contain any prolem or blocker. Remember that problems help us grow. No problems == no development. Dont hesitate to report them"
+other = "- Кажется в стендапе нет или мало проблем. Проблемы и всё, что мешает это показатель роста. Если их нет, это плохо. не бойся об этом говорить"
 
 [analyzeNoLinks]
 hash = "sha1-c3f750829123d654db50584067247508ec9e3041"
-other = "- seems like standups does not contain any links, that means that probably no work was done or no research was conducted. Poor you."
+other = "- Кажется в стендапе нет ни одной ссылки. Желательно отправлять ссылки на PRы либо на изученные ресурсы"
 
 [analyzeNoQuestions]
 hash = "sha1-d98699e1d4898ca9445af3daf6f209c6e8c168e6"
-other = "- seems like standups does not contain any questions. Internship is made up of questions, so ask as many as you can!"
+other = "- Кажется в стендапе не задано вопросов. На стажировке надо задавать вопросы, самое лучше место это общий чат и стендапы. Без вопросов нет развития"
 
 [analyzeNoSize]
 hash = "sha1-31a010735979000ed3947ccd7c2c198cc09ce122"
-other = "- seems like standups does is either small or too large. Appropriate size is about 80 - 200 words."
+other = "- Подумай над размером стендапа. Напишешь мало - непонятно, грач, без уважения. Много - тяжело читать. Оптимально от 80 до 200 слов"
 
 [analyzeNoTags]
 hash = "sha1-98c8cfb93d369dc6eaa8c9cdbf18305d0e2967da"
-other = "- seems like standups does not contain any tags. If you want your mentors to notice you, tag them right away!"
+other = "- Кажется в стендапе нет тегов. Тегай менторов, чтобы получить их опыт, иначе прогресс будет медленный"
 
 [analyzePRAsignee]
 hash = "sha1-d332a08e33f553b7cfd51006ea040f46510b1176"
-other = "- need to add who is assigned to implement changes to this PR"
+other = "- нужно назначить человека, который работает над PRом"
 
 [analyzePRConflicts]
 hash = "sha1-8f8ff97663bb62971ac044871cdcb75abf3df908"
-other = "- no way to merge it. Fix conflicts first"
+other = "- нельзя смержить код в PR, сначала надо решить все конфликты"
 
 [analyzePRDescription]
 hash = "sha1-4785e9a64f59345277b486cd4a737ecaedc9a8f1"
-other = "- need more words in PR Description field"
+other = "- нужно больше слов в описании к PR"
 
 [analyzePRLinks]
 hash = "sha1-627352c1915d3026d54f82a72d7e3e2c388ba09d"
-other = "- need to include links on tickets which would be closed by this PR"
+other = "- желательно добавить в описание ссылки на задачи, которые закроет этот PR"
 
 [analyzePRReviewer]
 hash = "sha1-eb683d76347f5253d9499138f4129d36c81e29ef"
-other = "- no reviewers tagged, please, assign at least one"
+other = "- нет назначеных на ревью людей, лучше отметить кого-нибудь"
 
 [analyzePRSize]
 hash = "sha1-f4e39b0f948bb7f30df7d8fbaa5c160267b4e8d5"
-other = "- PR contains too much changes. Divide it and resend."
+other = "- в PR очень много изменений, попробуй его разделить."
 
 [analyzePRWIP]
 hash = "sha1-701ddb91c869576bb99794a040bc13f592471fce"
-other = "- PR contains unfinished work, please, finish it and resend the link"
+other = "- PR содержит незавершенную работу, сначала надо закончить её"
 
 [badPR]
 hash = "sha1-7df112903b8328763bd8fe09d1295fbb4156cd23"
-other = "- bad PR, pay attention to the following advises: \\n"
+other = "- плохой PR, Обрати внимание на советы: \\n"
 
 [checkStandup]
 hash = "sha1-a7eb979ca3562c99e48d8f411692b50a29bb7cbf"
-other = "Good standup, post it to the group!"
+other = "Хороший стендап! Можно постить в группу"
 
 [checkStandupWithAdvises]
-few = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
+few = "Дам несколько советов по стендапу \\n {{.Advises}}"
 hash = "sha1-b2472c9321d610bb48401208ebb5aabda09076d8"
-many = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
-one = "Standup is going to be more usefull with one advise: \\n {{.Advises}}"
-other = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
+many = "Дам несколько советов по стендапу \\n {{.Advises}}"
+one = "Дам один совет по стендапу: \\n {{.Advises}}"
+other = "Дам несколько советов по стендапу \\n {{.Advises}}"
 
 [closingPart]
 hash = "sha1-d75bb3e99630fefe1bbe7bd257803eb77df0b2fc"
-other = "I will kick you from the group if you miss 3 standups. In case of any unexpected behaviour DM @anatoliyfedorenko"
+other = "Я удаляю из группы если пропущено более 3х стендапов. За все мои ошибки отвечает @anatoliyfedorenko"
 
 [createStanduperFailed]
 hash = "sha1-0c2c7f510c062191a09701b7d62a1f7ce754054b"
-other = "Could not add you to standup team"
+other = "не удалось добавить вас в команду стендаперов"
 
 [failedLeaveStanupers]
 hash = "sha1-c7374272c4a00a4dc1b1d8f6ac46c75a5e2f8129"
-other = "Could not remove you from standup team"
+other = "Не удалось убрать вас из стендаперов"
 
 [failedRecognizeTZ]
 hash = "sha1-a31bd479bb70e1789ef1b53beaca1f4ee22931c5"
@@ -86,112 +86,112 @@ other = "Failed to recognize new TZ you entered, double check the tz name and tr
 
 [failedRemoveStandupDeadline]
 hash = "sha1-20b5795d14f0bb6c66529d224bb91271b86470f9"
-other = "Could not remove standup deadline"
+other = "Не удалось убрать крайний срок сдачи стендапов"
 
 [failedUpdateStandupDeadline]
 hash = "sha1-f216fc7d2c8ea294b46d350e21eac60153f85465"
-other = "Could not edit standup deadline"
+other = "Не смог обновить срок сдачи стендапов"
 
 [failedUpdateTZ]
 hash = "sha1-ce1fbc677f0e60cb0930a0daffc6cf3effeea900"
-other = "Failed to update Timezone"
+other = "Не удалось обновить часовой пояс"
 
 [goodPR]
 hash = "sha1-5379ae28a52e0459744cb0e23f01df2556b87b30"
-other = "- good PR, review indeed needed!"
+other = "- хороший PR, нужно сделать ревью!"
 
 [greatStandup]
 hash = "sha1-4efb9052545374bb15381f6c6560a36f0e3a6621"
-other = "Standup accepted and it looks awesome!"
+other = "Стендап принят и кажется он шикарный!"
 
 [helpText]
 hash = "sha1-13b29cbe9fc8342d176d8c8a6ad7e618311c14ed"
-other = "List of awailable commands:\n\t\t\t/join - add you to standup team\n\t\t\t/show - shows who is in standup team\n\t\t\t/leave - leave standup team to stop submit standups\n\t\t\t/edit_deadline - Set standups deadline (formats: 13:50, 1:50pm)\n\t\t\t/show_deadline - Show current standup deadline\n\t\t\t/group_tz - Change group time zone (defaulting to : Asia/Bishkek)\n\t\t\t/tz - Change individual Time Zone (defaulting to: Asia/Bishkek)\n\t\t\n\t\t\tLooking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaiviour"
+other = "Список доступных команд:\n\t\t\t/help - Показывает список команд\n\t\t\t/join - Добавляет вас в стендаперы группы\n\t\t\t/show - Показывает кто сдает стендапы в группе\n\t\t\t/leave - Бот перестаёт отслеживать ваши стендапы\n\t\t\t/edit_deadline - Назначить крайний срок сдачи стендапов (форматы: 13:50, 1:50pm)\n\t\t\t/show_deadline - Показывает срок сдачи стендапов\n\t\t\t/group_tz - Изменить часовой пояс группы (по умолчнию: Asia/Bishkek)\n\t\t\t/tz - Изменить часовой пояс стендапера (по умолчанию: Asia/Bishkek)\n\t\t\tС нетерпением жду ваших стендапов! За все мои ошибки отвечает @anatoliyfedorenko"
 
 [leaveStanupers]
 hash = "sha1-aa349b49e8cfa8132c055dabfa72436424101503"
-other = "You no longer have to submit standups, thanks for all your standups and messages"
+other = "Вам больше не нужно сдавать стендапы, спасибо за все ваши сообщения!"
 
 [noProblemsMention]
 hash = "sha1-fd5ada3d46270c013bc30233b94e7c12a304fbc0"
-other = "- no 'problems' keywords detected: {{.Keywords}}"
+other = "- нет ключевых слов блока 'проблемы' {{.Keywords}}"
 
 [noStandupDeadline]
 hash = "sha1-a1e4959733ee1f6f257bc4e5b81be38cf58ecc6b"
-other = "Standup deadline is not set"
+other = "Крайний срок сдачи стендапов не установлен"
 
 [noTodayMention]
 hash = "sha1-a414039575828892ae739899cf3303299a3094f7"
-other = "- no 'today' keywords detected: {{.Keywords}}"
+other = "- нет ключевых слов блока 'сегодня': {{.Keywords}}"
 
 [noYesterdayMention]
 hash = "sha1-bdff0c3bc740bf4fb242f13c35b3f78894e49b0e"
-other = "- no 'yesterday' keywords detected: {{.Keywords}}"
+other = "- нет ключевых слов блока 'вчера': {{.Keywords}}"
 
 [notStandup]
 hash = "sha1-241823387c28531a67f9e9d0a29ac62a6d9dd92f"
-other = "Seems like this is not a standup, double check keywords for errors \\n\\n"
+other = "Кажется это вообще не стендап, перепроверьте ключевые слова \\n\\n"
 
 [notStanduper]
 hash = "sha1-1c88a37c3eb3279a3f0cf6b8cb6f0a0ee737f61b"
-other = "You do not standup yet"
+other = "Вы еще не стендапите"
 
 [notifyNonReporters]
 hash = "sha1-142938d8dffdb407f513f995075d07f6f57b0da0"
-other = "Attention, {{.Intern}}! you have just missed the deadline! submit standups ASAP. {{.Skips}} skips left \\n\\n"
+other = "Внимение, {{.Intern}}! ты только что пропустил дедлайн! Отправь стендап как можно скорее и не подводи команду! осталось пропусков: {{.Skips}} \\n\\n"
 
 [removeStandupDeadline]
 hash = "sha1-6444dd89936abbd9a8cc0a99e16394a0ca1b9dc6"
-other = "Standup deadline removed"
+other = "Крайний срок сдачи стендапов отменён"
 
 [standupDeadline]
 hash = "sha1-ea3081ccdecf6671ddcec3241e9fa1ed89d856ce"
-other = "Standup deadline set for everyday at {{.Deadline}} exept weekeds"
+other = "Пишите стендапы каждый день до {{.Deadline}} кроме выходных"
 
 [standupDeadlinePart]
 hash = "sha1-613de00f5a0dcd150ffd3a3952473475a4ac80ef"
-other = "Submit your standups before, {{.Deadline}}! You do not have to write standups on weekends"
+other = "Сдавайте стендапы до {{.Deadline}}! Можете не писать стендапы на выходных"
 
 [standupUpdated]
 hash = "sha1-273954d72c1f9d0289de4deb0c141877bf9a6796"
-other = "Standup was successfully updated!"
+other = "Стендап успешно обновлен"
 
 [standupsCheckPart]
 hash = "sha1-c882038121c7508042c30bd406817fdc5b6a315c"
-other = "If you would like to validate your standup, direct message me with the text and I can check it to give advises. \\n"
+other = "Если хотите узнать приму ли я стендап или увидеть советы по его улучшению, напишите мне текст в личные сообщения. \\n"
 
 [updateStandupDeadline]
 hash = "sha1-bfd3f195e36e139ad0643664950c0dd74da9fde2"
-other = "Edited standup deadline, new deadline is {{.Deadline}}"
+other = "Крайний срок сдачи стендапов изменён на {{.Deadline}}"
 
 [updateTZ]
 hash = "sha1-ec2a5b809759814ed5dbe1020c591babb0443c28"
-other = "Group timezone is updated, new TZ is {{.TZ}}"
+other = "Часовой пояс группы обновлен на {{.TZ}}"
 
 [updateUserTZ]
 hash = "sha1-32171fe98964d605c38ef1811374a3f4000cdf70"
-other = "your timezone is updated, new TZ is {{.TZ}}"
+other = "ваш часовой пояс обновлен на {{.TZ}}"
 
 [warnNonReporters]
 hash = "sha1-110c285a568b1e30afc054d7e53416842c418bf6"
-other = "Attention, {{.Intern}} {{.Warn}} minutes till deadline, submit standups ASAP. {{.Skips}} skips left \\n\\n"
+other = "Внимание, {{.Intern}} осталось {{.Warn}} минут до дедлайна, срочно пиши стендап. Пропусков осталось: {{.Skips}} \\n\\n"
 
 [welcomeMessage]
 hash = "sha1-d9516b2433ca3473e04d7523ec08314e482cfb51"
-other = "Hello! I will help you to not forget about standups and write them properly. tag @anatoliyfedorenko if you find any bug or unexpected behaiviour :)"
+other = "Приветствую! Я буду помогать вам не забывать о стендапах и улучшать их качество и пользу. За все мои проблемы в ответе @anatoliyfedorenko :)"
 
 [welcomeNoDedline]
 hash = "sha1-e57fbe3ef11584376832f8981aa8728f0b291e32"
-other = "Welcome to the standup team, no standup deadline has been setup yet"
+other = "Добро пожаловать в стендап команду, дедлайна пока не установлено"
 
 [welcomePart]
 hash = "sha1-8c3852e47b6c068fdf1b0b6f1d2f491f923af3d0"
-other = "Hello, {{.Intern}}! Welcome to {{.GroupName}}"
+other = "Привет, {{.Intern}}! Добро пожаловать в {{.GroupName}}"
 
 [welcomeWithDedline]
 hash = "sha1-9c0fb2113888323c689d5d30bd4641f5caf57505"
-other = "Welcome to the standup team, please, submit your standups no later than {{.Deadline}}"
+other = "Добро пожаловать! Жду стендапы от вас до {{.Deadline}} каждый день кроме выходных"
 
 [youAlreadyStandup]
 hash = "sha1-3a2af532b419e8e30e0668a9880805acd5a2a8be"
-other = "You already a part of standup team"
+other = "Вы уже стендапите"
