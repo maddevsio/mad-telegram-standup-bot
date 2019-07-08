@@ -62,7 +62,6 @@ func (b *Bot) Help(event tgbotapi.Update) error {
 
 //JoinStandupers assign user a standuper role
 func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
-	log.Info(event.Message.From.LanguageCode)
 	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
 	_, err := b.db.FindStanduper(event.Message.From.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err == nil {

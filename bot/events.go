@@ -21,7 +21,6 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 	if message.Chat.Type == "private" {
 		ok, errors := isStandup(message.Text)
 		if !ok {
-			log.Info(message.From.LanguageCode)
 			localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 			text, err := localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
@@ -44,7 +43,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 		text, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
-				ID:    "good standup",
+				ID:    "checkStandup",
 				Other: "Good standup, post it to the group!",
 			},
 		})
@@ -52,7 +51,20 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 			log.Error(err)
 		}
 		if len(advises) != 0 {
-			text = "Чтобы стендап был более полезен вот несколько советов: \n" + strings.Join(advises, "\n")
+			text, err = localizer.Localize(&i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "checkStandupWithAdvises",
+					One:   "Standup is going to be more usefull with one advise: \n {{.Advises}}",
+					Two:   "Standup is going to be more usefull with two advises: \n {{.Advises}}",
+					Few:   "Standup is going to be more usefull with several advises: \n {{.Advises}}",
+					Many:  "Standup is going to be more usefull with several advises: \n {{.Advises}}",
+					Other: "Standup is going to be more usefull with several advises: \n {{.Advises}}",
+				},
+				TemplateData: map[string]interface{}{
+					"Advises": strings.Join(advises, "\n"),
+				},
+				PluralCount: len(advises),
+			})
 		}
 
 		msg := tgbotapi.NewMessage(message.Chat.ID, text)
@@ -126,6 +138,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 
 //HandleMessageEvent function to analyze and save standups
 func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
+	localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 
 	if !strings.Contains(message.Text, b.tgAPI.Self.UserName) {
 		return nil
@@ -154,11 +167,32 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 		}
 
 		advises, _ := analyzeStandup(message.Text)
-
-		text := "Спасибо, стендап принят, и, кажется, он классный!"
+		greatStandup, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "greatStandup",
+				Other: "Standup accepted and it looks awesome!",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		text := greatStandup
 
 		if len(advises) != 0 {
-			text = "Стендап принимается, но позволь дать пару советов: \n" + strings.Join(advises, "\n")
+			text, err = localizer.Localize(&i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "acceptStandupWithAdvises",
+					One:   "Standup is accepted, but let me give you one advise: \n {{.Advises}}",
+					Two:   "Standup is accepted, but let me give you two advises: \n {{.Advises}}",
+					Few:   "Standup is accepted, but let me give you several advises: \n {{.Advises}}",
+					Many:  "Standup is accepted, but let me give you several advises: \n {{.Advises}}",
+					Other: "Standup is accepted, but let me give you several advises: \n {{.Advises}}",
+				},
+				TemplateData: map[string]interface{}{
+					"Advises": strings.Join(advises, "\n"),
+				},
+				PluralCount: len(advises),
+			})
 		}
 
 		msg := tgbotapi.NewMessage(message.Chat.ID, text)
@@ -173,7 +207,16 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 		return err
 	}
 
-	msg := tgbotapi.NewMessage(message.Chat.ID, "Cтендап обновлён!")
+	standupUpdated, err := localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "standupUpdated",
+			Other: "Standup was successfully updated!",
+		},
+	})
+	if err != nil {
+		log.Error(err)
+	}
+	msg := tgbotapi.NewMessage(message.Chat.ID, standupUpdated)
 	msg.ReplyToMessageID = message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
@@ -214,21 +257,22 @@ func (b *Bot) HandleChannelLeftEvent(event tgbotapi.Update) error {
 
 //HandleChannelJoinEvent function to add bot and standupers t0 channels
 func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
+
 	for _, member := range *event.Message.NewChatMembers {
 		// if user is a bot
 		if member.UserName == b.tgAPI.Self.UserName {
 
-			_, err := b.db.FindGroup(event.Message.Chat.ID)
+			group, err := b.db.FindGroup(event.Message.Chat.ID)
 			if err != nil {
 				log.Info("Could not find the group, creating...")
-				group, err := b.db.CreateGroup(&model.Group{
+				group, err = b.db.CreateGroup(&model.Group{
 					ChatID:          event.Message.Chat.ID,
 					Title:           event.Message.Chat.Title,
 					Username:        event.Message.Chat.UserName,
 					Description:     event.Message.Chat.Description,
 					StandupDeadline: "10:00",
 					TZ:              "Asia/Bishkek", // default value...
-					Language:        "ru_RU",        // default value...
+					Language:        "en",           // default value...
 				})
 				if err != nil {
 					return err
@@ -236,8 +280,19 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 
 				b.watchersChan <- group
 			}
+
+			localizer := i18n.NewLocalizer(b.bundle, group.Language)
+			text, err := localizer.Localize(&i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "welcomeMessage",
+					Other: "Hello! I will help you to not forget about standups and write them properly. tag @anatoliyfedorenko if you find any bug or unexpected behaiviour :)",
+				},
+			})
+			if err != nil {
+				log.Error(err)
+			}
+
 			// Send greeting message after success group save
-			text := "Всем привет! Я буду помогать вам не забывать о сдаче стендапов вовремя. За все мои ошибки отвечает @anatoliyfedorenko :)"
 			_, err = b.tgAPI.Send(tgbotapi.NewMessage(event.Message.Chat.ID, text))
 			return err
 		}
@@ -279,19 +334,60 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 			}
 		}
 
+		localizer := i18n.NewLocalizer(b.bundle, group.Language)
+
 		var welcome, onbording, deadline, closing string
 
-		welcome = fmt.Sprintf("Привет, @%v! Добро пожаловать в %v!\n", member.UserName, event.Message.Chat.Title)
+		welcome, err = localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "welcomePart",
+				Other: "Hello, {{.Intern}}! Welcome to {{.GroupName}}",
+			},
+			TemplateData: map[string]interface{}{
+				"Intern":    member.UserName,
+				"GroupName": event.Message.Chat.Title,
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
 
 		onbording = strings.Replace(b.c.OnbordingMessage, `"`, "", -1) + "\n\n"
 
 		if group.StandupDeadline != "" {
-			deadline = fmt.Sprintf("Срок сдачи стендапов ежедневно до %s. В выходные пишите стендапы по желанию.\n\n", group.StandupDeadline)
+			deadline, err = localizer.Localize(&i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "standupDeadlinePart",
+					Other: "Submit your standups before, {{.Deadline}}! You do not have to write standups on weekends",
+				},
+				TemplateData: map[string]interface{}{
+					"Deadline": group.StandupDeadline,
+				},
+			})
+			if err != nil {
+				log.Error(err)
+			}
 		}
 
-		standups := "Если сомневаетесь в стендапе, напишите мне в личку, я проверю, всё ли в порядке. Не стесняйтесь \n"
+		standups, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "standupsCheckPart",
+				Other: "If you would like to validate your standup, direct message me with the text and I can check it to give advises. \n",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
 
-		closing = "Я менеджер, который не принимает отговорок. Если вы пропустили стендап два раза, я удалю вас из группы на третий пропуск. Если по каким-либо серьезным причинам нужно перестать ждать стендапы от вас, сделайте /leave .\n\nЗа все мои ошибки отвечает @anatoliyfedorenko"
+		closing, err = localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "closingPart",
+				Other: "I will kick you from the group if you miss 3 standups. In case of any unexpected behaviour DM @anatoliyfedorenko",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
 
 		text := welcome + onbording + deadline + standups + closing
 
