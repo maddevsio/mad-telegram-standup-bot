@@ -40,19 +40,27 @@ func (b *Bot) HandleCommand(event tgbotapi.Update) error {
 
 //Help displays help message
 func (b *Bot) Help(event tgbotapi.Update) error {
-	text := `Список доступных команд:
-	/join - Добавляет вас в стендаперы группы
-	/show - Показывает кто сдает стендапы в группе
-	/leave - Бот перестаёт отслеживать ваши стендапы 
-	/edit_deadline - Назначить крайний срок сдачи стендапов (форматы: 13:50, 1:50pm)
-	/show_deadline - Показывает срок сдачи стендапов
-	/group_tz - Изменить часовой пояс группы (по умолчнию: Asia/Bishkek)
-	/tz - Изменить часовой пояс стендапера (по умолчанию: Asia/Bishkek)
-
-	С нетерпением жду ваших стендапов! За все мои ошибки отвечает @anatoliyfedorenko
-	`
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, text)
-	_, err := b.tgAPI.Send(msg)
+	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
+	helpText, err := localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID: "helpText",
+			Other: `List of awailable commands:
+			/join - add you to standup team
+			/show - shows who is in standup team
+			/leave - leave standup team to stop submit standups
+			/edit_deadline - Set standups deadline (formats: 13:50, 1:50pm)
+			/show_deadline - Show current standup deadline
+			/group_tz - Change group time zone (defaulting to : Asia/Bishkek)
+			/tz - Change individual Time Zone (defaulting to: Asia/Bishkek)
+		
+			Looking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaiviour`,
+		},
+	})
+	if err != nil {
+		log.Error(err)
+	}
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, helpText)
+	_, err = b.tgAPI.Send(msg)
 	return err
 }
 
