@@ -12,6 +12,8 @@ RUN  apt-get update \
 RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 ENV LANG en_US.utf8
 
+COPY active.en.toml  /
+COPY active.ru.toml  / 
 COPY --from=0 /go/src/github.com/maddevsio/mad-internship-bot/mad-internship-bot /
 COPY --from=0 /go/src/github.com/maddevsio/mad-internship-bot/migrations /migrations
 COPY --from=0 /go/src/github.com/maddevsio/mad-internship-bot/goose /

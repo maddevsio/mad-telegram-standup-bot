@@ -16,11 +16,13 @@ type MySQL struct {
 
 // NewMySQL creates a new instance of database API
 func NewMySQL(c *config.BotConfig) (*MySQL, error) {
-	m := &MySQL{}
 	conn, err := sqlx.Open("mysql", c.DatabaseURL)
 	if err != nil {
-		return nil, err
+		conn, err = sqlx.Connect("mysql", "telegram:telegram@tcp(localhost:3306)/telegram?parseTime=true")
+		if err != nil {
+			return nil, err
+		}
 	}
-	m.conn = conn
+	m := &MySQL{conn}
 	return m, nil
 }

@@ -85,6 +85,18 @@
   version = "v1.0.2"
 
 [[projects]]
+  digest = "1:9ec326968a90b62ddaf7696f3c0381102be1c9a2330e7460d4e61785542c1947"
+  name = "github.com/nicksnyder/go-i18n"
+  packages = [
+    "v2/i18n",
+    "v2/internal",
+    "v2/internal/plural",
+  ]
+  pruneopts = "UT"
+  revision = "0c6ce6ac1e8c119993c3d5638af4f7cd67ff068a"
+  version = "v2.0.2"
+
+[[projects]]
   branch = "master"
   digest = "1:0870734581fede93c3c37bc8ce0437ad9d5aa1491713e9848b08ba9003e5ff7c"
   name = "github.com/olebedev/when"
@@ -98,6 +110,14 @@
   ]
   pruneopts = "UT"
   revision = "c3b538a972545a9584eadaea351b97264f29e8a8"
+
+[[projects]]
+  digest = "1:93131d8002d7025da13582877c32d1fc302486775a1b06f62241741006428c5e"
+  name = "github.com/pelletier/go-toml"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "728039f679cbcd4f6a54e080d2219a4c4928c546"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
@@ -167,6 +187,21 @@
   revision = "15dcb6c0061f497a3f66e3ea034b629c6dd4d99e"
 
 [[projects]]
+  digest = "1:d55e0738476edb61bb4f763f407b80df7243480b84ba46ddeda64e43c26a7136"
+  name = "golang.org/x/text"
+  packages = [
+    "internal/gen",
+    "internal/language",
+    "internal/language/compact",
+    "internal/tag",
+    "language",
+    "unicode/cldr",
+  ]
+  pruneopts = "UT"
+  revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
+  version = "v0.3.2"
+
+[[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
   name = "google.golang.org/appengine"
   packages = ["cloudsql"]
@@ -184,12 +219,15 @@
     "github.com/google/go-github/github",
     "github.com/jmoiron/sqlx",
     "github.com/kelseyhightower/envconfig",
+    "github.com/nicksnyder/go-i18n/v2/i18n",
     "github.com/olebedev/when",
     "github.com/olebedev/when/rules/en",
     "github.com/olebedev/when/rules/ru",
+    "github.com/pelletier/go-toml",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
+    "golang.org/x/text/language",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

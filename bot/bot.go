@@ -7,6 +7,7 @@ import (
 	"github.com/maddevsio/mad-internship-bot/config"
 	"github.com/maddevsio/mad-internship-bot/model"
 	"github.com/maddevsio/mad-internship-bot/storage"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -16,6 +17,7 @@ const (
 
 // Bot structure
 type Bot struct {
+	bundle       *i18n.Bundle
 	c            *config.BotConfig
 	tgAPI        *tgbotapi.BotAPI
 	updates      tgbotapi.UpdatesChannel
@@ -30,7 +32,7 @@ var todayPlansKeywords = []string{"сегодня"}
 var issuesKeywords = []string{"мешает", "проблем"}
 
 // New creates a new bot instance
-func New(c *config.BotConfig) (*Bot, error) {
+func New(c *config.BotConfig, bundle *i18n.Bundle) (*Bot, error) {
 	newBot, err := tgbotapi.NewBotAPI(c.TelegramToken)
 	if err != nil {
 		return nil, err
@@ -62,6 +64,7 @@ func New(c *config.BotConfig) (*Bot, error) {
 		db:           conn,
 		watchersChan: wch,
 		teams:        teams,
+		bundle:       bundle,
 	}
 
 	return b, nil

@@ -7,10 +7,12 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/maddevsio/mad-internship-bot/model"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	log "github.com/sirupsen/logrus"
 )
 
 func (b *Bot) handleUpdate(update tgbotapi.Update) error {
+	localizer := i18n.NewLocalizer(b.bundle, "en_US")
 
 	message := update.Message
 
@@ -21,11 +23,19 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 	if message.Chat.Type == "private" {
 		ok, errors := isStandup(message.Text)
 		if !ok {
-			text := "Не похоже что это стендап\n\n"
+			text, err := localizer.Localize(&i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "not standup",
+					Other: "Seems like this is not a standup, double check keywords for errors",
+				},
+			})
+			if err != nil {
+				log.Error(err)
+			}
 			text += strings.Join(errors, "\n")
 			msg := tgbotapi.NewMessage(message.Chat.ID, text)
 			msg.ReplyToMessageID = message.MessageID
-			_, err := b.tgAPI.Send(msg)
+			_, err = b.tgAPI.Send(msg)
 			return err
 		}
 
