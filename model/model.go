@@ -10,6 +10,7 @@ type Group struct {
 	Username        string `db:"username" json:"username"`
 	Description     string `db:"description" json:"description,omitempty"`
 	TZ              string `db:"tz" json:"tz"`
+	Language        string `db:"language" json:"language"`
 	StandupDeadline string `db:"standup_deadline" json:"standup_deadline,omitempty"`
 }
 

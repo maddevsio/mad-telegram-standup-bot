@@ -190,6 +190,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 					Description:     event.Message.Chat.Description,
 					StandupDeadline: "10:00",
 					TZ:              "Asia/Bishkek", // default value...
+					Language:        "ru_RU",        // default value...
 				})
 				if err != nil {
 					return err
@@ -233,6 +234,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 				Description:     event.Message.Chat.Description,
 				StandupDeadline: "10:00",
 				TZ:              "Asia/Bishkek", // default value...
+				Language:        "ru_RU",        // default value...
 			})
 			if err != nil {
 				return err
