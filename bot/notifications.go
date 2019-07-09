@@ -35,8 +35,13 @@ func (b *Bot) trackStandupersIn(team *model.Team) {
 	for {
 		select {
 		case <-ticker:
-			b.WarnGroup(team.Group, time.Now())
-			b.NotifyGroup(team.Group, time.Now())
+			loc, err := time.LoadLocation(team.Group.TZ)
+			if err != nil {
+				log.Error("failed to load location for ", team.Group)
+				continue
+			}
+			b.WarnGroup(team.Group, time.Now().In(loc))
+			b.NotifyGroup(team.Group, time.Now().In(loc))
 		case <-team.QuitChan:
 			log.Info("Finish working with the group: ", team.QuitChan)
 			return
@@ -107,7 +112,7 @@ func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
 		warn, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "warnNonReporters",
-				Other: "Attention, {{.Intern}} {{.Warn}} minutes till deadline, submit standups ASAP. {{.Skips}} skips left \n\n",
+				Other: "Attention, {{.Intern}} {{.Warn}} minutes till deadline, submit standups ASAP. {{.Skips}} skips left",
 			},
 			TemplateData: map[string]interface{}{
 				"Intern": key,
@@ -208,7 +213,7 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 		notify, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "notifyNonReporters",
-				Other: "Attention, {{.Intern}}! you have just missed the deadline! submit standups ASAP. {{.Skips}} skips left \n\n",
+				Other: "Attention, {{.Intern}}! you have just missed the deadline! submit standups ASAP. {{.Skips}} skips left",
 			},
 			TemplateData: map[string]interface{}{
 				"Intern": key,

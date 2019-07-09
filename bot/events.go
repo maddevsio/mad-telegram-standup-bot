@@ -25,7 +25,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 			text, err := localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
 					ID:    "notStandup",
-					Other: "Seems like this is not a standup, double check keywords for errors \n\n",
+					Other: "Seems like this is not a standup, double check keywords for errors. ",
 				},
 			})
 			if err != nil {

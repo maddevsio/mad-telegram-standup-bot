@@ -137,16 +137,16 @@ hash = "sha1-bdff0c3bc740bf4fb242f13c35b3f78894e49b0e"
 other = "- нет ключевых слов блока 'вчера': {{.Keywords}}"
 
 [notStandup]
-hash = "sha1-241823387c28531a67f9e9d0a29ac62a6d9dd92f"
-other = "Кажется это вообще не стендап, перепроверьте ключевые слова \\n\\n"
+hash = "sha1-5aef6e43386c994b89fe7dac6996efeb3c1f7fef"
+other = "Кажется, что это вообще не стендап, перепроверь ключевые слова. "
 
 [notStanduper]
 hash = "sha1-1c88a37c3eb3279a3f0cf6b8cb6f0a0ee737f61b"
 other = "Вы еще не стендапите"
 
 [notifyNonReporters]
-hash = "sha1-142938d8dffdb407f513f995075d07f6f57b0da0"
-other = "Внимение, {{.Intern}}! ты только что пропустил дедлайн! Отправь стендап как можно скорее и не подводи команду! осталось пропусков: {{.Skips}} \\n\\n"
+hash = "sha1-dd200a772f8e0ea6c52535b56fbc907c9e97a504"
+other = "Внимание, {{.Intern}}! Ты только что пропустил дедлайн сдачи стендапа! Срочно пиши стендап и не подводи команды. Осталось пропусков: {{.Skips}} "
 
 [removeOnbordingMessage]
 hash = "sha1-6444dd89936abbd9a8cc0a99e16394a0ca1b9dc6"
@@ -196,8 +196,8 @@ hash = "sha1-32171fe98964d605c38ef1811374a3f4000cdf70"
 other = "ваш часовой пояс обновлен на {{.TZ}}"
 
 [warnNonReporters]
-hash = "sha1-110c285a568b1e30afc054d7e53416842c418bf6"
-other = "Внимание, {{.Intern}} осталось {{.Warn}} минут до дедлайна, срочно пиши стендап. Пропусков осталось: {{.Skips}} \\n\\n"
+hash = "sha1-b7a7ae4f782354a342ba83f57094abd4ea65c887"
+other = "Внимание, {{.Intern}} {{.Warn}} минут до дедлайна, Срочно пиши стендап и не подводи команды. Осталось пропусков: {{.Skips}} "
 
 [welcomeMessage]
 hash = "sha1-d9516b2433ca3473e04d7523ec08314e482cfb51"
