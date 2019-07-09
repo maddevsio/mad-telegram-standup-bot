@@ -4,14 +4,15 @@ import "time"
 
 //Group represents separate chat that bot was added to to handle standups
 type Group struct {
-	ID              int64
-	ChatID          int64  `db:"chat_id" json:"chat_id,omitempty"`
-	Title           string `db:"title" json:"title"`
-	Username        string `db:"username" json:"username"`
-	Description     string `db:"description" json:"description,omitempty"`
-	TZ              string `db:"tz" json:"tz"`
-	Language        string `db:"language" json:"language"`
-	StandupDeadline string `db:"standup_deadline" json:"standup_deadline,omitempty"`
+	ID               int64
+	ChatID           int64  `db:"chat_id" json:"chat_id,omitempty"`
+	Title            string `db:"title" json:"title"`
+	Username         string `db:"username" json:"username"`
+	Description      string `db:"description" json:"description,omitempty"`
+	TZ               string `db:"tz" json:"tz"`
+	Language         string `db:"language" json:"language"`
+	StandupDeadline  string `db:"standup_deadline" json:"standup_deadline,omitempty"`
+	OnbordingMessage string `db:"onbording_message" json:"onbording_message,omitempty"`
 }
 
 //Team is a helper struct to watch after different channels deadlines

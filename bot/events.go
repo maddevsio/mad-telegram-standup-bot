@@ -352,7 +352,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 			log.Error(err)
 		}
 
-		onbording = strings.Replace(b.c.OnbordingMessage, `"`, "", -1) + "\n\n"
+		onbording = group.OnbordingMessage + "\n\n"
 
 		if group.StandupDeadline != "" {
 			deadline, err = localizer.Localize(&i18n.LocalizeConfig{

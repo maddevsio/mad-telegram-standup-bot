@@ -9,8 +9,8 @@ import (
 // CreateGroup creates Group
 func (m *MySQL) CreateGroup(group *model.Group) (*model.Group, error) {
 	res, err := m.conn.Exec(
-		"INSERT INTO `groups` (chat_id, title, username, description, standup_deadline, tz, language) VALUES (?, ?, ?, ?, ?, ?, ?)",
-		group.ChatID, group.Title, group.Username, group.Description, group.StandupDeadline, group.TZ, group.Language,
+		"INSERT INTO `groups` (chat_id, title, username, description, standup_deadline, tz, language, onbording_message) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+		group.ChatID, group.Title, group.Username, group.Description, group.StandupDeadline, group.TZ, group.Language, group.OnbordingMessage,
 	)
 	if err != nil {
 		return nil, err
@@ -26,8 +26,8 @@ func (m *MySQL) CreateGroup(group *model.Group) (*model.Group, error) {
 // UpdateGroup updates Group entry in database
 func (m *MySQL) UpdateGroup(group *model.Group) (*model.Group, error) {
 	m.conn.Exec(
-		"UPDATE `groups` SET title=?, tz=?, language=? username=?, description=?, standup_deadline=? WHERE id=?",
-		group.Title, group.TZ, group.Language, group.Username, group.Description, group.StandupDeadline, group.ID,
+		"UPDATE `groups` SET title=?, tz=?, language=? username=?, description=?, standup_deadline=?, onbording_message=? WHERE id=?",
+		group.Title, group.TZ, group.Language, group.Username, group.Description, group.StandupDeadline, group.OnbordingMessage, group.ID,
 	)
 	err := m.conn.Get(group, "SELECT * FROM `groups` WHERE id=?", group.ID)
 	return group, err

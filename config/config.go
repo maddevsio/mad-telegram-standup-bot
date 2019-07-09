@@ -4,10 +4,9 @@ import "github.com/kelseyhightower/envconfig"
 
 // BotConfig ...
 type BotConfig struct {
-	TelegramToken    string `envconfig:"TELEGRAM_TOKEN" required:"true"`
-	DatabaseURL      string `envconfig:"DATABASE_URL" required:"false" default:"telegram:telegram@tcp(localhost:3306)/telegram?parseTime=true"`
-	Debug            bool   `envconfig:"DEBUG" default:"false"`
-	OnbordingMessage string `envconfig:"ONBORDING_MESSAGE"`
+	TelegramToken string `envconfig:"TELEGRAM_TOKEN" required:"true"`
+	DatabaseURL   string `envconfig:"DATABASE_URL" required:"false" default:"telegram:telegram@tcp(localhost:3306)/telegram?parseTime=true"`
+	Debug         bool   `envconfig:"DEBUG" default:"false"`
 }
 
 // Get config data from environment

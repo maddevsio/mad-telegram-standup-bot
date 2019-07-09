@@ -25,6 +25,8 @@ func (b *Bot) HandleCommand(event tgbotapi.Update) error {
 		return b.LeaveStandupers(event)
 	case "edit_deadline":
 		return b.EditDeadline(event)
+	case "update_onbording_message":
+		return b.UpdateOnbordingMessage(event)
 	case "show_deadline":
 		return b.ShowDeadline(event)
 	case "group_tz":
@@ -342,6 +344,100 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) error {
 		log.Error(err)
 	}
 	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateStandupDeadline)
+	msg.ReplyToMessageID = event.Message.MessageID
+	_, err = b.tgAPI.Send(msg)
+	return err
+}
+
+func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) error {
+	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
+	if err != nil {
+		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+	}
+
+	if !isAdmin {
+		log.Warn("User not an admin", event.Message.From.UserName)
+		return nil
+	}
+
+	onbordingMessage := event.Message.CommandArguments()
+
+	team := b.findTeam(event.Message.Chat.ID)
+	if team == nil {
+		log.Error("findTeam failed")
+		return fmt.Errorf("failed to find sutable team for edit deadline")
+	}
+
+	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
+
+	if strings.TrimSpace(onbordingMessage) == "" {
+		team.Group.OnbordingMessage = ""
+
+		_, err = b.db.UpdateGroup(team.Group)
+		if err != nil {
+			log.Error("Remove Deadline failed: ", err)
+			failedRemoveOnbordingMessage, err := localizer.Localize(&i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "failedRemoveOnbordingMessage",
+					Other: "Could not remove remove onbording message",
+				},
+			})
+			if err != nil {
+				log.Error(err)
+			}
+			msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedRemoveOnbordingMessage)
+			msg.ReplyToMessageID = event.Message.MessageID
+			_, err = b.tgAPI.Send(msg)
+			return err
+		}
+		log.Error("Remove Deadline failed: ", err)
+		removeOnbordingMessage, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "removeOnbordingMessage",
+				Other: "Standup deadline removed",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, removeOnbordingMessage)
+		msg.ReplyToMessageID = event.Message.MessageID
+		_, err = b.tgAPI.Send(msg)
+		return err
+	}
+
+	team.Group.OnbordingMessage = onbordingMessage
+
+	log.Info(team.Group)
+
+	_, err = b.db.UpdateGroup(team.Group)
+	if err != nil {
+		log.Error("UpdateGroup in EditDeadline failed: ", err)
+		failedUpdateOnbordingMessage, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "failedUpdateOnbordingMessage",
+				Other: "Could not edit onbording message",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateOnbordingMessage)
+		msg.ReplyToMessageID = event.Message.MessageID
+		_, err = b.tgAPI.Send(msg)
+		return err
+	}
+
+	updateOnbordingMessage, err := localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "updateOnbordingMessage",
+			Other: "Onbording message updated",
+		},
+	})
+	if err != nil {
+		log.Error(err)
+	}
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateOnbordingMessage)
 	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
