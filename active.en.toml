@@ -41,7 +41,7 @@ updateUserTZ = "your timezone is updated, new TZ is {{.TZ}}"
 warnNonReporters = "Attention, {{.Intern}} {{.Warn}} minutes till deadline, submit standups ASAP. {{.Skips}} skips left \\n\\n"
 welcomeMessage = "Hello! I will help you to not forget about standups and write them properly. tag @anatoliyfedorenko if you find any bug or unexpected behaviour :)"
 welcomeNoDedline = "Welcome to the standup team, no standup deadline has been setup yet"
-welcomePart = "Hello, {{.Intern}}! Welcome to {{.GroupName}}"
+welcomePart = "Hello, @{{.Intern}}! Welcome to {{.GroupName}}"
 welcomeWithDedline = "Welcome to the standup team, please, submit your standups no later than {{.Deadline}}"
 youAlreadyStandup = "You already a part of standup team"
 

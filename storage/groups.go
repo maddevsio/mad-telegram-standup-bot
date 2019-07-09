@@ -25,11 +25,14 @@ func (m *MySQL) CreateGroup(group *model.Group) (*model.Group, error) {
 
 // UpdateGroup updates Group entry in database
 func (m *MySQL) UpdateGroup(group *model.Group) (*model.Group, error) {
-	m.conn.Exec(
-		"UPDATE `groups` SET title=?, tz=?, language=? username=?, description=?, standup_deadline=?, onbording_message=? WHERE id=?",
+	_, err := m.conn.Exec(
+		"UPDATE `groups` SET title=?, tz=?, language=?, username=?, description=?, standup_deadline=?, onbording_message=? WHERE id=?",
 		group.Title, group.TZ, group.Language, group.Username, group.Description, group.StandupDeadline, group.OnbordingMessage, group.ID,
 	)
-	err := m.conn.Get(group, "SELECT * FROM `groups` WHERE id=?", group.ID)
+	if err != nil {
+		return group, err
+	}
+	err = m.conn.Get(group, "SELECT * FROM `groups` WHERE id=?", group.ID)
 	return group, err
 }
 

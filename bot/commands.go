@@ -362,6 +362,8 @@ func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) error {
 
 	onbordingMessage := event.Message.CommandArguments()
 
+	log.Info("Onbording Message: ", onbordingMessage)
+
 	team := b.findTeam(event.Message.Chat.ID)
 	if team == nil {
 		log.Error("findTeam failed")
@@ -410,7 +412,7 @@ func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) error {
 
 	log.Info(team.Group)
 
-	_, err = b.db.UpdateGroup(team.Group)
+	group, err := b.db.UpdateGroup(team.Group)
 	if err != nil {
 		log.Error("UpdateGroup in EditDeadline failed: ", err)
 		failedUpdateOnbordingMessage, err := localizer.Localize(&i18n.LocalizeConfig{
@@ -427,6 +429,8 @@ func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) error {
 		_, err = b.tgAPI.Send(msg)
 		return err
 	}
+
+	log.Info("Group after update: ", group)
 
 	updateOnbordingMessage, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
