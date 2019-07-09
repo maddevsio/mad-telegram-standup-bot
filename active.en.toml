@@ -61,3 +61,11 @@ many = "Standup is going to be more usefull with several advises: \\n {{.Advises
 one = "Standup is going to be more usefull with one advise: \\n {{.Advises}}"
 other = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
 two = "Standup is going to be more usefull with two advises: \\n {{.Advises}}"
+
+[showStandupers]
+few = "{{.Standupers}} submit standups in the team"
+many = "{{.Standupers}} submit standups in the team"
+one = "Only {{.Standupers}} standups in the team, /join to start standuping"
+other = "{{.Standupers}} submit standups in the team"
+two = "{{.Standupers}} submit standups in the team"
+zero = "No standupers in the team, /join to start standuping"

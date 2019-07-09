@@ -1,7 +1,6 @@
-[acceptStandupWithAdvises]
-hash = "sha1-900c00a2bbdffbe45361d602a2d8f89f30d0423d"
-few = "Стендап принят, но позволь дать несколько советов: "
-many = "Стендап принят, но позволь дать советы: "
-one = "Стендап принят, но позволь дать один совет: "
-two = "Стендап принят, но позволь дать пару советов: "
-other = "Стендап принят, но позволь дать несколько советов: "
+[showStandupers]
+few = "{{.Standupers}} submit standups in the team"
+hash = "sha1-7c1b080d825ac604d70c078f362aea96a5ca37d0"
+many = "{{.Standupers}} submit standups in the team"
+one = "{{.Standupers}} submit standups in the team"
+other = "{{.Standupers}} submit standups in the team"

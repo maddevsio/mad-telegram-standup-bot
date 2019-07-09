@@ -176,7 +176,7 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 
 	showStandupers, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
-			ID:    "checkStandupWithAdvises",
+			ID:    "showStandupers",
 			Zero:  "No standupers in the team, /join to start standuping",
 			One:   "Only {{.Standupers}} standups in the team, /join to start standuping",
 			Two:   "{{.Standupers}} submit standups in the team",
