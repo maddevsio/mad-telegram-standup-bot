@@ -182,17 +182,15 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 			text, err = localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
 					ID:    "acceptStandupWithAdvises",
-					One:   "Standup is accepted, but let me give you one advise: \n {{.Advises}}",
-					Two:   "Standup is accepted, but let me give you two advises: \n {{.Advises}}",
-					Few:   "Standup is accepted, but let me give you several advises: \n {{.Advises}}",
-					Many:  "Standup is accepted, but let me give you several advises: \n {{.Advises}}",
-					Other: "Standup is accepted, but let me give you several advises: \n {{.Advises}}",
-				},
-				TemplateData: map[string]interface{}{
-					"Advises": strings.Join(advises, "\n"),
+					One:   "Standup is accepted, but let me give you one advise: ",
+					Two:   "Standup is accepted, but let me give you couple advises: ",
+					Few:   "Standup is accepted, but let me give you several advises: ",
+					Many:  "Standup is accepted, but let me give you several advises: ",
+					Other: "Standup is accepted, but let me give you several advises: ",
 				},
 				PluralCount: len(advises),
 			})
+			text += "\n" + strings.Join(advises, "\n")
 		}
 
 		msg := tgbotapi.NewMessage(message.Chat.ID, text)

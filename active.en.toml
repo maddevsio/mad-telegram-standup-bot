@@ -49,11 +49,11 @@ welcomeWithDedline = "Welcome to the standup team, please, submit your standups 
 youAlreadyStandup = "You already a part of standup team"
 
 [acceptStandupWithAdvises]
-few = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
-many = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
-one = "Standup is accepted, but let me give you one advise: \\n {{.Advises}}"
-other = "Standup is accepted, but let me give you several advises: \\n {{.Advises}}"
-two = "Standup is accepted, but let me give you two advises: \\n {{.Advises}}"
+few = "Standup is accepted, but let me give you several advises: "
+many = "Standup is accepted, but let me give you several advises: "
+one = "Standup is accepted, but let me give you one advise: "
+other = "Standup is accepted, but let me give you several advises: "
+two = "Standup is accepted, but let me give you couple advises: "
 
 [checkStandupWithAdvises]
 few = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"

@@ -1,31 +1,7 @@
-[failedRemoveOnbordingMessage]
-hash = "sha1-b3f3c8d2c638036ea7efa947e33016c5b4abe305"
-other = "Не удалось очистить онбординг сообщение"
-
-[failedUpdateLanguage]
-hash = "sha1-297a4b55a5f69a07b7a242f0fb9029e82b2c6fdc"
-other = "Не удалось обновить язык группы"
-
-[failedUpdateOnbordingMessage]
-hash = "sha1-c3176e08ad0d2db0d5999da8ec55a9aec8bd63f1"
-other = "Не удалось обновить онбординг сообщение"
-
-[helpText]
-hash = "sha1-79a6cd0722a3ee1311b6d42a98fa6cfd42455224"
-other = "Список доступных команд:\n\t\t\t/join - добавляет в стендаперы\n\t\t\t/show - показывает кто стендапит\n\t\t\t/leave - перестать сдавать стендапы\n\t\t\t/edit_deadline - назначить крайний срок сдачи стендапов (форматы: 13:50, 1:50pm)\n\t\t\t/show_deadline - показать текущий срок сдачи стендаппов\n\t\t\t/group_tz - Изменить часовой пояс группы (по умолчанию : Asia/Bishkek)\n\t\t\t/tz - Изменить ваш часовой пояс (по умолчанию: Asia/Bishkek)\n\t\t\n\t\t\t С нетерпением жду ваших стендапов! За все ошибки отвечает @anatoliyfedorenko"
-
-[removeOnbordingMessage]
-hash = "sha1-6444dd89936abbd9a8cc0a99e16394a0ca1b9dc6"
-other = "Убрал крайний срок сдачи стендапов"
-
-[updateGroupLanguage]
-hash = "sha1-bda4f21c0e3e9a604a768553e73aab90688ca8e9"
-other = "Язык группы обновлен"
-
-[updateOnbordingMessage]
-hash = "sha1-0d62596bbc0ad2de2b996a603266fee31f5680e2"
-other = "Привественное сообщение обновлено"
-
-[welcomePart]
-hash = "sha1-63bb77b34d9aef8073b822f011f3fbfd4f4a76a0"
-other = "Привет, @{{.Intern}}! Добро пожаловать в {{.GroupName}}"
+[acceptStandupWithAdvises]
+hash = "sha1-900c00a2bbdffbe45361d602a2d8f89f30d0423d"
+few = "Стендап принят, но позволь дать несколько советов: "
+many = "Стендап принят, но позволь дать советы: "
+one = "Стендап принят, но позволь дать один совет: "
+two = "Стендап принят, но позволь дать пару советов: "
+other = "Стендап принят, но позволь дать несколько советов: "
