@@ -268,7 +268,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 					Title:           event.Message.Chat.Title,
 					Username:        event.Message.Chat.UserName,
 					Description:     event.Message.Chat.Description,
-					StandupDeadline: "10:00",
+					StandupDeadline: "",
 					TZ:              "Asia/Bishkek", // default value...
 					Language:        "en",           // default value...
 				})
@@ -323,7 +323,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 				ChatID:          event.Message.Chat.ID,
 				Title:           event.Message.Chat.Title,
 				Description:     event.Message.Chat.Description,
-				StandupDeadline: "10:00",
+				StandupDeadline: "",
 				TZ:              "Asia/Bishkek", // default value...
 				Language:        "ru_RU",        // default value...
 			})

@@ -109,7 +109,7 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 			ChatID:          event.Message.Chat.ID,
 			Title:           event.Message.Chat.Title,
 			Description:     event.Message.Chat.Description,
-			StandupDeadline: "10:00",
+			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 		})
 		if err != nil {
@@ -527,7 +527,7 @@ func (b *Bot) ShowDeadline(event tgbotapi.Update) error {
 			ChatID:          event.Message.Chat.ID,
 			Title:           event.Message.Chat.Title,
 			Description:     event.Message.Chat.Description,
-			StandupDeadline: "10:00",
+			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 		})
 		if err != nil {
@@ -597,7 +597,7 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
 			ChatID:          event.Message.Chat.ID,
 			Title:           event.Message.Chat.Title,
 			Description:     event.Message.Chat.Description,
-			StandupDeadline: "10:00",
+			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 		})
 		if err != nil {
