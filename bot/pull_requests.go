@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/google/go-github/github"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -56,35 +57,100 @@ func convertToAPIEndpoint(link string) string {
 	return link
 }
 
-func analyzePullRequest(pr github.PullRequest) []string {
+func (b *Bot) analyzePullRequest(pr github.PullRequest, language string) []string {
+	localizer := i18n.NewLocalizer(b.bundle, language)
+
 	errors := []string{}
 
 	if len(*pr.Body) < 50 {
-		errors = append(errors, "- нужно больше описания PRа")
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "analyzePRDescription",
+				Other: "- need more words in PR Description field",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		errors = append(errors, warnings)
 	}
 
 	if pr.Assignee == nil || len(pr.Assignees) == 0 {
-		errors = append(errors, "- непонятно кто работает над PR. в Assignees пусто")
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "analyzePRAsignee",
+				Other: "- need to add who is assigned to implement changes to this PR",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		errors = append(errors, warnings)
 	}
 
 	if pr.RequestedReviewers == nil || len(pr.RequestedReviewers) == 0 {
-		errors = append(errors, "- не назначен тот, который должен оставить ревью на PR")
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "analyzePRReviewer",
+				Other: "- no reviewers tagged, please, assign at least one",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		errors = append(errors, warnings)
 	}
 
 	if !*pr.Mergeable {
-		errors = append(errors, "- нельза смержить, нужно перепроверить код на конфликты")
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "analyzePRConflicts",
+				Other: "- no way to merge it. Fix conflicts first",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		errors = append(errors, warnings)
 	}
 
 	if !strings.ContainsAny(*pr.Title, "#") && !strings.ContainsAny(*pr.Body, "#") {
-		errors = append(errors, "- нет ссылок на тикеты которые закроет этот PR. необходимо всегда писать код по тикетам!")
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "analyzePRLinks",
+				Other: "- need to include links on tickets which would be closed by this PR",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		errors = append(errors, warnings)
 	}
 
 	if *pr.Additions > 300 {
-		errors = append(errors, "- слишком много проверять, надо раздробить PR на части")
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "analyzePRSize",
+				Other: "- PR contains too much changes. Divide it and resend.",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		errors = append(errors, warnings)
 	}
 
 	if strings.Contains(*pr.Title, "[WIP]") {
-		errors = append(errors, "- PR содержит незаконченную работу. переотправьте как будет всё готово")
+		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "analyzePRWIP",
+				Other: "- PR contains unfinished work, please, finish it and resend the link",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		errors = append(errors, warnings)
 	}
 
 	return errors

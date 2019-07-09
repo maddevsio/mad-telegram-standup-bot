@@ -1,11 +1,11 @@
 package bot
 
 import (
-	"fmt"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/maddevsio/mad-internship-bot/model"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/olebedev/when"
 	"github.com/olebedev/when/rules/en"
 	"github.com/olebedev/when/rules/ru"
@@ -47,6 +47,8 @@ func (b *Bot) trackStandupersIn(team *model.Team) {
 //WarnGroup launches go routines that warns standupers
 //about upcoming deadlines
 func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
+
 	if int(t.Weekday()) == 6 || int(t.Weekday()) == 0 {
 		return
 	}
@@ -102,7 +104,21 @@ func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
 	var text string
 
 	for key, value := range stillDidNotSubmit {
-		text += fmt.Sprintf("Внимание, %v, до дедлайна осталось %v минут! Срочно пишите стендап и не подводите команду! Осталось пропусков: %v \n\n", key, warnPeriod, allowedSkips-value)
+		warn, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "warnNonReporters",
+				Other: "Attention, {{.Intern}} {{.Warn}} minutes till deadline, submit standups ASAP. {{.Skips}} skips left \n\n",
+			},
+			TemplateData: map[string]interface{}{
+				"Intern": key,
+				"Warn":   warnPeriod,
+				"Skips":  allowedSkips - value,
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		text += warn
 	}
 
 	msg := tgbotapi.NewMessage(group.ChatID, text)
@@ -115,6 +131,8 @@ func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
 //NotifyGroup launches go routines that notify standupers
 //about upcoming deadlines
 func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
+
 	if int(t.Weekday()) == 6 || int(t.Weekday()) == 0 {
 		return
 	}
@@ -187,7 +205,20 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 	var text string
 
 	for key, value := range missed {
-		text += fmt.Sprintf("Внимание, %v, вы пропустили крайний срок сдачи стендапов! Срочно пишите стендап и не подводите команду! Осталось пропусков: %v \n\n", key, allowedSkips-value)
+		notify, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "notifyNonReporters",
+				Other: "Attention, {{.Intern}}! you have just missed the deadline! submit standups ASAP. {{.Skips}} skips left \n\n",
+			},
+			TemplateData: map[string]interface{}{
+				"Intern": key,
+				"Skips":  allowedSkips - value,
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		text += notify
 	}
 
 	msg := tgbotapi.NewMessage(group.ChatID, text)

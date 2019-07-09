@@ -1,0 +1,42 @@
+version: '2.2'
+
+networks:
+  integration-tests:
+    driver: bridge
+
+services:
+  bot:
+    image: golang:1.11.4
+    links:
+      - db:db
+    networks:
+      - integration-tests
+    environment:
+      - DATABASE_URL=telegram:telegram@tcp(db:3306)/telegram?parseTime=true
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - TZ=Asia/Bishkek
+    working_dir: /go/src/github.com/maddevsio/mad-internship-bot
+    volumes:
+      - ./:/go/src/github.com/maddevsio/mad-internship-bot
+    command: bash -c "./goose -dir migrations mysql 'telegram:telegram@tcp(db:3306)/telegram' up"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:5.7
+    ports:
+    - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: telegram
+      MYSQL_PASSWORD: telegram
+      MYSQL_DATABASE: telegram
+    healthcheck:
+      test: "mysql -utelegram --password=telegram -e 'show databases;' |grep telegram"
+      interval: 3s
+      timeout: 5s
+      retries: 10
+    networks:
+      - integration-tests
+
