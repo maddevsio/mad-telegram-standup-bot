@@ -1,4 +1,5 @@
 # Internship Bot for Telegram
+[![Developed by Mad Devs](badge.svg)](https://maddevs.io/)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Go Report Card](https://goreportcard.com/badge/github.com/maddevsio/mad-internship-bot)](https://goreportcard.com/report/github.com/maddevsio/mad-internship-bot)
 [![CircleCI](https://circleci.com/gh/maddevsio/mad-internship-bot.svg?style=svg)](https://circleci.com/gh/maddevsio/mad-internship-bot)
