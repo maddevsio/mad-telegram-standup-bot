@@ -156,6 +156,10 @@ other = "Убрал крайний срок сдачи стендапов"
 hash = "sha1-6444dd89936abbd9a8cc0a99e16394a0ca1b9dc6"
 other = "Крайний срок сдачи стендапов отменён"
 
+[showNoStandupers]
+hash = "sha1-e8aef7674bf966b36bed44a562a63103a54c327e"
+other = "Никто не стендапит, /join чтобы начать стендапить"
+
 [showStandupers]
 few = "{{.Standupers}} сдают стендапы в команде"
 hash = "sha1-7c1b080d825ac604d70c078f362aea96a5ca37d0"

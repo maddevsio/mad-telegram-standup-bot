@@ -165,12 +165,24 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 		list = append(list, "@"+standuper.Username)
 	}
 
-	log.Info("Standupers in the channel: ", list)
+	if len(list) == 0 {
+		showNoStandupers, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "showNoStandupers",
+				Other: "No standupers in the team, /join to start standuping",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, showNoStandupers)
+		_, err = b.tgAPI.Send(msg)
+		return err
+	}
 
 	showStandupers, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "showStandupers",
-			Zero:  "No standupers in the team, /join to start standuping",
 			One:   "Only {{.Standupers}} standups in the team, /join to start standuping",
 			Two:   "{{.Standupers}} submit standups in the team",
 			Few:   "{{.Standupers}} submit standups in the team",
