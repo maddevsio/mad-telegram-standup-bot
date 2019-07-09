@@ -29,14 +29,16 @@ goi18n merge active.*.toml translate.*.toml
 
 ## Available commands
 ```
-/help - Display list of available commands
-/join - Adds you to standup team of the group
-/show - Shows who submit standups
-/leave - Removes you from standup team of the group
-/edit_deadline - Sets new standup deadline (you can use 10am format or 15:30 format)
-/show_deadline - Shows current standup deadline
-/remove_deadline - Removes standup deadline at all
-/tz - Change timezone of a channel
+help - display help text 
+join - join standup team
+show - shows who is on standup team
+leave - leave standup team 
+edit_deadline - edit group standup deadline
+update_onbording_message - set or update your group onbording message
+update_group_language - set or update your group primary language
+show_deadline - show current standup deadline
+group_tz - update group time zone
+tz - update individual time zone
 ```
 
 ## Local usage
