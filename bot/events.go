@@ -336,9 +336,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 
 		localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
-		var welcome, onbording, deadline, closing string
-
-		welcome, err = localizer.Localize(&i18n.LocalizeConfig{
+		welcome, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "welcomePart",
 				Other: "Hello, {{.Intern}}! Welcome to {{.GroupName}}",
@@ -352,46 +350,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 			log.Error(err)
 		}
 
-		onbording = group.OnbordingMessage + "\n\n"
-
-		if group.StandupDeadline != "" {
-			deadline, err = localizer.Localize(&i18n.LocalizeConfig{
-				DefaultMessage: &i18n.Message{
-					ID:    "standupDeadlinePart",
-					Other: "Submit your standups before, {{.Deadline}}! You do not have to write standups on weekends",
-				},
-				TemplateData: map[string]interface{}{
-					"Deadline": group.StandupDeadline,
-				},
-			})
-			if err != nil {
-				log.Error(err)
-			}
-		}
-
-		standups, err := localizer.Localize(&i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "standupsCheckPart",
-				Other: "If you would like to validate your standup, direct message me with the text and I can check it to give advises. \n",
-			},
-		})
-		if err != nil {
-			log.Error(err)
-		}
-
-		closing, err = localizer.Localize(&i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "closingPart",
-				Other: "I will kick you from the group if you miss 3 standups. In case of any unexpected behaviour DM @anatoliyfedorenko",
-			},
-		})
-		if err != nil {
-			log.Error(err)
-		}
-
-		text := welcome + onbording + deadline + standups + closing
-
-		_, err = b.tgAPI.Send(tgbotapi.NewMessage(event.Message.Chat.ID, text))
+		_, err = b.tgAPI.Send(tgbotapi.NewMessage(event.Message.Chat.ID, welcome+group.OnbordingMessage))
 		return err
 	}
 	return nil
