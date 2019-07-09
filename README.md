@@ -7,7 +7,7 @@
 
 Automates workflow of Mad Devs Internship program requiring mentors to spend less time on repeatative tasks and actions
 
-Currently in the process of transtion into multiple languages. 
+Supported languages: English(default), Russian 
 
 ## Bot Skills
 
