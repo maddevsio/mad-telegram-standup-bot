@@ -339,7 +339,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 		welcome, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "welcomePart",
-				Other: "Hello, {{.Intern}}! Welcome to {{.GroupName}}",
+				Other: "Hello, @{{.Intern}}! Welcome to {{.GroupName}}",
 			},
 			TemplateData: map[string]interface{}{
 				"Intern":    member.UserName,
