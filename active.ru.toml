@@ -68,10 +68,6 @@ many = "Дам несколько советов по стендапу \\n {{.Ad
 one = "Дам один совет по стендапу: \\n {{.Advises}}"
 other = "Дам несколько советов по стендапу \\n {{.Advises}}"
 
-[closingPart]
-hash = "sha1-d75bb3e99630fefe1bbe7bd257803eb77df0b2fc"
-other = "Я удаляю из группы если пропущено более 3х стендапов. За все мои ошибки отвечает @anatoliyfedorenko"
-
 [createStanduperFailed]
 hash = "sha1-0c2c7f510c062191a09701b7d62a1f7ce754054b"
 other = "не удалось добавить вас в команду стендаперов"
@@ -84,9 +80,21 @@ other = "Не удалось убрать вас из стендаперов"
 hash = "sha1-a31bd479bb70e1789ef1b53beaca1f4ee22931c5"
 other = "Failed to recognize new TZ you entered, double check the tz name and try again"
 
+[failedRemoveOnbordingMessage]
+hash = "sha1-b3f3c8d2c638036ea7efa947e33016c5b4abe305"
+other = "Не удалось очистить онбординг сообщение"
+
 [failedRemoveStandupDeadline]
 hash = "sha1-20b5795d14f0bb6c66529d224bb91271b86470f9"
 other = "Не удалось убрать крайний срок сдачи стендапов"
+
+[failedUpdateLanguage]
+hash = "sha1-297a4b55a5f69a07b7a242f0fb9029e82b2c6fdc"
+other = "Не удалось обновить язык группы"
+
+[failedUpdateOnbordingMessage]
+hash = "sha1-c3176e08ad0d2db0d5999da8ec55a9aec8bd63f1"
+other = "Не удалось обновить онбординг сообщение"
 
 [failedUpdateStandupDeadline]
 hash = "sha1-f216fc7d2c8ea294b46d350e21eac60153f85465"
@@ -105,8 +113,8 @@ hash = "sha1-4efb9052545374bb15381f6c6560a36f0e3a6621"
 other = "Стендап принят и кажется он шикарный!"
 
 [helpText]
-hash = "sha1-13b29cbe9fc8342d176d8c8a6ad7e618311c14ed"
-other = "Список доступных команд:\n\t\t\t/help - Показывает список команд\n\t\t\t/join - Добавляет вас в стендаперы группы\n\t\t\t/show - Показывает кто сдает стендапы в группе\n\t\t\t/leave - Бот перестаёт отслеживать ваши стендапы\n\t\t\t/edit_deadline - Назначить крайний срок сдачи стендапов (форматы: 13:50, 1:50pm)\n\t\t\t/show_deadline - Показывает срок сдачи стендапов\n\t\t\t/group_tz - Изменить часовой пояс группы (по умолчнию: Asia/Bishkek)\n\t\t\t/tz - Изменить часовой пояс стендапера (по умолчанию: Asia/Bishkek)\n\t\t\tС нетерпением жду ваших стендапов! За все мои ошибки отвечает @anatoliyfedorenko"
+hash = "sha1-79a6cd0722a3ee1311b6d42a98fa6cfd42455224"
+other = "Список доступных команд:\n\t\t\t/join - добавляет в стендаперы\n\t\t\t/show - показывает кто стендапит\n\t\t\t/leave - перестать сдавать стендапы\n\t\t\t/edit_deadline - назначить крайний срок сдачи стендапов (форматы: 13:50, 1:50pm)\n\t\t\t/show_deadline - показать текущий срок сдачи стендаппов\n\t\t\t/group_tz - Изменить часовой пояс группы (по умолчанию : Asia/Bishkek)\n\t\t\t/tz - Изменить ваш часовой пояс (по умолчанию: Asia/Bishkek)\n\t\t\n\t\t\t С нетерпением жду ваших стендапов! За все ошибки отвечает @anatoliyfedorenko"
 
 [leaveStanupers]
 hash = "sha1-aa349b49e8cfa8132c055dabfa72436424101503"
@@ -140,6 +148,10 @@ other = "Вы еще не стендапите"
 hash = "sha1-142938d8dffdb407f513f995075d07f6f57b0da0"
 other = "Внимение, {{.Intern}}! ты только что пропустил дедлайн! Отправь стендап как можно скорее и не подводи команду! осталось пропусков: {{.Skips}} \\n\\n"
 
+[removeOnbordingMessage]
+hash = "sha1-6444dd89936abbd9a8cc0a99e16394a0ca1b9dc6"
+other = "Убрал крайний срок сдачи стендапов"
+
 [removeStandupDeadline]
 hash = "sha1-6444dd89936abbd9a8cc0a99e16394a0ca1b9dc6"
 other = "Крайний срок сдачи стендапов отменён"
@@ -148,17 +160,17 @@ other = "Крайний срок сдачи стендапов отменён"
 hash = "sha1-ea3081ccdecf6671ddcec3241e9fa1ed89d856ce"
 other = "Пишите стендапы каждый день до {{.Deadline}} кроме выходных"
 
-[standupDeadlinePart]
-hash = "sha1-613de00f5a0dcd150ffd3a3952473475a4ac80ef"
-other = "Сдавайте стендапы до {{.Deadline}}! Можете не писать стендапы на выходных"
-
 [standupUpdated]
 hash = "sha1-273954d72c1f9d0289de4deb0c141877bf9a6796"
 other = "Стендап успешно обновлен"
 
-[standupsCheckPart]
-hash = "sha1-c882038121c7508042c30bd406817fdc5b6a315c"
-other = "Если хотите узнать приму ли я стендап или увидеть советы по его улучшению, напишите мне текст в личные сообщения. \\n"
+[updateGroupLanguage]
+hash = "sha1-bda4f21c0e3e9a604a768553e73aab90688ca8e9"
+other = "Язык группы обновлен"
+
+[updateOnbordingMessage]
+hash = "sha1-0d62596bbc0ad2de2b996a603266fee31f5680e2"
+other = "Привественное сообщение обновлено"
 
 [updateStandupDeadline]
 hash = "sha1-bfd3f195e36e139ad0643664950c0dd74da9fde2"
@@ -185,7 +197,7 @@ hash = "sha1-e57fbe3ef11584376832f8981aa8728f0b291e32"
 other = "Добро пожаловать в стендап команду, дедлайна пока не установлено"
 
 [welcomePart]
-hash = "sha1-8c3852e47b6c068fdf1b0b6f1d2f491f923af3d0"
+hash = "sha1-63bb77b34d9aef8073b822f011f3fbfd4f4a76a0"
 other = "Привет, @{{.Intern}}! Добро пожаловать в {{.GroupName}}"
 
 [welcomeWithDedline]

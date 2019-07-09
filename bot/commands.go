@@ -27,6 +27,8 @@ func (b *Bot) HandleCommand(event tgbotapi.Update) error {
 		return b.EditDeadline(event)
 	case "update_onbording_message":
 		return b.UpdateOnbordingMessage(event)
+	case "update_group_language":
+		return b.UpdateGroupLanguage(event)
 	case "show_deadline":
 		return b.ShowDeadline(event)
 	case "group_tz":
@@ -442,6 +444,70 @@ func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) error {
 		log.Error(err)
 	}
 	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateOnbordingMessage)
+	msg.ReplyToMessageID = event.Message.MessageID
+	_, err = b.tgAPI.Send(msg)
+	return err
+}
+
+func (b *Bot) UpdateGroupLanguage(event tgbotapi.Update) error {
+	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
+	if err != nil {
+		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+	}
+
+	if !isAdmin {
+		log.Warn("User not an admin", event.Message.From.UserName)
+		return nil
+	}
+
+	language := event.Message.CommandArguments()
+
+	team := b.findTeam(event.Message.Chat.ID)
+	if team == nil {
+		log.Error("findTeam failed")
+		return fmt.Errorf("failed to find sutable team for edit deadline")
+	}
+
+	localizer := i18n.NewLocalizer(b.bundle, language)
+
+	team.Group.Language = language
+
+	if strings.TrimSpace(language) == "" {
+		team.Group.Language = "en"
+	}
+
+	log.Info(team.Group)
+
+	group, err := b.db.UpdateGroup(team.Group)
+	if err != nil {
+		log.Error("UpdateGroup in Change language failed: ", err)
+		failedUpdateLanguage, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "failedUpdateLanguage",
+				Other: "Could not edit group language",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateLanguage)
+		msg.ReplyToMessageID = event.Message.MessageID
+		_, err = b.tgAPI.Send(msg)
+		return err
+	}
+
+	log.Info("Group after update: ", group)
+
+	updateGroupLanguage, err := localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "updateGroupLanguage",
+			Other: "Group language updated",
+		},
+	})
+	if err != nil {
+		log.Error(err)
+	}
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateGroupLanguage)
 	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
