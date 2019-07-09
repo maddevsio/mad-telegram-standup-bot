@@ -47,17 +47,8 @@ func (b *Bot) Help(event tgbotapi.Update) error {
 	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
 	helpText, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
-			ID: "helpText",
-			Other: `List of available commands:
-			/join - add you to standup team
-			/show - shows who is in standup team
-			/leave - leave standup team to stop submit standups
-			/edit_deadline - Set standups deadline (formats: 13:50, 1:50pm)
-			/show_deadline - Show current standup deadline
-			/group_tz - Change group time zone (defaulting to : Asia/Bishkek)
-			/tz - Change individual Time Zone (defaulting to: Asia/Bishkek)
-		
-			Looking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaviour`,
+			ID:    "helpText",
+			Other: `In order to submit a standup, tag me and write a message with keywords. Direct message me to see the list of keywords needed. Loking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaviour, submit issues to https://github.com/maddevsio/mad-internship-bot/issues`,
 		},
 	})
 	if err != nil {
@@ -174,6 +165,8 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 		list = append(list, "@"+standuper.Username)
 	}
 
+	log.Info("Standupers in the channel: ", list)
+
 	showStandupers, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "showStandupers",
@@ -185,7 +178,7 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 			Other: "{{.Standupers}} submit standups in the team",
 		},
 		TemplateData: map[string]interface{}{
-			"Standupers": strings.Join(list, "\n"),
+			"Standupers": strings.Join(list, ", "),
 		},
 		PluralCount: len(list),
 	})
@@ -585,6 +578,8 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
 	}
 
 	team := b.findTeam(event.Message.Chat.ID)
+	log.Info("Current team: ", team)
+
 	if team == nil {
 		group, err := b.db.CreateGroup(&model.Group{
 			ChatID:          event.Message.Chat.ID,
@@ -603,6 +598,8 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
 	team.Group.TZ = tz
 
 	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
+
+	log.Info("localizer ", localizer)
 
 	_, err = time.LoadLocation(tz)
 	if err != nil {

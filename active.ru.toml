@@ -113,8 +113,8 @@ hash = "sha1-4efb9052545374bb15381f6c6560a36f0e3a6621"
 other = "Стендап принят и кажется он шикарный!"
 
 [helpText]
-hash = "sha1-79a6cd0722a3ee1311b6d42a98fa6cfd42455224"
-other = "Список доступных команд:\n\t\t\t/join - добавляет в стендаперы\n\t\t\t/show - показывает кто стендапит\n\t\t\t/leave - перестать сдавать стендапы\n\t\t\t/edit_deadline - назначить крайний срок сдачи стендапов (форматы: 13:50, 1:50pm)\n\t\t\t/show_deadline - показать текущий срок сдачи стендаппов\n\t\t\t/group_tz - Изменить часовой пояс группы (по умолчанию : Asia/Bishkek)\n\t\t\t/tz - Изменить ваш часовой пояс (по умолчанию: Asia/Bishkek)\n\t\t\n\t\t\t С нетерпением жду ваших стендапов! За все ошибки отвечает @anatoliyfedorenko"
+hash = "sha1-e230ab554bb22b973544e0804722eb5fd34b1b46"
+other = "Чтобы написать стендап тегни меня в сообщении с ключевыми словами. Напиши мне в личку текст стендапа, чтобы я сказал какие ключевые слова пропущены. Жду ваших стендапов! Напиши @anatoliyfedorenko в случае любых проблем связанных со мной, отправляйте запросы на доработку в этот репозиторий https://github.com/maddevsio/mad-internship-bot/issues"
 
 [leaveStanupers]
 hash = "sha1-aa349b49e8cfa8132c055dabfa72436424101503"
@@ -157,11 +157,11 @@ hash = "sha1-6444dd89936abbd9a8cc0a99e16394a0ca1b9dc6"
 other = "Крайний срок сдачи стендапов отменён"
 
 [showStandupers]
-few = "{{.Standupers}} submit standups in the team"
+few = "{{.Standupers}} сдают стендапы в команде"
 hash = "sha1-7c1b080d825ac604d70c078f362aea96a5ca37d0"
-many = "{{.Standupers}} submit standups in the team"
-one = "{{.Standupers}} submit standups in the team"
-other = "{{.Standupers}} submit standups in the team"
+many = "{{.Standupers}} сдают стендапы в команде"
+one = "{{.Standupers}} сдаёт стендапы в команде"
+other = "{{.Standupers}} сдают стендапы в команде"
 
 [standupDeadline]
 hash = "sha1-ea3081ccdecf6671ddcec3241e9fa1ed89d856ce"
