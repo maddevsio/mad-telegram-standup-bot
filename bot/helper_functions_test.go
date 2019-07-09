@@ -7,8 +7,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/text/language"
 
+	"github.com/BurntSushi/toml"
 	"github.com/bouk/monkey"
 	"github.com/maddevsio/mad-internship-bot/config"
 	"github.com/maddevsio/mad-internship-bot/model"
@@ -22,7 +25,13 @@ func TestSubmittedStandupToday(t *testing.T) {
 	require.NoError(t, err)
 	mysql, err := storage.NewMySQL(conf)
 	require.NoError(t, err)
-	bot, err := New(conf)
+
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	_, err = bundle.LoadMessageFile("active.en.toml")
+	require.NoError(t, err)
+
+	bot, err := New(conf, bundle)
 	require.NoError(t, err)
 
 	d := time.Date(2019, 6, 17, 4, 20, 0, 0, time.Local)
@@ -58,6 +67,17 @@ func TestStringReplace(t *testing.T) {
 }
 
 func TestAnalyzeStandup(t *testing.T) {
+	conf, err := config.Get()
+	require.NoError(t, err)
+
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	_, err = bundle.LoadMessageFile("active.en.toml")
+	require.NoError(t, err)
+
+	bot, err := New(conf, bundle)
+	require.NoError(t, err)
+
 	testCases := []struct {
 		points int
 		text   string
@@ -68,7 +88,7 @@ func TestAnalyzeStandup(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		_, points := analyzeStandup(tc.text)
+		_, points := bot.analyzeStandup(tc.text, "en")
 		assert.Equal(t, tc.points, points)
 	}
 }

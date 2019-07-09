@@ -44,7 +44,7 @@ func (b *Bot) Help(event tgbotapi.Update) error {
 	helpText, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID: "helpText",
-			Other: `List of awailable commands:
+			Other: `List of available commands:
 			/join - add you to standup team
 			/show - shows who is in standup team
 			/leave - leave standup team to stop submit standups
@@ -53,7 +53,7 @@ func (b *Bot) Help(event tgbotapi.Update) error {
 			/group_tz - Change group time zone (defaulting to : Asia/Bishkek)
 			/tz - Change individual Time Zone (defaulting to: Asia/Bishkek)
 		
-			Looking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaiviour`,
+			Looking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaviour`,
 		},
 	})
 	if err != nil {
