@@ -115,6 +115,7 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 			TZ:               "Asia/Bishkek", // default value...
 			OnbordingMessage: "",
 			SubmissionDays:   "monday tuesday wednesday thirsday friday saturday sunday",
+			Advises:          "on",
 		})
 		if err != nil {
 			return err
@@ -217,6 +218,7 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+			Advises:         "on",
 		})
 		if err != nil {
 			return err
@@ -734,6 +736,7 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
 			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+			Advises:         "on",
 		})
 		if err != nil {
 			return err

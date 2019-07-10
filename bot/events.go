@@ -30,6 +30,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 			TZ:              "Asia/Bishkek", // default value...
 			Language:        "en",           // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+			Advises:         "on",
 		})
 		if err != nil {
 			return err
@@ -173,6 +174,7 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 			TZ:              "Asia/Bishkek", // default value...
 			Language:        "en",           // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+			Advises:         "on",
 		})
 		if err != nil {
 			return err
@@ -318,6 +320,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 					TZ:              "Asia/Bishkek", // default value...
 					Language:        "en",           // default value...
 					SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+					Advises:         "on",
 				})
 				if err != nil {
 					return err
@@ -374,6 +377,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 				TZ:              "Asia/Bishkek", // default value...
 				Language:        "en",
 				SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+				Advises:         "on",
 			})
 			if err != nil {
 				return err
