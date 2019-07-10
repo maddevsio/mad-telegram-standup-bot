@@ -177,6 +177,14 @@ func (b *Bot) submittedStandupToday(standuper *model.Standuper) bool {
 	return false
 }
 
+func (b *Bot) shouldSubmitStandupIn(group *model.Group, t time.Time) bool {
+	// TODO need to think of how to include translated versions
+	if strings.Contains(group.SubmissionDays, strings.ToLower(t.Weekday().String())) {
+		return true
+	}
+	return false
+}
+
 func containsProblems(standup string) (bool, int) {
 	standup = strings.ToLower(standup)
 	var wordsAfterProblemsKeyword int

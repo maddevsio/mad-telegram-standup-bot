@@ -236,10 +236,11 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 		standupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "standupDeadline",
-				Other: "Standup deadline set for everyday at {{.Deadline}} exept weekeds",
+				Other: "Standup deadline set at {{.Deadline}} on {{.Weekdays}}",
 			},
 			TemplateData: map[string]interface{}{
 				"Deadline": group.StandupDeadline,
+				"Weekdays": group.SubmissionDays,
 			},
 		})
 		if err != nil {

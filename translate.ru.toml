@@ -1,11 +1,3 @@
-[notStandup]
-hash = "sha1-5aef6e43386c994b89fe7dac6996efeb3c1f7fef"
-other = "Кажется, что это вообще не стендап, перепроверь ключевые слова. "
-
-[notifyNonReporters]
-hash = "sha1-dd200a772f8e0ea6c52535b56fbc907c9e97a504"
-other = "Внимание, {{.Intern}}! Ты только что пропустил дедлайн сдачи стендапа! Срочно пиши стендап и не подводи команды. Осталось пропусков: {{.Skips}} "
-
-[warnNonReporters]
-hash = "sha1-b7a7ae4f782354a342ba83f57094abd4ea65c887"
-other = "Внимание, {{.Intern}} {{.Warn}} минут до дедлайна, Срочно пиши стендап и не подводи команды. Осталось пропусков: {{.Skips}} "
+[standupDeadline]
+hash = "sha1-c707504adacbeeefba770d008756f533bde9c3fd"
+other = "Standup deadline set at {{.Deadline}} on {{.Weekdays}}"
