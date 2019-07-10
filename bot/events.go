@@ -329,16 +329,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 				b.watchersChan <- group
 			}
 
-			localizer := i18n.NewLocalizer(b.bundle, group.Language)
-			text, err := localizer.Localize(&i18n.LocalizeConfig{
-				DefaultMessage: &i18n.Message{
-					ID:    "welcomeMessage",
-					Other: "Hello! I will help you to not forget about standups and write them properly. tag @anatoliyfedorenko if you find any bug or unexpected behaiviour :)",
-				},
-			})
-			if err != nil {
-				log.Error(err)
-			}
+			text := "Hello! I will help you to not forget about standups and write them properly. \n\n Additional setup include: \n '/edit_deadline 10am' (example how you edit deadline) \n '/update_onbording_message type the message here' \n '/update_group_language ru' (default is en) \n	'/group_tz Asia/Bishkek' set up your TimeZone \n '/change_submission_days monday tuesday wednesday ... ' (select days you want the bot to track standups) \n '/advises' to turn on/off advises for better standups \n Message @anatoliyfedorenko if you find any bug or unexpected behaviour :)"
 
 			// Send greeting message after success group save
 			_, err = b.tgAPI.Send(tgbotapi.NewMessage(event.Message.Chat.ID, text))
