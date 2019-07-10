@@ -100,6 +100,10 @@ other = "Не удалось обновить онбординг сообщен�
 hash = "sha1-f216fc7d2c8ea294b46d350e21eac60153f85465"
 other = "Не смог обновить срок сдачи стендапов"
 
+[failedUpdateSubmissionDays]
+hash = "sha1-e2159ec09877592680b60a35ab6859065db57bff"
+other = "Не смог обновить дни сдачи стендапов"
+
 [failedUpdateTZ]
 hash = "sha1-ce1fbc677f0e60cb0930a0daffc6cf3effeea900"
 other = "Не удалось обновить часовой пояс"
@@ -178,6 +182,10 @@ other = "Стендап успешно обновлен"
 [updateGroupLanguage]
 hash = "sha1-bda4f21c0e3e9a604a768553e73aab90688ca8e9"
 other = "Язык группы обновлен"
+
+[updateGroupSubmissionDays]
+hash = "sha1-a24b70f5da913cc02935beb9f4e3ae77df9fe1c4"
+other = "Дни сдачи стендапов успешно обновлены"
 
 [updateOnbordingMessage]
 hash = "sha1-0d62596bbc0ad2de2b996a603266fee31f5680e2"

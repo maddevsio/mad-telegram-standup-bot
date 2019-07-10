@@ -571,7 +571,61 @@ func (b *Bot) UpdateGroupLanguage(event tgbotapi.Update) error {
 
 //ChangeSubmissionDays changes days on which interns should submit standups
 func (b *Bot) ChangeSubmissionDays(event tgbotapi.Update) error {
-	return nil
+	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
+	if err != nil {
+		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+	}
+
+	if !isAdmin {
+		log.Warn("User not an admin", event.Message.From.UserName)
+		return nil
+	}
+
+	submissionDays := event.Message.CommandArguments()
+
+	team := b.findTeam(event.Message.Chat.ID)
+	if team == nil {
+		log.Error("findTeam failed")
+		return fmt.Errorf("failed to find sutable team for edit deadline")
+	}
+
+	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
+
+	team.Group.SubmissionDays = strings.ToLower(submissionDays)
+
+	group, err := b.db.UpdateGroup(team.Group)
+	if err != nil {
+		log.Error("UpdateGroup in Change language failed: ", err)
+		failedUpdateSubmissionDays, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "failedUpdateSubmissionDays",
+				Other: "Could not edit standup submission days",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateSubmissionDays)
+		msg.ReplyToMessageID = event.Message.MessageID
+		_, err = b.tgAPI.Send(msg)
+		return err
+	}
+
+	log.Info("Group after update: ", group)
+
+	updateGroupSubmissionDays, err := localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "updateGroupSubmissionDays",
+			Other: "Group Standup submission days updated",
+		},
+	})
+	if err != nil {
+		log.Error(err)
+	}
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateGroupSubmissionDays)
+	msg.ReplyToMessageID = event.Message.MessageID
+	_, err = b.tgAPI.Send(msg)
+	return err
 }
 
 //ChangeGroupTimeZone modifies time zone of the group

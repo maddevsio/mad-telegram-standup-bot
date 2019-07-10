@@ -31,14 +31,14 @@ goi18n merge active.*.toml translate.*.toml
 ```
 help - display help text 
 join - join standup team
-show - shows who is on standup team
+show - displays group info
 leave - leave standup team 
-edit_deadline - edit group standup deadline
-update_onbording_message - set or update your group onbording message
-update_group_language - set or update your group primary language
-show_deadline - show current standup deadline
-group_tz - update group time zone
-tz - update individual time zone
+edit_deadline - edit group standup deadline (formats: 10am, 13:45)
+update_onbording_message - set or update your group greeting message
+update_group_language - set or update your group primary language (format: en, ru)
+group_tz - update group time zone (default: Asia/Bishkek)
+tz - update individual time zone (default: Asia/Bishkek)
+change_submission_days - changes days people should submit standups at (format: "monday, tuesday, etc)
 ```
 
 ## Local usage

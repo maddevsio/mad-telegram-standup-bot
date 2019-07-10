@@ -1,3 +1,7 @@
-[standupDeadline]
-hash = "sha1-c707504adacbeeefba770d008756f533bde9c3fd"
-other = "Standup deadline set at {{.Deadline}} on {{.Weekdays}}"
+[failedUpdateSubmissionDays]
+hash = "sha1-e2159ec09877592680b60a35ab6859065db57bff"
+other = "Не смог обновить дни сдачи стендапов"
+
+[updateGroupSubmissionDays]
+hash = "sha1-a24b70f5da913cc02935beb9f4e3ae77df9fe1c4"
+other = "Дни сдачи стендапов успешно обновлены"
