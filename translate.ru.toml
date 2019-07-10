@@ -1,7 +1,11 @@
-[failedUpdateSubmissionDays]
-hash = "sha1-e2159ec09877592680b60a35ab6859065db57bff"
-other = "Не смог обновить дни сдачи стендапов"
+[failedUpdateAdvisesStatus]
+hash = "sha1-7b594e657fe5fe3a19519399adc55b9aafbaba51"
+other = "Не смог поменять настройки советов"
 
-[updateGroupSubmissionDays]
-hash = "sha1-a24b70f5da913cc02935beb9f4e3ae77df9fe1c4"
-other = "Дни сдачи стендапов успешно обновлены"
+[updateGroupAdvisesStatusOff]
+hash = "sha1-44e5e1c6bd72bd7ac7d5c75bfc398dbad18595db"
+other = "Советы по стендапам выключены"
+
+[updateGroupAdvisesStatusOn]
+hash = "sha1-517f57c5746a204754526f293bd5f494be8e057f"
+other = "Советы по стендапам включены"

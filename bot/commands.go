@@ -31,6 +31,8 @@ func (b *Bot) HandleCommand(event tgbotapi.Update) error {
 		return b.UpdateGroupLanguage(event)
 	case "change_submission_days":
 		return b.ChangeSubmissionDays(event)
+	case "advises":
+		return b.ChangeAdvisesStatus(event)
 	case "group_tz":
 		return b.ChangeGroupTimeZone(event)
 	case "tz":
@@ -623,6 +625,80 @@ func (b *Bot) ChangeSubmissionDays(event tgbotapi.Update) error {
 		log.Error(err)
 	}
 	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateGroupSubmissionDays)
+	msg.ReplyToMessageID = event.Message.MessageID
+	_, err = b.tgAPI.Send(msg)
+	return err
+}
+
+//ChangeAdvisesStatus turns off and on advises on standups
+func (b *Bot) ChangeAdvisesStatus(event tgbotapi.Update) error {
+	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
+	if err != nil {
+		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+	}
+
+	if !isAdmin {
+		log.Warn("User not an admin", event.Message.From.UserName)
+		return nil
+	}
+
+	team := b.findTeam(event.Message.Chat.ID)
+	if team == nil {
+		log.Error("findTeam failed")
+		return fmt.Errorf("failed to find sutable team for edit deadline")
+	}
+
+	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
+
+	if team.Group.Advises == "on" {
+		team.Group.Advises = "off"
+	} else {
+		team.Group.Advises = "on"
+	}
+
+	group, err := b.db.UpdateGroup(team.Group)
+	if err != nil {
+		log.Error("UpdateGroup in Change language failed: ", err)
+		failedUpdateAdvisesStatus, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "failedUpdateAdvisesStatus",
+				Other: "Could not switch advises",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateAdvisesStatus)
+		msg.ReplyToMessageID = event.Message.MessageID
+		_, err = b.tgAPI.Send(msg)
+		return err
+	}
+
+	log.Info("Group after update: ", group)
+
+	updateGroupAdvisesStatus, err := localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "updateGroupAdvisesStatusOff",
+			Other: "Standup advises are turned OFF",
+		},
+	})
+	if err != nil {
+		log.Error(err)
+	}
+
+	if team.Group.Advises == "on" {
+		updateGroupAdvisesStatus, err = localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "updateGroupAdvisesStatusOn",
+				Other: "Standup advises are turned ON",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+	}
+
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateGroupAdvisesStatus)
 	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err

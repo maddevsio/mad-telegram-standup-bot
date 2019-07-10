@@ -88,6 +88,10 @@ other = "Не удалось очистить онбординг сообщен�
 hash = "sha1-20b5795d14f0bb6c66529d224bb91271b86470f9"
 other = "Не удалось убрать крайний срок сдачи стендапов"
 
+[failedUpdateAdvisesStatus]
+hash = "sha1-7b594e657fe5fe3a19519399adc55b9aafbaba51"
+other = "Не смог поменять настройки советов"
+
 [failedUpdateLanguage]
 hash = "sha1-297a4b55a5f69a07b7a242f0fb9029e82b2c6fdc"
 other = "Не удалось обновить язык группы"
@@ -178,6 +182,14 @@ other = "Standup deadline set at {{.Deadline}} on {{.Weekdays}}"
 [standupUpdated]
 hash = "sha1-273954d72c1f9d0289de4deb0c141877bf9a6796"
 other = "Стендап успешно обновлен"
+
+[updateGroupAdvisesStatusOff]
+hash = "sha1-44e5e1c6bd72bd7ac7d5c75bfc398dbad18595db"
+other = "Советы по стендапам выключены"
+
+[updateGroupAdvisesStatusOn]
+hash = "sha1-517f57c5746a204754526f293bd5f494be8e057f"
+other = "Советы по стендапам включены"
 
 [updateGroupLanguage]
 hash = "sha1-bda4f21c0e3e9a604a768553e73aab90688ca8e9"

@@ -18,6 +18,26 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		message = update.EditedMessage
 	}
 
+	group, err := b.db.FindGroup(message.Chat.ID)
+	if err != nil {
+		log.Info("Could not find the group, creating...")
+		group, err = b.db.CreateGroup(&model.Group{
+			ChatID:          message.Chat.ID,
+			Title:           message.Chat.Title,
+			Username:        message.Chat.UserName,
+			Description:     message.Chat.Description,
+			StandupDeadline: "",
+			TZ:              "Asia/Bishkek", // default value...
+			Language:        "en",           // default value...
+			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+		})
+		if err != nil {
+			return err
+		}
+
+		b.watchersChan <- group
+	}
+
 	if message.Chat.Type == "private" {
 		ok, errors := b.isStandup(message.Text, message.From.LanguageCode)
 		if !ok {
@@ -39,6 +59,9 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		}
 
 		advises, _ := b.analyzeStandup(message.Text, message.From.LanguageCode)
+		if group.Advises == "off" {
+			advises = []string{}
+		}
 
 		localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 		text, err := localizer.Localize(&i18n.LocalizeConfig{
@@ -138,7 +161,27 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 
 //HandleMessageEvent function to analyze and save standups
 func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
-	localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
+	group, err := b.db.FindGroup(message.Chat.ID)
+	if err != nil {
+		log.Info("Could not find the group, creating...")
+		group, err = b.db.CreateGroup(&model.Group{
+			ChatID:          message.Chat.ID,
+			Title:           message.Chat.Title,
+			Username:        message.Chat.UserName,
+			Description:     message.Chat.Description,
+			StandupDeadline: "",
+			TZ:              "Asia/Bishkek", // default value...
+			Language:        "en",           // default value...
+			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+		})
+		if err != nil {
+			return err
+		}
+
+		b.watchersChan <- group
+	}
+
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
 	if !strings.Contains(message.Text, b.tgAPI.Self.UserName) {
 		return nil
@@ -167,6 +210,9 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 		}
 
 		advises, _ := b.analyzeStandup(message.Text, message.From.LanguageCode)
+		if group.Advises == "off" {
+			advises = []string{}
+		}
 		greatStandup, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "greatStandup",

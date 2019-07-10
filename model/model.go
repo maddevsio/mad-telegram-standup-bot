@@ -14,6 +14,7 @@ type Group struct {
 	StandupDeadline  string `db:"standup_deadline" json:"standup_deadline,omitempty"`
 	OnbordingMessage string `db:"onbording_message" json:"onbording_message,omitempty"`
 	SubmissionDays   string `db:"submission_days" json:"submission_days,omitempty"`
+	Advises          string `db:"advises" json:"advises"`
 }
 
 //Team is a helper struct to watch after different channels deadlines
@@ -22,6 +23,7 @@ type Team struct {
 	QuitChan chan struct{}
 }
 
+//Stop finish tracking group
 func (t *Team) Stop() {
 	close(t.QuitChan)
 }
