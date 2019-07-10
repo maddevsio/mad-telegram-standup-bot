@@ -9,10 +9,12 @@ Automates workflow of Mad Devs Internship program requiring mentors to spend les
 
 Supported languages: English(default), Russian 
 
+Add @SimpleStandupBot to your telegram channel to start using it right away
+
 ## Bot Skills
 
 - Onbords new interns with predefined, customized message
-- Warns about upcomming standup deadline in case inter did not write standup yet
+- Warns about upcomming standup deadline in case intern did not write standup yet
 - Automatic kicks of interns who miss more than 3 standups 
 - Helps interns write more applicable, beneficial standups by analyzing standup text and outlining basic problems
 - Monitors interns pull requests and gives advises on how to improve them. 
@@ -20,12 +22,6 @@ Supported languages: English(default), Russian
 - Can adjust to different timezones 
 - Detects standups by watching messages with bot tag and defined keywords
 - supports English and Runssian languages. To add more, see https://github.com/nicksnyder/go-i18n for language reference
-
-```
-goi18n extract
-goi18n merge active.*.toml
-goi18n merge active.*.toml translate.*.toml
-```
 
 ## Available commands
 ```
@@ -66,6 +62,13 @@ go run main.go
 ```
 This should setup a database and run all the migrations for you. 
 
+To update messages: 
+```
+goi18n extract
+goi18n merge active.*.toml
+goi18n merge active.*.toml translate.*.toml
+```
+
 ## Install on your server 
 1. Build and push bot's image to Dockerhub or any other container registry: 
 ```
@@ -79,7 +82,6 @@ docker push <youraccount>/mad-internship-bot
 ```
 TELEGRAM_TOKEN=603860531:AAEB95f4tq18RWZtKLFJDFLKFDFfdsfds
 DEBUG=false
-ONBORDING_MESSAGE="your onbording message here"
 ```
 4. Pull image from registry and run it in the backgroud with
 ```
