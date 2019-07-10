@@ -599,7 +599,7 @@ func (b *Bot) ChangeSubmissionDays(event tgbotapi.Update) error {
 
 	group, err := b.db.UpdateGroup(team.Group)
 	if err != nil {
-		log.Error("UpdateGroup in Change language failed: ", err)
+		log.Error("UpdateGroup in ChangeSubmissionDays failed: ", err)
 		failedUpdateSubmissionDays, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedUpdateSubmissionDays",
@@ -658,9 +658,10 @@ func (b *Bot) ChangeAdvisesStatus(event tgbotapi.Update) error {
 		team.Group.Advises = "on"
 	}
 
+	log.Info("Update group: ", team.Group)
 	group, err := b.db.UpdateGroup(team.Group)
 	if err != nil {
-		log.Error("UpdateGroup in Change language failed: ", err)
+		log.Error("UpdateGroup in ChangeSubmissionDays: ", err)
 		failedUpdateAdvisesStatus, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedUpdateAdvisesStatus",

@@ -287,6 +287,10 @@ func (b *Bot) HandleChannelLeftEvent(event tgbotapi.Update) error {
 		if err != nil {
 			return err
 		}
+		ok := b.removeTeam(event.Message.Chat.ID)
+		if !ok {
+			log.Error("Could not remove the team from list")
+		}
 		return nil
 	}
 

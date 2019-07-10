@@ -105,3 +105,17 @@ func (b *Bot) findTeam(chatID int64) *model.Team {
 	}
 	return nil
 }
+
+func (b *Bot) removeTeam(chatID int64) bool {
+	log.Info("Teams before: ", b.teams)
+	result := false
+	for i, team := range b.teams {
+		if team.Group.ChatID == chatID {
+			b.teams = append(b.teams[:i], b.teams[i+1:]...)
+			result = true
+		}
+	}
+	log.Info("Teams after: ", b.teams)
+
+	return result
+}
