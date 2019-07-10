@@ -29,8 +29,8 @@ func (b *Bot) HandleCommand(event tgbotapi.Update) error {
 		return b.UpdateOnbordingMessage(event)
 	case "update_group_language":
 		return b.UpdateGroupLanguage(event)
-	case "show_deadline":
-		return b.ShowDeadline(event)
+	case "change_submission_days":
+		return b.ChangeSubmissionDays(event)
 	case "group_tz":
 		return b.ChangeGroupTimeZone(event)
 	case "tz":
@@ -106,11 +106,13 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
 	if err != nil {
 		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "",
-			TZ:              "Asia/Bishkek", // default value...
+			ChatID:           event.Message.Chat.ID,
+			Title:            event.Message.Chat.Title,
+			Description:      event.Message.Chat.Description,
+			StandupDeadline:  "",
+			TZ:               "Asia/Bishkek", // default value...
+			OnbordingMessage: "",
+			SubmissionDays:   "monday tuesday wednesday thirsday friday saturday sunday",
 		})
 		if err != nil {
 			return err
@@ -199,6 +201,54 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 	}
 
 	msg := tgbotapi.NewMessage(event.Message.Chat.ID, showStandupers)
+	_, err = b.tgAPI.Send(msg)
+	if err != nil {
+		log.Error(err)
+	}
+
+	group, err := b.db.FindGroup(event.Message.Chat.ID)
+	if err != nil {
+		group, err = b.db.CreateGroup(&model.Group{
+			ChatID:          event.Message.Chat.ID,
+			Title:           event.Message.Chat.Title,
+			Description:     event.Message.Chat.Description,
+			StandupDeadline: "",
+			TZ:              "Asia/Bishkek", // default value...
+			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	if group.StandupDeadline == "" {
+		noStandupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "noStandupDeadline",
+				Other: "Standup deadline is not set",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg = tgbotapi.NewMessage(event.Message.Chat.ID, noStandupDeadline)
+	} else {
+		standupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "standupDeadline",
+				Other: "Standup deadline set for everyday at {{.Deadline}} exept weekeds",
+			},
+			TemplateData: map[string]interface{}{
+				"Deadline": group.StandupDeadline,
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		msg = tgbotapi.NewMessage(event.Message.Chat.ID, standupDeadline)
+	}
+
+	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
 }
@@ -518,56 +568,9 @@ func (b *Bot) UpdateGroupLanguage(event tgbotapi.Update) error {
 	return err
 }
 
-//ShowDeadline shows current standup time
-func (b *Bot) ShowDeadline(event tgbotapi.Update) error {
-
-	group, err := b.db.FindGroup(event.Message.Chat.ID)
-	if err != nil {
-		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "",
-			TZ:              "Asia/Bishkek", // default value...
-		})
-		if err != nil {
-			return err
-		}
-	}
-	localizer := i18n.NewLocalizer(b.bundle, group.Language)
-
-	var msg tgbotapi.MessageConfig
-
-	if group.StandupDeadline == "" {
-		noStandupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "noStandupDeadline",
-				Other: "Standup deadline is not set",
-			},
-		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg = tgbotapi.NewMessage(event.Message.Chat.ID, noStandupDeadline)
-	} else {
-		standupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "standupDeadline",
-				Other: "Standup deadline set for everyday at {{.Deadline}} exept weekeds",
-			},
-			TemplateData: map[string]interface{}{
-				"Deadline": group.StandupDeadline,
-			},
-		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg = tgbotapi.NewMessage(event.Message.Chat.ID, standupDeadline)
-	}
-
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
+//ChangeSubmissionDays changes days on which interns should submit standups
+func (b *Bot) ChangeSubmissionDays(event tgbotapi.Update) error {
+	return nil
 }
 
 //ChangeGroupTimeZone modifies time zone of the group
@@ -599,6 +602,7 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
 			Description:     event.Message.Chat.Description,
 			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
+			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
 		})
 		if err != nil {
 			return err
