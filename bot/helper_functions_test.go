@@ -110,3 +110,23 @@ func TestContainsProblems(t *testing.T) {
 	}
 
 }
+
+func TestShouldSubmitStandupIn(t *testing.T) {
+	testCases := []struct {
+		weekdays string
+		result   bool
+	}{
+		{"wednesday", true},
+		{"tuesday wednesday", true},
+		{"sunday monday", false},
+	}
+
+	for _, tc := range testCases {
+		group := &model.Group{
+			SubmissionDays: tc.weekdays,
+		}
+		res := shouldSubmitStandupIn(group, time.Now())
+		assert.Equal(t, tc.result, res)
+	}
+
+}

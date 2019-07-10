@@ -54,7 +54,7 @@ func (b *Bot) trackStandupersIn(team *model.Team) {
 func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
 	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
-	if !b.shouldSubmitStandupIn(group, t) {
+	if !shouldSubmitStandupIn(group, t) {
 		return
 	}
 
@@ -138,7 +138,7 @@ func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
 func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
-	if !b.shouldSubmitStandupIn(group, t) {
+	if !shouldSubmitStandupIn(group, t) {
 		return
 	}
 
