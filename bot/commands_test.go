@@ -64,6 +64,6 @@ func TestShow(t *testing.T) {
 	}
 
 	text = bot.prepareShowMessage(standupers, group)
-	assert.Equal(t, "Interns:\n@foo, 1 day on intership, missed standups: 0 times\n@bar, 5 days on internship, missed standups: 2 times\n\nStandup deadline set at 10:00 on monday", text)
+	assert.Equal(t, "Interns:\n@bar, 5 days on internship, missed standups: 2 times\n@foo, 1 day on intership, missed standups: 0 times\n\nStandup deadline set at 10:00 on monday", text)
 
 }

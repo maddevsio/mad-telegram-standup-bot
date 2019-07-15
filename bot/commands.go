@@ -12,6 +12,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type internInfo struct {
+	internName       string
+	timeSinceAdded   string
+	missedStandups   string
+	daysOnInternship int
+}
+
 //HandleCommand handles imcomming commands
 func (b *Bot) HandleCommand(event tgbotapi.Update) error {
 	switch event.Message.Command() {
@@ -190,15 +197,11 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 }
 
 func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Group) string {
-	type internInfo struct {
-		internName     string
-		timeSinceAdded string
-		missedStandups string
-	}
 
 	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
 	var internsInfo string
+	var interns []internInfo
 
 	for _, standuper := range standupers {
 		var info internInfo
@@ -245,7 +248,14 @@ func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Gro
 		}
 
 		info.missedStandups = missedStandups
+		info.daysOnInternship = int(daysOnInternship)
 
+		interns = append(interns, info)
+	}
+
+	interns = sortInterns(interns)
+
+	for _, info := range interns {
 		internsInfo += info.internName + info.timeSinceAdded + info.missedStandups + "\n"
 	}
 
@@ -304,6 +314,44 @@ func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Gro
 	}
 
 	return standupersInfo + "\n" + standupDeadlineInfo
+}
+
+func sortInterns(entries []internInfo) []internInfo {
+	var members []internInfo
+
+	for i := 0; i < len(entries); i++ {
+		if !sweep(entries, i) {
+			break
+		}
+	}
+
+	for _, item := range entries {
+		members = append(members, item)
+	}
+
+	return members
+}
+
+func sweep(entries []internInfo, prevPasses int) bool {
+	var N = len(entries)
+	var didSwap = false
+	var firstIndex = 0
+	var secondIndex = 1
+
+	for secondIndex < (N - prevPasses) {
+
+		var firstItem = entries[firstIndex]
+		var secondItem = entries[secondIndex]
+		if entries[firstIndex].daysOnInternship < entries[secondIndex].daysOnInternship {
+			entries[firstIndex] = secondItem
+			entries[secondIndex] = firstItem
+			didSwap = true
+		}
+		firstIndex++
+		secondIndex++
+	}
+
+	return didSwap
 }
 
 //LeaveStandupers standupers
