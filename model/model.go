@@ -30,13 +30,14 @@ func (t *Team) Stop() {
 
 // Standuper rerpesents standuper
 type Standuper struct {
-	ID           int64  `db:"id" json:"id"`
-	UserID       int    `db:"user_id" json:"user_id"`
-	Username     string `db:"username" json:"username"`
-	ChatID       int64  `db:"chat_id" json:"chat_id"`
-	Warnings     int    `db:"warnings" json:"warnings,omitempty"`
-	LanguageCode string `db:"language_code" json:"language_code"`
-	TZ           string `db:"tz" json:"tz"`
+	ID           int64     `db:"id" json:"id"`
+	Created      time.Time `db:"created" json:"created"`
+	UserID       int       `db:"user_id" json:"user_id"`
+	Username     string    `db:"username" json:"username"`
+	ChatID       int64     `db:"chat_id" json:"chat_id"`
+	Warnings     int       `db:"warnings" json:"warnings,omitempty"`
+	LanguageCode string    `db:"language_code" json:"language_code"`
+	TZ           string    `db:"tz" json:"tz"`
 }
 
 // Standup model used for serialization/deserialization stored standups

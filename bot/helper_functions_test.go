@@ -72,7 +72,7 @@ func TestAnalyzeStandup(t *testing.T) {
 
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
-	_, err = bundle.LoadMessageFile("active.en.toml")
+	_, err = bundle.LoadMessageFile("../active.en.toml")
 	require.NoError(t, err)
 
 	bot, err := New(conf, bundle)
@@ -125,7 +125,7 @@ func TestShouldSubmitStandupIn(t *testing.T) {
 		group := &model.Group{
 			SubmissionDays: tc.weekdays,
 		}
-		res := shouldSubmitStandupIn(group, time.Now())
+		res := shouldSubmitStandupIn(group, time.Date(2019, 7, 10, 0, 0, 0, 0, time.Local))
 		assert.Equal(t, tc.result, res)
 	}
 

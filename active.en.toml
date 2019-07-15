@@ -67,9 +67,16 @@ one = "Standup is going to be more usefull with one advise: \\n {{.Advises}}"
 other = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
 two = "Standup is going to be more usefull with two advises: \\n {{.Advises}}"
 
+[internshipDuration]
+few = "{{.Days}} days on internship"
+many = "{{.Days}} days on internship"
+one = "{{.Days}} day on intership"
+other = "{{.Days}} days on internship"
+two = "{{.Days}} days on internship"
+
 [showStandupers]
-few = "{{.Standupers}} submit standups in the team"
-many = "{{.Standupers}} submit standups in the team"
-one = "Only {{.Standupers}} standups in the team, /join to start standuping"
-other = "{{.Standupers}} submit standups in the team"
-two = "{{.Standupers}} submit standups in the team"
+few = "Standup team: {{.Standupers}}"
+many = "Standup team: {{.Standupers}}"
+one = "Standup team: {{.Standupers}}"
+other = "Standup team: {{.Standupers}}"
+two = "Standup team: {{.Standupers}}"

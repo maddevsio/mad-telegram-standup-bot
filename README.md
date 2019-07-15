@@ -65,8 +65,8 @@ This should setup a database and run all the migrations for you.
 To update messages: 
 ```
 goi18n extract
-goi18n merge active.*.toml
 goi18n merge active.*.toml translate.*.toml
+goi18n merge active.*.toml
 ```
 
 ## Install on your server 

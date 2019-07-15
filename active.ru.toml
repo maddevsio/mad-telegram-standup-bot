@@ -168,13 +168,6 @@ other = "Крайний срок сдачи стендапов отменён"
 hash = "sha1-e8aef7674bf966b36bed44a562a63103a54c327e"
 other = "Никто не стендапит, /join чтобы начать стендапить"
 
-[showStandupers]
-few = "{{.Standupers}} сдают стендапы в команде"
-hash = "sha1-7c1b080d825ac604d70c078f362aea96a5ca37d0"
-many = "{{.Standupers}} сдают стендапы в команде"
-one = "{{.Standupers}} сдаёт стендапы в команде"
-other = "{{.Standupers}} сдают стендапы в команде"
-
 [standupDeadline]
 hash = "sha1-c707504adacbeeefba770d008756f533bde9c3fd"
 other = "Standup deadline set at {{.Deadline}} on {{.Weekdays}}"

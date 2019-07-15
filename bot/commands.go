@@ -167,7 +167,25 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 
 	list := []string{}
 	for _, standuper := range standupers {
-		list = append(list, "@"+standuper.Username)
+		daysOnInternship := time.Now().UTC().Sub(standuper.Created).Hours() / 24
+		internshipDuration, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "internshipDuration",
+				One:   "{{.Days}} day on intership",
+				Two:   "{{.Days}} days on internship",
+				Few:   "{{.Days}} days on internship",
+				Many:  "{{.Days}} days on internship",
+				Other: "{{.Days}} days on internship",
+			},
+			PluralCount: int(daysOnInternship),
+			TemplateData: map[string]interface{}{
+				"Days": int(daysOnInternship),
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+		list = append(list, "@"+standuper.Username+":"+internshipDuration)
 	}
 
 	if len(list) == 0 {
@@ -188,23 +206,17 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 	showStandupers, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "showStandupers",
-			One:   "Only {{.Standupers}} standups in the team, /join to start standuping",
-			Two:   "{{.Standupers}} submit standups in the team",
-			Few:   "{{.Standupers}} submit standups in the team",
-			Many:  "{{.Standupers}} submit standups in the team",
-			Other: "{{.Standupers}} submit standups in the team",
+			One:   "Standup team: {{.Standupers}}",
+			Two:   "Standup team: {{.Standupers}}",
+			Few:   "Standup team: {{.Standupers}}",
+			Many:  "Standup team: {{.Standupers}}",
+			Other: "Standup team: {{.Standupers}}",
 		},
 		TemplateData: map[string]interface{}{
-			"Standupers": strings.Join(list, ", "),
+			"Standupers": strings.Join(list, "\n"),
 		},
 		PluralCount: len(list),
 	})
-	if err != nil {
-		log.Error(err)
-	}
-
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, showStandupers)
-	_, err = b.tgAPI.Send(msg)
 	if err != nil {
 		log.Error(err)
 	}
@@ -225,6 +237,8 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 		}
 	}
 
+	var standupDeadlineInfo string
+
 	if group.StandupDeadline == "" {
 		noStandupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
@@ -235,7 +249,7 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 		if err != nil {
 			log.Error(err)
 		}
-		msg = tgbotapi.NewMessage(event.Message.Chat.ID, noStandupDeadline)
+		standupDeadlineInfo = noStandupDeadline
 	} else {
 		standupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
@@ -250,9 +264,10 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 		if err != nil {
 			log.Error(err)
 		}
-		msg = tgbotapi.NewMessage(event.Message.Chat.ID, standupDeadline)
+		standupDeadlineInfo = standupDeadline
 	}
 
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, standupDeadlineInfo+"\n\n"+showStandupers)
 	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
