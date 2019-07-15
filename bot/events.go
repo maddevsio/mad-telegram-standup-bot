@@ -39,9 +39,6 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		}
 
 		advises, _ := b.analyzeStandup(message.Text, message.From.LanguageCode)
-		if group.Advises == "off" {
-			advises = []string{}
-		}
 
 		localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 		text, err := localizer.Localize(&i18n.LocalizeConfig{
