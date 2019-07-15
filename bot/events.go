@@ -291,7 +291,7 @@ func (b *Bot) HandleChannelLeftEvent(event tgbotapi.Update) error {
 		return nil
 	}
 
-	standuper, err := b.db.FindStanduper(member.UserName, event.Message.Chat.ID)
+	standuper, err := b.db.FindStanduper(member.ID, event.Message.Chat.ID)
 	if err != nil {
 		return nil
 	}

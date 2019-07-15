@@ -35,9 +35,9 @@ func (m *MySQL) UpdateStanduper(s *model.Standuper) (*model.Standuper, error) {
 }
 
 // FindStanduper selects Standuper entry from database
-func (m *MySQL) FindStanduper(name string, chatID int64) (*model.Standuper, error) {
+func (m *MySQL) FindStanduper(userID int, chatID int64) (*model.Standuper, error) {
 	s := &model.Standuper{}
-	err := m.conn.Get(s, "SELECT * FROM `standupers` WHERE username=? and chat_id=?", name, chatID)
+	err := m.conn.Get(s, "SELECT * FROM `standupers` WHERE user_id=? and chat_id=?", userID, chatID)
 	return s, err
 }
 

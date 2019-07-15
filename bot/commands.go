@@ -71,7 +71,7 @@ func (b *Bot) Help(event tgbotapi.Update) error {
 //JoinStandupers assign user a standuper role
 func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
-	standuper, err := b.db.FindStanduper(event.Message.From.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
+	standuper, err := b.db.FindStanduper(event.Message.From.ID, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err == nil {
 		var message string
 		switch standuper.Status {
@@ -216,6 +216,7 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 	message := b.prepareShowMessage(standupers, group)
 
 	msg := tgbotapi.NewMessage(event.Message.Chat.ID, message)
+	msg.ParseMode = "Markdown"
 	msg.ReplyToMessageID = event.Message.MessageID
 	_, err = b.tgAPI.Send(msg)
 	return err
@@ -232,6 +233,9 @@ func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Gro
 		var info internInfo
 
 		info.internName = "@" + standuper.Username + ", "
+		if standuper.Username == "" {
+			info.internName = fmt.Sprintf("[stranger](tg://user?id=%v)", standuper.UserID)
+		}
 
 		daysOnInternship := time.Now().UTC().Sub(standuper.Created).Hours() / 24
 		internshipDuration, err := localizer.Localize(&i18n.LocalizeConfig{
@@ -383,7 +387,7 @@ func sweep(entries []internInfo, prevPasses int) bool {
 func (b *Bot) LeaveStandupers(event tgbotapi.Update) error {
 	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
 
-	standuper, err := b.db.FindStanduper(event.Message.From.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
+	standuper, err := b.db.FindStanduper(event.Message.From.ID, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err != nil {
 		notStanduper, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
@@ -941,7 +945,7 @@ func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) error {
 		return nil
 	}
 
-	st, err := b.db.FindStanduper(event.Message.From.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
+	st, err := b.db.FindStanduper(event.Message.From.ID, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err != nil {
 		notStanduper, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{

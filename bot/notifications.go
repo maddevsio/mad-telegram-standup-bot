@@ -3,6 +3,7 @@ package bot
 import (
 	"time"
 
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/maddevsio/mad-internship-bot/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -98,7 +99,13 @@ func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
 		if b.submittedStandupToday(standuper) {
 			continue
 		}
-		stillDidNotSubmit["@"+standuper.Username] = standuper.Warnings
+		if standuper.Username == "" {
+			username := fmt.Sprintf("[stranger](tg://user?id=%v)", standuper.UserID)
+			stillDidNotSubmit[username] = standuper.Warnings
+		} else {
+			stillDidNotSubmit["@"+standuper.Username] = standuper.Warnings
+		}
+
 	}
 
 	//? if everything is fine, should not bother the team...
@@ -127,6 +134,7 @@ func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
 	}
 
 	msg := tgbotapi.NewMessage(group.ChatID, text)
+	msg.ParseMode = "Markdown"
 	_, err = b.tgAPI.Send(msg)
 	if err != nil {
 		log.Error(err)
@@ -206,7 +214,13 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 			continue
 		}
 		standuper.Warnings++
-		missed["@"+standuper.Username] = standuper.Warnings
+		if standuper.Username == "" {
+			username := fmt.Sprintf("[stranger](tg://user?id=%v)", standuper.UserID)
+			missed[username] = standuper.Warnings
+		} else {
+			missed["@"+standuper.Username] = standuper.Warnings
+		}
+
 		b.db.UpdateStanduper(standuper)
 	}
 
@@ -235,6 +249,7 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 	}
 
 	msg := tgbotapi.NewMessage(group.ChatID, text)
+	msg.ParseMode = "Markdown"
 	_, err = b.tgAPI.Send(msg)
 	if err != nil {
 		log.Error(err)
