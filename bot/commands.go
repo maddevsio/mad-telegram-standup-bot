@@ -246,7 +246,7 @@ func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Gro
 
 		info.missedStandups = missedStandups
 
-		internsInfo += info.internName + info.timeSinceAdded + info.missedStandups
+		internsInfo += info.internName + info.timeSinceAdded + info.missedStandups + "\n"
 	}
 
 	showStandupers, err := localizer.Localize(&i18n.LocalizeConfig{
