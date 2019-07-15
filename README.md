@@ -1,4 +1,4 @@
-# Internship Bot for Telegram
+# Internship Bot for Telegram dfdsf
 [![Developed by Mad Devs](https://maddevs.io/badge-dark.svg)](https://maddevs.io/)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Go Report Card](https://goreportcard.com/badge/github.com/maddevsio/mad-internship-bot)](https://goreportcard.com/report/github.com/maddevsio/mad-internship-bot)
