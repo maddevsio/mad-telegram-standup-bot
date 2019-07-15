@@ -344,24 +344,6 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 			//Skip adding bot to standupers
 			return nil
 		}
-		//if it is a regular user, greet with welcoming message and add to standupers
-		_, err := b.db.FindStanduper(member.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
-		if err == nil {
-			return nil
-		}
-
-		_, err = b.db.CreateStanduper(&model.Standuper{
-			Created:      time.Now(),
-			UserID:       member.ID,
-			Username:     member.UserName,
-			ChatID:       event.Message.Chat.ID,
-			LanguageCode: member.LanguageCode,
-			TZ:           "Asia/Bishkek", // default value...
-		})
-		if err != nil {
-			log.Error("CreateStanduper failed: ", err)
-			return nil
-		}
 
 		group, err := b.db.FindGroup(event.Message.Chat.ID)
 		if err != nil {
