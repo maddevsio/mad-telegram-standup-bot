@@ -193,8 +193,14 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 			})
 			if err != nil {
 				log.Error("Failed to kick user: ", err)
+				continue
 			}
 			log.Info(resp)
+
+			err = b.db.DeleteStanduper(standuper.ID)
+			if err != nil {
+				log.Error("Failed to delete standuper after kick ", err)
+			}
 			continue
 		}
 		standuper.Warnings++
