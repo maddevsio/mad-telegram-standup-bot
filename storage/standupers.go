@@ -10,8 +10,8 @@ import (
 // CreateStanduper creates Standuper
 func (m *MySQL) CreateStanduper(s *model.Standuper) (*model.Standuper, error) {
 	res, err := m.conn.Exec(
-		"INSERT INTO `standupers` (created, user_id, username, chat_id, language_code, warnings, tz) VALUES (?, ?, ?, ?, ?, ?, ?)",
-		s.Created, s.UserID, s.Username, s.ChatID, s.LanguageCode, 0, s.TZ,
+		"INSERT INTO `standupers` (created, status, user_id, username, chat_id, language_code, warnings, tz) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		s.Created, s.Status, s.UserID, s.Username, s.ChatID, s.LanguageCode, 0, s.TZ,
 	)
 	if err != nil {
 		return nil, err
@@ -27,17 +27,10 @@ func (m *MySQL) CreateStanduper(s *model.Standuper) (*model.Standuper, error) {
 // UpdateStanduper updates Standuper entry in database
 func (m *MySQL) UpdateStanduper(s *model.Standuper) (*model.Standuper, error) {
 	m.conn.Exec(
-		"UPDATE `standupers` SET username=?, language_code=?, warnings=?, tz=? WHERE id=?",
-		s.Username, s.LanguageCode, s.Warnings, s.TZ, s.ID,
+		"UPDATE `standupers` SET username=?, status=?, language_code=?, warnings=?, tz=? WHERE id=?",
+		s.Username, s.Status, s.LanguageCode, s.Warnings, s.TZ, s.ID,
 	)
 	err := m.conn.Get(s, "SELECT * FROM `standupers` WHERE id=?", s.ID)
-	return s, err
-}
-
-// SelectStanduper selects Standuper entry from database
-func (m *MySQL) SelectStanduper(id int64) (*model.Standuper, error) {
-	s := &model.Standuper{}
-	err := m.conn.Get(s, "SELECT * FROM `standupers` WHERE id=?", id)
 	return s, err
 }
 
@@ -51,7 +44,7 @@ func (m *MySQL) FindStanduper(name string, chatID int64) (*model.Standuper, erro
 // ListChatStandupers returns array of Standuper entries from database filtered by chat
 func (m *MySQL) ListChatStandupers(chatID int64) ([]*model.Standuper, error) {
 	standupers := []*model.Standuper{}
-	err := m.conn.Select(&standupers, "SELECT * FROM `standupers` where chat_id=?", chatID)
+	err := m.conn.Select(&standupers, "SELECT * FROM `standupers` where chat_id=? and status=?", chatID, "active")
 	return standupers, err
 }
 

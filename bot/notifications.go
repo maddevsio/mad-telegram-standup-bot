@@ -197,7 +197,9 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 			}
 			log.Info(resp)
 
-			err = b.db.DeleteStanduper(standuper.ID)
+			standuper.Status = "removed"
+
+			_, err = b.db.UpdateStanduper(standuper)
 			if err != nil {
 				log.Error("Failed to delete standuper after kick ", err)
 			}

@@ -295,7 +295,9 @@ func (b *Bot) HandleChannelLeftEvent(event tgbotapi.Update) error {
 	if err != nil {
 		return nil
 	}
-	err = b.db.DeleteStanduper(standuper.ID)
+
+	standuper.Status = "removed"
+	_, err = b.db.UpdateStanduper(standuper)
 	if err != nil {
 		return err
 	}

@@ -71,18 +71,42 @@ func (b *Bot) Help(event tgbotapi.Update) error {
 //JoinStandupers assign user a standuper role
 func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
-	_, err := b.db.FindStanduper(event.Message.From.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
+	standuper, err := b.db.FindStanduper(event.Message.From.UserName, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err == nil {
-		youAlreadyStandup, err := localizer.Localize(&i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "youAlreadyStandup",
-				Other: "You already a part of standup team",
-			},
-		})
-		if err != nil {
-			log.Error(err)
+		var message string
+		switch standuper.Status {
+		case "active":
+			youAlreadyStandup, err := localizer.Localize(&i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "youAlreadyStandup",
+					Other: "You already a part of standup team",
+				},
+			})
+			if err != nil {
+				log.Error(err)
+			}
+			message = youAlreadyStandup
+		case "paused", "deleted":
+			standuper.Status = "active"
+			_, err := b.db.UpdateStanduper(standuper)
+			if err != nil {
+				log.Error(err)
+				return err
+			}
+
+			welcomeBack, err := localizer.Localize(&i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "welcomeBack",
+					Other: "Welcome back! Glad to see you again, and looking forward to your standups",
+				},
+			})
+			if err != nil {
+				log.Error(err)
+			}
+			message = welcomeBack
 		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, youAlreadyStandup)
+
+		msg := tgbotapi.NewMessage(event.Message.Chat.ID, message)
 		msg.ReplyToMessageID = event.Message.MessageID
 		_, err = b.tgAPI.Send(msg)
 		return err
@@ -90,6 +114,7 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 
 	_, err = b.db.CreateStanduper(&model.Standuper{
 		Created:      time.Now(),
+		Status:       "active",
 		UserID:       event.Message.From.ID,
 		Username:     event.Message.From.UserName,
 		ChatID:       event.Message.Chat.ID,
@@ -375,9 +400,11 @@ func (b *Bot) LeaveStandupers(event tgbotapi.Update) error {
 		return err
 	}
 
-	err = b.db.DeleteStanduper(standuper.ID)
+	standuper.Status = "paused"
+
+	_, err = b.db.UpdateStanduper(standuper)
 	if err != nil {
-		log.Error("DeleteStanduper failed: ", err)
+		log.Error("UpdateStanduper failed: ", err)
 		failedLeaveStanupers, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedLeaveStanupers",
