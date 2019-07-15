@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"time"
 	// This line is must for working MySQL database
 	_ "github.com/go-sql-driver/mysql"
 
@@ -12,7 +11,7 @@ import (
 func (m *MySQL) CreateStanduper(s *model.Standuper) (*model.Standuper, error) {
 	res, err := m.conn.Exec(
 		"INSERT INTO `standupers` (created, user_id, username, chat_id, language_code, warnings, tz) VALUES (?, ?, ?, ?, ?, ?, ?)",
-		time.Now().UTC(), s.UserID, s.Username, s.ChatID, s.LanguageCode, 0, s.TZ,
+		s.Created, s.UserID, s.Username, s.ChatID, s.LanguageCode, 0, s.TZ,
 	)
 	if err != nil {
 		return nil, err

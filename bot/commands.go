@@ -82,6 +82,7 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 	}
 
 	_, err = b.db.CreateStanduper(&model.Standuper{
+		Created:      time.Now(),
 		UserID:       event.Message.From.ID,
 		Username:     event.Message.From.UserName,
 		ChatID:       event.Message.Chat.ID,
@@ -158,67 +159,10 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 
 //Show standupers
 func (b *Bot) Show(event tgbotapi.Update) error {
-	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
 
 	standupers, err := b.db.ListChatStandupers(event.Message.Chat.ID)
 	if err != nil {
 		return err
-	}
-
-	list := []string{}
-	for _, standuper := range standupers {
-		daysOnInternship := time.Now().UTC().Sub(standuper.Created).Hours() / 24
-		internshipDuration, err := localizer.Localize(&i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "internshipDuration",
-				One:   "{{.Days}} day on intership",
-				Two:   "{{.Days}} days on internship",
-				Few:   "{{.Days}} days on internship",
-				Many:  "{{.Days}} days on internship",
-				Other: "{{.Days}} days on internship",
-			},
-			PluralCount: int(daysOnInternship),
-			TemplateData: map[string]interface{}{
-				"Days": int(daysOnInternship),
-			},
-		})
-		if err != nil {
-			log.Error(err)
-		}
-		list = append(list, "@"+standuper.Username+":"+internshipDuration)
-	}
-
-	if len(list) == 0 {
-		showNoStandupers, err := localizer.Localize(&i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "showNoStandupers",
-				Other: "No standupers in the team, /join to start standuping",
-			},
-		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, showNoStandupers)
-		_, err = b.tgAPI.Send(msg)
-		return err
-	}
-
-	showStandupers, err := localizer.Localize(&i18n.LocalizeConfig{
-		DefaultMessage: &i18n.Message{
-			ID:    "showStandupers",
-			One:   "Standup team: {{.Standupers}}",
-			Two:   "Standup team: {{.Standupers}}",
-			Few:   "Standup team: {{.Standupers}}",
-			Many:  "Standup team: {{.Standupers}}",
-			Other: "Standup team: {{.Standupers}}",
-		},
-		TemplateData: map[string]interface{}{
-			"Standupers": strings.Join(list, "\n"),
-		},
-		PluralCount: len(list),
-	})
-	if err != nil {
-		log.Error(err)
 	}
 
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
@@ -236,6 +180,98 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 			return err
 		}
 	}
+
+	message := b.prepareShowMessage(standupers, group)
+
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, message)
+	msg.ReplyToMessageID = event.Message.MessageID
+	_, err = b.tgAPI.Send(msg)
+	return err
+}
+
+func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Group) string {
+	type internInfo struct {
+		internName     string
+		timeSinceAdded string
+		missedStandups string
+	}
+
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
+
+	var internsInfo string
+
+	for _, standuper := range standupers {
+		var info internInfo
+
+		info.internName = "@" + standuper.Username + ", "
+
+		daysOnInternship := time.Now().UTC().Sub(standuper.Created).Hours() / 24
+		internshipDuration, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "internshipDuration",
+				One:   "{{.Days}} day on intership, ",
+				Two:   "{{.Days}} days on internship, ",
+				Few:   "{{.Days}} days on internship, ",
+				Many:  "{{.Days}} days on internship, ",
+				Other: "{{.Days}} days on internship, ",
+			},
+			PluralCount: int(daysOnInternship),
+			TemplateData: map[string]interface{}{
+				"Days": int(daysOnInternship),
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+
+		info.timeSinceAdded = internshipDuration
+
+		missedStandups, err := localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "missedStandups",
+				One:   "missed only deadline",
+				Two:   "missed standups: {{.missedTimes}} times",
+				Few:   "missed standups: {{.missedTimes}} times",
+				Many:  "missed standups: {{.missedTimes}} times",
+				Other: "missed standups: {{.missedTimes}} times",
+			},
+			PluralCount: standuper.Warnings,
+			TemplateData: map[string]interface{}{
+				"missedTimes": standuper.Warnings,
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+
+		info.missedStandups = missedStandups
+
+		internsInfo += info.internName + info.timeSinceAdded + info.missedStandups
+	}
+
+	showStandupers, err := localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "showStandupers",
+			Other: "Interns:",
+		},
+	})
+	if err != nil {
+		log.Error(err)
+	}
+
+	if len(internsInfo) == 0 {
+		showStandupers, err = localizer.Localize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "showNoStandupers",
+				Other: "No standupers in the team, /join to start standuping",
+			},
+		})
+		if err != nil {
+			log.Error(err)
+		}
+	}
+
+	standupersInfo := showStandupers + "\n" + internsInfo
 
 	var standupDeadlineInfo string
 
@@ -267,10 +303,7 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 		standupDeadlineInfo = standupDeadline
 	}
 
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, standupDeadlineInfo+"\n\n"+showStandupers)
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
+	return standupersInfo + "\n" + standupDeadlineInfo
 }
 
 //LeaveStandupers standupers
@@ -426,6 +459,7 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) error {
 	return err
 }
 
+//UpdateOnbordingMessage updates welcoming message for the group
 func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) error {
 	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
 	if err != nil {
@@ -524,6 +558,7 @@ func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) error {
 	return err
 }
 
+//UpdateGroupLanguage updates primary language for the group
 func (b *Bot) UpdateGroupLanguage(event tgbotapi.Update) error {
 	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
 	if err != nil {

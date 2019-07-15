@@ -351,6 +351,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 		}
 
 		_, err = b.db.CreateStanduper(&model.Standuper{
+			Created:      time.Now(),
 			UserID:       member.ID,
 			Username:     member.UserName,
 			ChatID:       event.Message.Chat.ID,

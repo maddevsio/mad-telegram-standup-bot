@@ -37,6 +37,7 @@ notifyNonReporters = "Attention, {{.Intern}}! you have just missed the deadline!
 removeOnbordingMessage = "Standup deadline removed"
 removeStandupDeadline = "Standup deadline removed"
 showNoStandupers = "No standupers in the team, /join to start standuping"
+showStandupers = "Interns:"
 standupDeadline = "Standup deadline set at {{.Deadline}} on {{.Weekdays}}"
 standupUpdated = "Standup was successfully updated!"
 updateGroupAdvisesStatusOff = "Standup advises are turned OFF"
@@ -68,15 +69,15 @@ other = "Standup is going to be more usefull with several advises: \\n {{.Advise
 two = "Standup is going to be more usefull with two advises: \\n {{.Advises}}"
 
 [internshipDuration]
-few = "{{.Days}} days on internship"
-many = "{{.Days}} days on internship"
-one = "{{.Days}} day on intership"
-other = "{{.Days}} days on internship"
-two = "{{.Days}} days on internship"
+few = "{{.Days}} days on internship, "
+many = "{{.Days}} days on internship, "
+one = "{{.Days}} day on intership, "
+other = "{{.Days}} days on internship, "
+two = "{{.Days}} days on internship, "
 
-[showStandupers]
-few = "Standup team: {{.Standupers}}"
-many = "Standup team: {{.Standupers}}"
-one = "Standup team: {{.Standupers}}"
-other = "Standup team: {{.Standupers}}"
-two = "Standup team: {{.Standupers}}"
+[missedStandups]
+few = "missed standups: {{.missedTimes}} times"
+many = "missed standups: {{.missedTimes}} times"
+one = "missed only deadline"
+other = "missed standups: {{.missedTimes}} times"
+two = "missed standups: {{.missedTimes}} times"
