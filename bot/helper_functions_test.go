@@ -20,7 +20,6 @@ import (
 )
 
 func TestSubmittedStandupToday(t *testing.T) {
-	t.Skip("need to configure connection to DB properly")
 	conf, err := config.Get()
 	require.NoError(t, err)
 	mysql, err := storage.NewMySQL(conf)
@@ -28,7 +27,7 @@ func TestSubmittedStandupToday(t *testing.T) {
 
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
-	_, err = bundle.LoadMessageFile("active.en.toml")
+	_, err = bundle.LoadMessageFile("../active.en.toml")
 	require.NoError(t, err)
 
 	bot, err := New(conf, bundle)
