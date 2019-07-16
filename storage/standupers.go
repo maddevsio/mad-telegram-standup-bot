@@ -10,7 +10,7 @@ import (
 // CreateStanduper creates Standuper
 func (m *MySQL) CreateStanduper(s *model.Standuper) (*model.Standuper, error) {
 	res, err := m.conn.Exec(
-		"INSERT INTO `standupers` (created, status, user_id, username, chat_id, language_code, warnings, tz) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		"INSERT INTO `standupers` (created, status, user_id, username, chat_id, language_code, warnings, tz) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
 		s.Created, s.Status, s.UserID, s.Username, s.ChatID, s.LanguageCode, 0, s.TZ,
 	)
 	if err != nil {
