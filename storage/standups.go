@@ -1,12 +1,8 @@
 package storage
 
 import (
-	"time"
-
-	// This line is must for working MySQL database
-	_ "github.com/go-sql-driver/mysql"
-
 	"github.com/maddevsio/mad-internship-bot/model"
+	"time"
 )
 
 // CreateStandup creates standup entry in database

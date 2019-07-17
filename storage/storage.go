@@ -18,10 +18,7 @@ type MySQL struct {
 func NewMySQL(c *config.BotConfig) (*MySQL, error) {
 	conn, err := sqlx.Open("mysql", c.DatabaseURL)
 	if err != nil {
-		conn, err = sqlx.Connect("mysql", "telegram:telegram@tcp(localhost:3306)/telegram?parseTime=true")
-		if err != nil {
-			return nil, err
-		}
+		return nil, err
 	}
 	m := &MySQL{conn}
 	return m, nil
