@@ -18,10 +18,10 @@ func TestGroups(t *testing.T) {
 	g := &model.Group{
 		ChatID:           int64(15),
 		Title:            "Chat",
-		Username:         "SulaFPV",
+		Username:         "User",
 		Description:      "foo",
 		TZ:               "GMT +6",
-		StandupDeadline:  "15 Oct",
+		StandupDeadline:  "10:00",
 		Language:         "en",
 		OnbordingMessage: "Hello, user",
 		SubmissionDays:   "Everyday",
