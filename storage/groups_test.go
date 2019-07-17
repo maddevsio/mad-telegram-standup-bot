@@ -30,7 +30,7 @@ func TestGroups(t *testing.T) {
 
 	group, err := mysql.CreateGroup(g)
 	require.NoError(t, err)
-	require.Equal(t, "SulaFPV", group.Username)
+	require.Equal(t, "User", group.Username)
 	require.Equal(t, int64(15), group.ChatID)
 	require.Equal(t, "GMT +6", group.TZ)
 
@@ -58,4 +58,10 @@ func TestGroups(t *testing.T) {
 
 	err = mysql.DeleteGroup(group2.ID)
 	require.NoError(t, err)
+
+	_, err = mysql.SelectGroup(group.ID)
+	require.Error(t, err)
+
+	_, err = mysql.SelectGroup(group2.ID)
+	require.Error(t, err)
 }
