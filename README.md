@@ -40,12 +40,14 @@ advises - turn off/on advises when writing standups
 
 ## Local usage
 First you need to set env variables:
-
 ```
 export TELEGRAM_TOKEN=yourTelegramTokenRecievedFromBotFather
 export DEBUG=true
 ```
+Install [dep](https://github.com/golang/dep)
+
 Then run. Note, you need `Docker` and `docker-compose` installed on your system
+
 ```
 make run
 ```
@@ -63,13 +65,16 @@ go run main.go
 This should setup a database and run all the migrations for you. 
 
 To update messages: 
-```
-goi18n extract
-goi18n merge active.*.toml translate.*.toml
-goi18n merge active.*.toml
-```
+First install CLI from [original repo](https://github.com/nicksnyder/go-i18n) then follow these steps:
+
+1. Make changes to your default messages
+2. Run `goi18n extract` to update English translation files
+3. Create translate.ru.toml file for Russian translations
+3. Run `goi18n merge active.*.toml translate.*.toml` to change translated messages to update Russian translations
+4. Run `goi18n merge active.*.toml` to update russian translations
 
 ## Install on your server 
+
 1. Build and push bot's image to Dockerhub or any other container registry: 
 ```
 docker build  -t <youraccount>/mad-internship-bot  .
