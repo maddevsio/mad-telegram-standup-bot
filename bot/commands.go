@@ -789,10 +789,10 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) (string, error) {
 		return "", fmt.Errorf("user not admin")
 	}
 
-	tz := event.Message.CommandArguments()
+	tz := strings.TrimSpace(event.Message.CommandArguments())
 
 	if strings.TrimSpace(tz) == "" {
-		return "", fmt.Errorf("TZ is empty")
+		tz = "Asia/Bishkek"
 	}
 
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
@@ -820,9 +820,7 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) (string, error) {
 	group.TZ = tz
 
 	localizer := i18n.NewLocalizer(b.bundle, group.Language)
-
 	_, err = time.LoadLocation(tz)
-
 	if err != nil {
 		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
