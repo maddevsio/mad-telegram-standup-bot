@@ -98,52 +98,52 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		return nil
 	}
 
-	containsPR, prs := containsPullRequests(message.Text)
-	if containsPR {
-		for _, pr := range prs {
-			warnings := b.analyzePullRequest(pr, message.From.LanguageCode)
-			if len(warnings) == 0 {
-				localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
-				goodPR, err := localizer.Localize(&i18n.LocalizeConfig{
-					DefaultMessage: &i18n.Message{
-						ID:    "goodPR",
-						Other: "- good PR, review indeed needed!",
-					},
-				})
-				if err != nil {
-					log.Error(err)
-				}
-				msg := tgbotapi.NewMessage(message.Chat.ID, *pr.HTMLURL+goodPR)
-				msg.ReplyToMessageID = message.MessageID
-				msg.DisableWebPagePreview = true
-				b.tgAPI.Send(msg)
-			} else {
-				localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
-				badPR, err := localizer.Localize(&i18n.LocalizeConfig{
-					DefaultMessage: &i18n.Message{
-						ID:    "badPR",
-						Other: "- bad PR, pay attention to the following advises: \n",
-					},
-				})
-				if err != nil {
-					log.Error(err)
-				}
-				text := *pr.HTMLURL + badPR
-				text += strings.Join(warnings, "\n")
-				msg := tgbotapi.NewMessage(message.Chat.ID, text)
-				msg.ReplyToMessageID = message.MessageID
-				msg.DisableWebPagePreview = true
-				b.tgAPI.Send(msg)
-			}
-		}
-	}
-
 	if message.IsCommand() {
 		return b.HandleCommand(update)
 	}
 
 	if message.Text != "" {
-		return b.HandleMessageEvent(message)
+		b.HandleMessageEvent(message)
+
+		containsPR, prs := containsPullRequests(message.Text)
+		if containsPR {
+			for _, pr := range prs {
+				warnings := b.analyzePullRequest(pr, message.From.LanguageCode)
+				if len(warnings) == 0 {
+					localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
+					goodPR, err := localizer.Localize(&i18n.LocalizeConfig{
+						DefaultMessage: &i18n.Message{
+							ID:    "goodPR",
+							Other: "- good PR, review indeed needed!",
+						},
+					})
+					if err != nil {
+						log.Error(err)
+					}
+					msg := tgbotapi.NewMessage(message.Chat.ID, *pr.HTMLURL+goodPR)
+					msg.ReplyToMessageID = message.MessageID
+					msg.DisableWebPagePreview = true
+					b.tgAPI.Send(msg)
+				} else {
+					localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
+					badPR, err := localizer.Localize(&i18n.LocalizeConfig{
+						DefaultMessage: &i18n.Message{
+							ID:    "badPR",
+							Other: "- bad PR, pay attention to the following advises: \n",
+						},
+					})
+					if err != nil {
+						log.Error(err)
+					}
+					text := *pr.HTMLURL + badPR
+					text += strings.Join(warnings, "\n")
+					msg := tgbotapi.NewMessage(message.Chat.ID, text)
+					msg.ReplyToMessageID = message.MessageID
+					msg.DisableWebPagePreview = true
+					b.tgAPI.Send(msg)
+				}
+			}
+		}
 	}
 
 	if message.LeftChatMember != nil {

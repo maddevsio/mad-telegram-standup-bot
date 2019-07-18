@@ -20,39 +20,79 @@ type internInfo struct {
 }
 
 //HandleCommand handles imcomming commands
-func (b *Bot) HandleCommand(event tgbotapi.Update) error {
+func (b *Bot) HandleCommand(event tgbotapi.Update) (err error) {
+	var message string
 	switch event.Message.Command() {
 	case "help":
-		return b.Help(event)
+		message, err = b.Help(event)
+		if err != nil {
+			log.Error("Help failed: ", err)
+		}
 	case "join":
-		return b.JoinStandupers(event)
+		message, err = b.JoinStandupers(event)
+		if err != nil {
+			log.Error("JoinStandupers failed: ", err)
+		}
 	case "show":
-		return b.Show(event)
+		message, err = b.Show(event)
+		if err != nil {
+			log.Error("Show failed: ", err)
+		}
 	case "leave":
-		return b.LeaveStandupers(event)
+		message, err = b.LeaveStandupers(event)
+		if err != nil {
+			log.Error("LeaveStandupers failed: ", err)
+		}
 	case "edit_deadline":
-		return b.EditDeadline(event)
+		message, err = b.EditDeadline(event)
+		if err != nil {
+			log.Error("EditDeadline failed: ", err)
+		}
 	case "update_onbording_message":
-		return b.UpdateOnbordingMessage(event)
+		message, err = b.UpdateOnbordingMessage(event)
+		if err != nil {
+			log.Error("UpdateOnbordingMessage failed: ", err)
+		}
 	case "update_group_language":
-		return b.UpdateGroupLanguage(event)
+		message, err = b.UpdateGroupLanguage(event)
+		if err != nil {
+			log.Error("UpdateGroupLanguage failed: ", err)
+		}
 	case "change_submission_days":
-		return b.ChangeSubmissionDays(event)
+		message, err = b.ChangeSubmissionDays(event)
+		if err != nil {
+			log.Error("ChangeSubmissionDays failed: ", err)
+		}
 	case "advises":
-		return b.ChangeAdvisesStatus(event)
+		message, err = b.ChangeAdvisesStatus(event)
+		if err != nil {
+			log.Error("ChangeAdvisesStatus failed: ", err)
+		}
 	case "group_tz":
-		return b.ChangeGroupTimeZone(event)
+		message, err = b.ChangeGroupTimeZone(event)
+		if err != nil {
+			log.Error("ChangeGroupTimeZone failed: ", err)
+		}
 	case "tz":
-		return b.ChangeUserTimeZone(event)
+		message, err = b.ChangeUserTimeZone(event)
+		if err != nil {
+			log.Error("ChangeUserTimeZone failed: ", err)
+		}
 	default:
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, "I do not know this command...")
-		_, err := b.tgAPI.Send(msg)
+		message = "I do not know this command..."
+	}
+
+	if err != nil {
 		return err
 	}
+
+	msg := tgbotapi.NewMessage(event.Message.Chat.ID, message)
+	_, err = b.tgAPI.Send(msg)
+	return err
 }
 
 //Help displays help message
-func (b *Bot) Help(event tgbotapi.Update) error {
+func (b *Bot) Help(event tgbotapi.Update) (string, error) {
 	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
 	helpText, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
@@ -60,56 +100,37 @@ func (b *Bot) Help(event tgbotapi.Update) error {
 			Other: `In order to submit a standup, tag me and write a message with keywords. Direct message me to see the list of keywords needed. Loking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaviour, submit issues to https://github.com/maddevsio/mad-internship-bot/issues`,
 		},
 	})
-	if err != nil {
-		log.Error(err)
-	}
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, helpText)
-	_, err = b.tgAPI.Send(msg)
-	return err
+	return helpText, err
 }
 
 //JoinStandupers assign user a standuper role
-func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
+func (b *Bot) JoinStandupers(event tgbotapi.Update) (string, error) {
 	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
 	standuper, err := b.db.FindStanduper(event.Message.From.ID, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err == nil {
-		var message string
 		switch standuper.Status {
 		case "active":
-			youAlreadyStandup, err := localizer.Localize(&i18n.LocalizeConfig{
+			return localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
 					ID:    "youAlreadyStandup",
 					Other: "You already a part of standup team",
 				},
 			})
-			if err != nil {
-				log.Error(err)
-			}
-			message = youAlreadyStandup
+
 		case "paused", "deleted":
 			standuper.Status = "active"
 			_, err := b.db.UpdateStanduper(standuper)
 			if err != nil {
-				log.Error(err)
-				return err
+				return "", err
 			}
 
-			welcomeBack, err := localizer.Localize(&i18n.LocalizeConfig{
+			return localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
 					ID:    "welcomeBack",
 					Other: "Welcome back! Glad to see you again, and looking forward to your standups",
 				},
 			})
-			if err != nil {
-				log.Error(err)
-			}
-			message = welcomeBack
 		}
-
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, message)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
 	_, err = b.db.CreateStanduper(&model.Standuper{
@@ -123,19 +144,12 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 	})
 	if err != nil {
 		log.Error("CreateStanduper failed: ", err)
-		createStanduperFailed, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "createStanduperFailed",
 				Other: "Could not add you to standup team",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, createStanduperFailed)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
@@ -151,50 +165,36 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) error {
 			Advises:          "on",
 		})
 		if err != nil {
-			return err
+			return "", err
 		}
 	}
 
-	var msg tgbotapi.MessageConfig
-
 	if group.StandupDeadline == "" {
-		welcomeWithNoDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "welcomeNoDedline",
 				Other: "Welcome to the standup team, no standup deadline has been setup yet",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg = tgbotapi.NewMessage(event.Message.Chat.ID, welcomeWithNoDeadline)
-	} else {
-		welcomeWithDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "welcomeWithDedline",
-				Other: "Welcome to the standup team, please, submit your standups no later than {{.Deadline}}",
-			},
-			TemplateData: map[string]interface{}{
-				"Deadline": group.StandupDeadline,
-			},
-		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg = tgbotapi.NewMessage(event.Message.Chat.ID, welcomeWithDeadline)
 	}
 
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
+	return localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "welcomeWithDedline",
+			Other: "Welcome to the standup team, please, submit your standups no later than {{.Deadline}}",
+		},
+		TemplateData: map[string]interface{}{
+			"Deadline": group.StandupDeadline,
+		},
+	})
 }
 
 //Show standupers
-func (b *Bot) Show(event tgbotapi.Update) error {
+func (b *Bot) Show(event tgbotapi.Update) (string, error) {
 
 	standupers, err := b.db.ListChatStandupers(event.Message.Chat.ID)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
@@ -209,17 +209,14 @@ func (b *Bot) Show(event tgbotapi.Update) error {
 			Advises:         "on",
 		})
 		if err != nil {
-			return err
+			return "", err
 		}
+
 	}
 
 	message := b.prepareShowMessage(standupers, group)
 
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, message)
-	msg.ParseMode = "Markdown"
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
+	return message, nil
 }
 
 func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Group) string {
@@ -384,80 +381,55 @@ func sweep(entries []internInfo, prevPasses int) bool {
 }
 
 //LeaveStandupers standupers
-func (b *Bot) LeaveStandupers(event tgbotapi.Update) error {
+func (b *Bot) LeaveStandupers(event tgbotapi.Update) (string, error) {
 	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
 
 	standuper, err := b.db.FindStanduper(event.Message.From.ID, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err != nil {
-		notStanduper, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "notStanduper",
 				Other: "You do not standup yet",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, notStanduper)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
 	standuper.Status = "paused"
 
 	_, err = b.db.UpdateStanduper(standuper)
 	if err != nil {
-		log.Error("UpdateStanduper failed: ", err)
-		failedLeaveStanupers, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedLeaveStanupers",
 				Other: "Could not remove you from standup team",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedLeaveStanupers)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
-	leaveStanupers, err := localizer.Localize(&i18n.LocalizeConfig{
+	return localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "leaveStanupers",
 			Other: "You no longer have to submit standups, thanks for all your standups and messages",
 		},
 	})
-	if err != nil {
-		log.Error(err)
-	}
-
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, leaveStanupers)
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
 }
 
 //EditDeadline modifies standup time
-func (b *Bot) EditDeadline(event tgbotapi.Update) error {
+func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
 	if err != nil {
-		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+		return "", err
 	}
 
 	if !isAdmin {
-		log.Warn("User not an admin", event.Message.From.UserName)
-		return nil
+		return "", fmt.Errorf("user not admin")
 	}
 
 	deadline := event.Message.CommandArguments()
 
 	team := b.findTeam(event.Message.Chat.ID)
 	if team == nil {
-		log.Error("findTeam failed")
-		return fmt.Errorf("failed to find sutable team for edit deadline")
+		return "", fmt.Errorf("failed to find team")
 	}
 
 	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
@@ -467,60 +439,35 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) error {
 
 		_, err = b.db.UpdateGroup(team.Group)
 		if err != nil {
-			log.Error("Remove Deadline failed: ", err)
-			failedRemoveStandupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+			return localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
 					ID:    "failedRemoveStandupDeadline",
 					Other: "Could not remove standup deadline",
 				},
 			})
-			if err != nil {
-				log.Error(err)
-			}
-			msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedRemoveStandupDeadline)
-			msg.ReplyToMessageID = event.Message.MessageID
-			_, err = b.tgAPI.Send(msg)
-			return err
 		}
-		log.Error("Remove Deadline failed: ", err)
-		removeStandupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "removeStandupDeadline",
 				Other: "Standup deadline removed",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, removeStandupDeadline)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
 	team.Group.StandupDeadline = deadline
 
-	log.Info(team.Group)
-
 	_, err = b.db.UpdateGroup(team.Group)
 	if err != nil {
-		log.Error("UpdateGroup in EditDeadline failed: ", err)
-		failedUpdateStandupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedUpdateStandupDeadline",
 				Other: "Could not edit standup deadline",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateStandupDeadline)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
-	updateStandupDeadline, err := localizer.Localize(&i18n.LocalizeConfig{
+	return localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "updateStandupDeadline",
 			Other: "Edited standup deadline, new deadline is {{.Deadline}}",
@@ -529,35 +476,24 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) error {
 			"Deadline": deadline,
 		},
 	})
-	if err != nil {
-		log.Error(err)
-	}
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateStandupDeadline)
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
 }
 
 //UpdateOnbordingMessage updates welcoming message for the group
-func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) error {
+func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) (string, error) {
 	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
 	if err != nil {
-		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+		return "", err
 	}
 
 	if !isAdmin {
-		log.Warn("User not an admin", event.Message.From.UserName)
-		return nil
+		return "", fmt.Errorf("user not admin")
 	}
 
 	onbordingMessage := event.Message.CommandArguments()
 
-	log.Info("Onbording Message: ", onbordingMessage)
-
 	team := b.findTeam(event.Message.Chat.ID)
 	if team == nil {
-		log.Error("findTeam failed")
-		return fmt.Errorf("failed to find sutable team for edit deadline")
+		return "", fmt.Errorf("failed to find team")
 	}
 
 	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
@@ -567,94 +503,57 @@ func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) error {
 
 		_, err = b.db.UpdateGroup(team.Group)
 		if err != nil {
-			log.Error("Remove Deadline failed: ", err)
-			failedRemoveOnbordingMessage, err := localizer.Localize(&i18n.LocalizeConfig{
+			return localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
 					ID:    "failedRemoveOnbordingMessage",
 					Other: "Could not remove remove onbording message",
 				},
 			})
-			if err != nil {
-				log.Error(err)
-			}
-			msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedRemoveOnbordingMessage)
-			msg.ReplyToMessageID = event.Message.MessageID
-			_, err = b.tgAPI.Send(msg)
-			return err
 		}
-		log.Error("Remove Deadline failed: ", err)
-		removeOnbordingMessage, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "removeOnbordingMessage",
 				Other: "Standup deadline removed",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, removeOnbordingMessage)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
 	team.Group.OnbordingMessage = onbordingMessage
 
-	log.Info(team.Group)
-
-	group, err := b.db.UpdateGroup(team.Group)
+	_, err = b.db.UpdateGroup(team.Group)
 	if err != nil {
-		log.Error("UpdateGroup in EditDeadline failed: ", err)
-		failedUpdateOnbordingMessage, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedUpdateOnbordingMessage",
 				Other: "Could not edit onbording message",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateOnbordingMessage)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
-	log.Info("Group after update: ", group)
-
-	updateOnbordingMessage, err := localizer.Localize(&i18n.LocalizeConfig{
+	return localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "updateOnbordingMessage",
 			Other: "Onbording message updated",
 		},
 	})
-	if err != nil {
-		log.Error(err)
-	}
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateOnbordingMessage)
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
 }
 
 //UpdateGroupLanguage updates primary language for the group
-func (b *Bot) UpdateGroupLanguage(event tgbotapi.Update) error {
+func (b *Bot) UpdateGroupLanguage(event tgbotapi.Update) (string, error) {
 	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
 	if err != nil {
-		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+		return "", err
 	}
 
 	if !isAdmin {
-		log.Warn("User not an admin", event.Message.From.UserName)
-		return nil
+		return "", fmt.Errorf("user not admin")
 	}
 
 	language := event.Message.CommandArguments()
 
 	team := b.findTeam(event.Message.Chat.ID)
 	if team == nil {
-		log.Error("findTeam failed")
-		return fmt.Errorf("failed to find sutable team for edit deadline")
+		return "", fmt.Errorf("failed to find team")
 	}
 
 	localizer := i18n.NewLocalizer(b.bundle, language)
@@ -665,118 +564,78 @@ func (b *Bot) UpdateGroupLanguage(event tgbotapi.Update) error {
 		team.Group.Language = "en"
 	}
 
-	log.Info(team.Group)
-
-	group, err := b.db.UpdateGroup(team.Group)
+	_, err = b.db.UpdateGroup(team.Group)
 	if err != nil {
-		log.Error("UpdateGroup in Change language failed: ", err)
-		failedUpdateLanguage, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedUpdateLanguage",
 				Other: "Could not edit group language",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateLanguage)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
-	log.Info("Group after update: ", group)
-
-	updateGroupLanguage, err := localizer.Localize(&i18n.LocalizeConfig{
+	return localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "updateGroupLanguage",
 			Other: "Group language updated",
 		},
 	})
-	if err != nil {
-		log.Error(err)
-	}
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateGroupLanguage)
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
 }
 
 //ChangeSubmissionDays changes days on which interns should submit standups
-func (b *Bot) ChangeSubmissionDays(event tgbotapi.Update) error {
+func (b *Bot) ChangeSubmissionDays(event tgbotapi.Update) (string, error) {
 	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
 	if err != nil {
-		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+		return "", err
 	}
 
 	if !isAdmin {
-		log.Warn("User not an admin", event.Message.From.UserName)
-		return nil
+		return "", fmt.Errorf("user not admin")
 	}
 
 	submissionDays := event.Message.CommandArguments()
 
 	team := b.findTeam(event.Message.Chat.ID)
 	if team == nil {
-		log.Error("findTeam failed")
-		return fmt.Errorf("failed to find sutable team for edit deadline")
+		return "", fmt.Errorf("failed to find team")
 	}
 
 	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
 
 	team.Group.SubmissionDays = strings.ToLower(submissionDays)
 
-	group, err := b.db.UpdateGroup(team.Group)
+	_, err = b.db.UpdateGroup(team.Group)
 	if err != nil {
-		log.Error("UpdateGroup in ChangeSubmissionDays failed: ", err)
-		failedUpdateSubmissionDays, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedUpdateSubmissionDays",
 				Other: "Could not edit standup submission days",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateSubmissionDays)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
-	log.Info("Group after update: ", group)
-
-	updateGroupSubmissionDays, err := localizer.Localize(&i18n.LocalizeConfig{
+	return localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "updateGroupSubmissionDays",
 			Other: "Group Standup submission days updated",
 		},
 	})
-	if err != nil {
-		log.Error(err)
-	}
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateGroupSubmissionDays)
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
 }
 
 //ChangeAdvisesStatus turns off and on advises on standups
-func (b *Bot) ChangeAdvisesStatus(event tgbotapi.Update) error {
+func (b *Bot) ChangeAdvisesStatus(event tgbotapi.Update) (string, error) {
 	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
 	if err != nil {
-		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+		return "", err
 	}
 
 	if !isAdmin {
-		log.Warn("User not an admin", event.Message.From.UserName)
-		return nil
+		return "", fmt.Errorf("user not admin")
 	}
 
 	team := b.findTeam(event.Message.Chat.ID)
 	if team == nil {
-		log.Error("findTeam failed")
-		return fmt.Errorf("failed to find sutable team for edit deadline")
+		return "", fmt.Errorf("failed to find team")
 	}
 
 	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
@@ -787,137 +646,82 @@ func (b *Bot) ChangeAdvisesStatus(event tgbotapi.Update) error {
 		team.Group.Advises = "on"
 	}
 
-	log.Info("Update group: ", team.Group)
-	group, err := b.db.UpdateGroup(team.Group)
+	_, err = b.db.UpdateGroup(team.Group)
 	if err != nil {
-		log.Error("UpdateGroup in ChangeSubmissionDays: ", err)
-		failedUpdateAdvisesStatus, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedUpdateAdvisesStatus",
 				Other: "Could not switch advises",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateAdvisesStatus)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
-	}
-
-	log.Info("Group after update: ", group)
-
-	updateGroupAdvisesStatus, err := localizer.Localize(&i18n.LocalizeConfig{
-		DefaultMessage: &i18n.Message{
-			ID:    "updateGroupAdvisesStatusOff",
-			Other: "Standup advises are turned OFF",
-		},
-	})
-	if err != nil {
-		log.Error(err)
 	}
 
 	if team.Group.Advises == "on" {
-		updateGroupAdvisesStatus, err = localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "updateGroupAdvisesStatusOn",
 				Other: "Standup advises are turned ON",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
 	}
 
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateGroupAdvisesStatus)
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
+	return localizer.Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "updateGroupAdvisesStatusOff",
+			Other: "Standup advises are turned OFF",
+		},
+	})
 }
 
 //ChangeGroupTimeZone modifies time zone of the group
-func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
+func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) (string, error) {
 
 	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
 	if err != nil {
-		log.Errorf("senderIsAdminInChannel func failed: [%v]\n", err)
+		return "", err
 	}
 
 	if !isAdmin {
-		log.Warn("User not an admin", event.Message.From.UserName)
-		return nil
+		return "", fmt.Errorf("user not admin")
 	}
 
 	tz := event.Message.CommandArguments()
 
 	if strings.TrimSpace(tz) == "" {
-		return nil
+		return "", fmt.Errorf("TZ is empty")
 	}
 
 	team := b.findTeam(event.Message.Chat.ID)
-	log.Info("Current team: ", team)
-
 	if team == nil {
-		group, err := b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "",
-			TZ:              "Asia/Bishkek", // default value...
-			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:         "on",
-		})
-		if err != nil {
-			return err
-		}
-		b.watchersChan <- group
-		team = b.findTeam(event.Message.Chat.ID)
+		return "", fmt.Errorf("failed to find team")
 	}
 
 	team.Group.TZ = tz
 
 	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
 
-	log.Info("localizer ", localizer)
-
 	_, err = time.LoadLocation(tz)
+
 	if err != nil {
-		log.Error("UpdateGroup in ChangeTimeZone failed: ", err)
-		failedRecognizeTZ, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedRecognizeTZ",
 				Other: "Failed to recognize new TZ you entered, double check the tz name and try again",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedRecognizeTZ)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
 	_, err = b.db.UpdateGroup(team.Group)
 	if err != nil {
-		log.Error("UpdateGroup in ChangeTimeZone failed: ", err)
-		failedUpdateTZ, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedUpdateTZ",
 				Other: "Failed to update Timezone",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateTZ)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
-	updateTZ, err := localizer.Localize(&i18n.LocalizeConfig{
+	return localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "updateTZ",
 			Other: "Group timezone is updated, new TZ is {{.TZ}}",
@@ -926,81 +730,51 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) error {
 			"TZ": tz,
 		},
 	})
-	if err != nil {
-		log.Error(err)
-	}
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateTZ)
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
 }
 
 //ChangeUserTimeZone assign user a different time zone
-func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) error {
+func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) (string, error) {
 	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
 
 	tz := event.Message.CommandArguments()
 
 	if strings.TrimSpace(tz) == "" {
-		return nil
+		return "", fmt.Errorf("TZ is empty")
 	}
 
 	st, err := b.db.FindStanduper(event.Message.From.ID, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err != nil {
-		notStanduper, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "notStanduper",
 				Other: "You do not standup yet",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, notStanduper)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
 	st.TZ = tz
 
 	_, err = time.LoadLocation(tz)
 	if err != nil {
-		log.Error("LoadLocation in ChangeUserTimeZone failed: ", err)
-		failedRecognizeTZ, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedRecognizeTZ",
 				Other: "Failed to recognize new TZ you entered, double check the tz name and try again",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedRecognizeTZ)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
 	_, err = b.db.UpdateStanduper(st)
 	if err != nil {
-		log.Error("UpdateStanduper in ChangeUserTimeZone failed: ", err)
-		failedUpdateTZ, err := localizer.Localize(&i18n.LocalizeConfig{
+		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "failedUpdateTZ",
 				Other: "Failed to update Timezone",
 			},
 		})
-		if err != nil {
-			log.Error(err)
-		}
-		msg := tgbotapi.NewMessage(event.Message.Chat.ID, failedUpdateTZ)
-		msg.ReplyToMessageID = event.Message.MessageID
-		_, err = b.tgAPI.Send(msg)
-		return err
 	}
 
-	updateTZ, err := localizer.Localize(&i18n.LocalizeConfig{
+	return localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "updateUserTZ",
 			Other: "your timezone is updated, new TZ is {{.TZ}}",
@@ -1009,13 +783,6 @@ func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) error {
 			"TZ": tz,
 		},
 	})
-	if err != nil {
-		log.Error(err)
-	}
-	msg := tgbotapi.NewMessage(event.Message.Chat.ID, updateTZ)
-	msg.ReplyToMessageID = event.Message.MessageID
-	_, err = b.tgAPI.Send(msg)
-	return err
 }
 
 func (b *Bot) senderIsAdminInChannel(sendername string, chatID int64) (bool, error) {

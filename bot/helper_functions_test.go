@@ -30,7 +30,7 @@ func TestSubmittedStandupToday(t *testing.T) {
 	_, err = bundle.LoadMessageFile("../active.en.toml")
 	require.NoError(t, err)
 
-	bot, err := New(conf, bundle)
+	bot := Bot{c: conf, db: mysql, bundle: bundle}
 	require.NoError(t, err)
 
 	d := time.Date(2019, 6, 17, 4, 20, 0, 0, time.Local)
@@ -74,7 +74,7 @@ func TestAnalyzeStandup(t *testing.T) {
 	_, err = bundle.LoadMessageFile("../active.en.toml")
 	require.NoError(t, err)
 
-	bot, err := New(conf, bundle)
+	bot := Bot{c: conf, bundle: bundle}
 	require.NoError(t, err)
 
 	testCases := []struct {

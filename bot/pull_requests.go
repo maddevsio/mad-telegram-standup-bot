@@ -62,7 +62,7 @@ func (b *Bot) analyzePullRequest(pr github.PullRequest, language string) []strin
 
 	errors := []string{}
 
-	if len(*pr.Body) < 50 {
+	if pr.Body == nil || len(*pr.Body) < 50 {
 		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "analyzePRDescription",
@@ -101,7 +101,7 @@ func (b *Bot) analyzePullRequest(pr github.PullRequest, language string) []strin
 		errors = append(errors, warnings)
 	}
 
-	if !*pr.Mergeable {
+	if pr.Mergeable == nil || !*pr.Mergeable {
 		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "analyzePRConflicts",
