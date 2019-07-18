@@ -19,6 +19,9 @@ type internInfo struct {
 	daysOnInternship int
 }
 
+// Test helps to use some functions without need to use external APIs
+var Test bool
+
 //HandleCommand handles imcomming commands
 func (b *Bot) HandleCommand(event tgbotapi.Update) (err error) {
 	var message string
@@ -438,9 +441,9 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 
 	deadline := event.Message.CommandArguments()
 
-	team := b.findTeam(event.Message.Chat.ID)
-	if team == nil {
-		group, err := b.db.CreateGroup(&model.Group{
+	group, err := b.db.FindGroup(event.Message.Chat.ID)
+	if err != nil {
+		group, err = b.db.CreateGroup(&model.Group{
 			ChatID:          event.Message.Chat.ID,
 			Title:           event.Message.Chat.Title,
 			Description:     event.Message.Chat.Description,
@@ -458,7 +461,11 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 			QuitChan: make(chan struct{}),
 		}
 		b.teams = append(b.teams, team)
-		team = b.findTeam(event.Message.Chat.ID)
+	}
+
+	team := b.findTeam(group.ChatID)
+	if team == nil {
+		return "", fmt.Errorf("team %v not found", group.ChatID)
 	}
 
 	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
@@ -559,7 +566,7 @@ func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) (string, error) {
 		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "removeOnbordingMessage",
-				Other: "Standup deadline removed",
+				Other: "Onbording message removed",
 			},
 		})
 	}
@@ -656,7 +663,7 @@ func (b *Bot) ChangeSubmissionDays(event tgbotapi.Update) (string, error) {
 		return "", fmt.Errorf("user not admin")
 	}
 
-	submissionDays := event.Message.CommandArguments()
+	submissionDays := strings.TrimSpace(event.Message.CommandArguments())
 
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
 	if err != nil {
@@ -900,6 +907,9 @@ func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) (string, error) {
 }
 
 func (b *Bot) senderIsAdminInChannel(sendername string, chatID int64) (bool, error) {
+	if Test {
+		return true, nil
+	}
 	isAdmin := false
 	chat := tgbotapi.ChatConfig{
 		ChatID:             chatID,

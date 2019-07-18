@@ -156,3 +156,289 @@ func TestJoinLeaveShowCommands(t *testing.T) {
 
 	assert.NoError(t, db.DeleteGroup(group.ID))
 }
+
+func TestDeadlines(t *testing.T) {
+	Test = true
+	conf, err := config.Get()
+	require.NoError(t, err)
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	_, err = bundle.LoadMessageFile("../active.en.toml")
+	require.NoError(t, err)
+
+	db, err := storage.NewMySQL(conf)
+	require.NoError(t, err)
+
+	wch := make(chan *model.Group)
+	var teams []*model.Team
+
+	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+
+	update := tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+		},
+	}
+
+	text, err := bot.EditDeadline(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Standup deadline removed", text)
+
+	update = tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			Entities: &[]tgbotapi.MessageEntity{
+				tgbotapi.MessageEntity{
+					Type:   "bot_command",
+					Offset: 0,
+					Length: 14,
+				},
+			},
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+			Text: "/edit_deadline 12:00",
+		},
+	}
+
+	text, err = bot.EditDeadline(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Edited standup deadline, new deadline is 12:00", text)
+
+	group, err := db.FindGroup(1)
+	assert.NoError(t, err)
+
+	assert.NoError(t, db.DeleteGroup(group.ID))
+}
+
+func TestUpdateOnbordingMessage(t *testing.T) {
+	Test = true
+	conf, err := config.Get()
+	require.NoError(t, err)
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	_, err = bundle.LoadMessageFile("../active.en.toml")
+	require.NoError(t, err)
+
+	db, err := storage.NewMySQL(conf)
+	require.NoError(t, err)
+
+	wch := make(chan *model.Group)
+	var teams []*model.Team
+
+	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+
+	update := tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+		},
+	}
+
+	text, err := bot.UpdateOnbordingMessage(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Onbording message removed", text)
+
+	update = tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			Entities: &[]tgbotapi.MessageEntity{
+				tgbotapi.MessageEntity{
+					Type:   "bot_command",
+					Offset: 0,
+					Length: 24,
+				},
+			},
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+			Text: "/update_onbording_message 12:00",
+		},
+	}
+
+	text, err = bot.UpdateOnbordingMessage(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Onbording message updated", text)
+
+	group, err := db.FindGroup(1)
+	assert.NoError(t, err)
+
+	assert.NoError(t, db.DeleteGroup(group.ID))
+}
+
+func TestUpdateGroupLanguage(t *testing.T) {
+	Test = true
+	conf, err := config.Get()
+	require.NoError(t, err)
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	_, err = bundle.LoadMessageFile("../active.en.toml")
+	require.NoError(t, err)
+
+	db, err := storage.NewMySQL(conf)
+	require.NoError(t, err)
+
+	wch := make(chan *model.Group)
+	var teams []*model.Team
+
+	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+
+	update := tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+		},
+	}
+
+	text, err := bot.UpdateGroupLanguage(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Group language updated", text)
+
+	group, err := db.FindGroup(1)
+	assert.NoError(t, err)
+	assert.Equal(t, "en", group.Language)
+
+	update = tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			Entities: &[]tgbotapi.MessageEntity{
+				tgbotapi.MessageEntity{
+					Type:   "bot_command",
+					Offset: 0,
+					Length: 21,
+				},
+			},
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+			Text: "/update_group_message ru",
+		},
+	}
+
+	text, err = bot.UpdateGroupLanguage(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Group language updated", text)
+
+	group, err = db.FindGroup(1)
+	assert.NoError(t, err)
+	assert.Equal(t, "ru", group.Language)
+
+	assert.NoError(t, db.DeleteGroup(group.ID))
+}
+
+func TestChangeSubmissionDays(t *testing.T) {
+	Test = true
+	conf, err := config.Get()
+	require.NoError(t, err)
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	_, err = bundle.LoadMessageFile("../active.en.toml")
+	require.NoError(t, err)
+
+	db, err := storage.NewMySQL(conf)
+	require.NoError(t, err)
+
+	wch := make(chan *model.Group)
+	var teams []*model.Team
+
+	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+
+	update := tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+		},
+	}
+
+	text, err := bot.ChangeSubmissionDays(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Group Standup submission days updated", text)
+
+	group, err := db.FindGroup(1)
+	assert.NoError(t, err)
+	assert.Equal(t, "", group.SubmissionDays)
+
+	update = tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			Entities: &[]tgbotapi.MessageEntity{
+				tgbotapi.MessageEntity{
+					Type:   "bot_command",
+					Offset: 0,
+					Length: 22,
+				},
+			},
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+			Text: "/change_submission_days monday tuesday ",
+		},
+	}
+
+	text, err = bot.ChangeSubmissionDays(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Group Standup submission days updated", text)
+
+	group, err = db.FindGroup(1)
+	assert.NoError(t, err)
+	assert.Equal(t, "monday tuesday", group.SubmissionDays)
+
+	assert.NoError(t, db.DeleteGroup(group.ID))
+}
