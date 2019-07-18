@@ -38,9 +38,16 @@ func TestStandup(t *testing.T) {
 
 	standup, err = mysql.SelectStandup(standup.ID)
 	require.NoError(t, err)
+	require.Equal(t, standup.ID, standup.ID)
 
-	_, err = mysql.SelectStandupByMessageID(standup.MessageID, standup.ChatID)
+	standup, err = mysql.SelectStandupByMessageID(standup.MessageID, standup.ChatID)
 	require.NoError(t, err)
+	require.Equal(t, 12345, standup.MessageID)
+	require.Equal(t, int64(1), standup.ChatID)
+
+	_, err = mysql.LastStandupFor(standup.Username, standup.ChatID)
+	require.NoError(t, err)
+	require.Equal(t, standup.ID, standup.ID)
 
 	standup2, err := mysql.CreateStandup(s)
 	require.NoError(t, err)
@@ -49,12 +56,13 @@ func TestStandup(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 2, len(standups))
 
-	_, err = mysql.LastStandupFor(standup.Username, standup.ChatID)
-	require.NoError(t, err)
-
 	err = mysql.DeleteStandup(standup2.ID)
 	require.NoError(t, err)
 
 	err = mysql.DeleteStandup(standup.ID)
 	require.NoError(t, err)
+
+	standups, err = mysql.ListStandups()
+	require.NoError(t, err)
+	require.Equal(t, 0, len(standups))
 }
