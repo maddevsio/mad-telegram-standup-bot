@@ -93,7 +93,7 @@ func (b *Bot) analyzeStandup(standup, language string) ([]string, int) {
 		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "analyzeNoBlockers",
-				Other: "- seems like standups does not contain any prolem or blocker. Remember that problems help us grow. No problems == no development. Dont hesitate to report them",
+				Other: "- It seems to me you don't describe the problems. Remember, that problems help us grow. No problems == no development. Don't hesitate to report them.",
 			},
 		})
 		if err != nil {
@@ -107,7 +107,7 @@ func (b *Bot) analyzeStandup(standup, language string) ([]string, int) {
 		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "analyzeNoQuestions",
-				Other: "- seems like standups does not contain any questions. Internship is made up of questions, so ask as many as you can!",
+				Other: "- It seems to me you don't have any question. The internship is made up of question, so ask as many as you can!",
 			},
 		})
 		if err != nil {
@@ -121,7 +121,7 @@ func (b *Bot) analyzeStandup(standup, language string) ([]string, int) {
 		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "analyzeNoTags",
-				Other: "- seems like standups does not contain any tags. If you want your mentors to notice you, tag them right away!",
+				Other: "-  It seems to me in your standups don't  contain any tags. If you want your mentors to notice you, tag them right away!",
 			},
 		})
 		if err != nil {
@@ -135,7 +135,7 @@ func (b *Bot) analyzeStandup(standup, language string) ([]string, int) {
 		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "analyzeNoLinks",
-				Other: "- seems like standups does not contain any links, that means that probably no work was done or no research was conducted. Poor you.",
+				Other: "- It seems to me in your standups don't contain any links, that means that probably no work was done or no research was conducted. You poor thing!",
 			},
 		})
 		if err != nil {
@@ -149,7 +149,7 @@ func (b *Bot) analyzeStandup(standup, language string) ([]string, int) {
 		warnings, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "analyzeNoSize",
-				Other: "- seems like standups does is either small or too large. Appropriate size is about 80 - 200 words.",
+				Other: "- It seems to me your standupes don't either small or too large. Appropriate size is about 80 - 200 words.",
 			},
 		})
 		if err != nil {
