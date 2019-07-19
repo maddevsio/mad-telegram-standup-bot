@@ -1,10 +1,11 @@
 package bot
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/bouk/monkey"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -439,6 +440,80 @@ func TestChangeSubmissionDays(t *testing.T) {
 	group, err = db.FindGroup(1)
 	assert.NoError(t, err)
 	assert.Equal(t, "monday tuesday", group.SubmissionDays)
+
+	assert.NoError(t, db.DeleteGroup(group.ID))
+}
+
+func TestChangeGroupTimeZone(t *testing.T) {
+	Test = true
+	conf, err := config.Get()
+	require.NoError(t, err)
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	_, err = bundle.LoadMessageFile("../active.en.toml")
+	require.NoError(t, err)
+
+	db, err := storage.NewMySQL(conf)
+	require.NoError(t, err)
+
+	wch := make(chan *model.Group)
+	var teams []*model.Team
+
+	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+
+	update := tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+		},
+	}
+
+	text, err := bot.ChangeGroupTimeZone(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Group timezone is updated, new TZ is Asia/Bishkek", text)
+
+	group, err := db.FindGroup(1)
+	assert.NoError(t, err)
+	assert.Equal(t, "Asia/Bishkek", group.TZ)
+
+	update = tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			Entities: &[]tgbotapi.MessageEntity{
+				tgbotapi.MessageEntity{
+					Type:   "bot_command",
+					Offset: 0,
+					Length: 9,
+				},
+			},
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+			Text: "/group_tz Asia/Almaty",
+		},
+	}
+
+	text, err = bot.ChangeGroupTimeZone(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Group timezone is updated, new TZ is Asia/Almaty", text)
+
+	group, err = db.FindGroup(update.Message.Chat.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, "Asia/Almaty", group.TZ)
 
 	assert.NoError(t, db.DeleteGroup(group.ID))
 }
