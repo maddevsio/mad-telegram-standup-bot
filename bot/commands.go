@@ -789,7 +789,7 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) (string, error) {
 		return "", fmt.Errorf("user not admin")
 	}
 
-	tz := strings.TrimSpace(event.Message.CommandArguments())
+	tz := event.Message.CommandArguments()
 
 	if strings.TrimSpace(tz) == "" {
 		tz = "Asia/Bishkek"

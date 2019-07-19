@@ -490,7 +490,7 @@ func TestChangeGroupTimeZone(t *testing.T) {
 				tgbotapi.MessageEntity{
 					Type:   "bot_command",
 					Offset: 0,
-					Length: 8,
+					Length: 9,
 				},
 			},
 			From: &tgbotapi.User{
