@@ -484,6 +484,7 @@ func TestChangeGroupTimeZone(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Asia/Bishkek", group.TZ)
 
+	//case ok
 	update = tgbotapi.Update{
 		Message: &tgbotapi.Message{
 			Entities: &[]tgbotapi.MessageEntity{
@@ -515,9 +516,7 @@ func TestChangeGroupTimeZone(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Asia/Almaty", group.TZ)
 
-	assert.NoError(t, db.DeleteGroup(group.ID))
-
-	//return groupTZ to Asia/Bishkek for next test
+	//case incorrect timezone
 	update = tgbotapi.Update{
 		Message: &tgbotapi.Message{
 			Entities: &[]tgbotapi.MessageEntity{
@@ -537,17 +536,13 @@ func TestChangeGroupTimeZone(t *testing.T) {
 				Title:       "Foo chat",
 				Description: "",
 			},
-			Text: "/group_tz Asia/Bishkek",
+			Text: "/group_tz Foo",
 		},
 	}
 
 	text, err = bot.ChangeGroupTimeZone(update)
 	assert.NoError(t, err)
-	assert.Equal(t, "Group timezone is updated, new TZ is Asia/Bishkek", text)
-
-	group, err = db.FindGroup(update.Message.Chat.ID)
-	assert.NoError(t, err)
-	assert.Equal(t, "Asia/Bishkek", group.TZ)
+	assert.Equal(t, "Failed to recognize new TZ you entered, double check the tz name and try again", text)
 
 	assert.NoError(t, db.DeleteGroup(group.ID))
 }
@@ -595,6 +590,7 @@ func TestChangeUserTimeZone(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Asia/Bishkek", user.TZ)
 
+	//case ok
 	update = tgbotapi.Update{
 		Message: &tgbotapi.Message{
 			Entities: &[]tgbotapi.MessageEntity{
@@ -626,5 +622,60 @@ func TestChangeUserTimeZone(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Asia/Tashkent", user.TZ)
 
+	//case incorrect timezone
+	update = tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			Entities: &[]tgbotapi.MessageEntity{
+				tgbotapi.MessageEntity{
+					Type:   "bot_command",
+					Offset: 0,
+					Length: 3,
+				},
+			},
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+			Text: "/tz Foo",
+		},
+	}
+
+	text, err = bot.ChangeUserTimeZone(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Failed to recognize new TZ you entered, double check the tz name and try again", text)
+
+	//case not standuper
 	assert.NoError(t, db.DeleteStanduper(user.ID))
+	update = tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			Entities: &[]tgbotapi.MessageEntity{
+				tgbotapi.MessageEntity{
+					Type:   "bot_command",
+					Offset: 0,
+					Length: 3,
+				},
+			},
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+			Text: "/tz Asia/Tashkent",
+		},
+	}
+
+	text, err = bot.ChangeUserTimeZone(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "You do not standup yet", text)
 }
