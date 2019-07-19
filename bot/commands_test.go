@@ -516,4 +516,115 @@ func TestChangeGroupTimeZone(t *testing.T) {
 	assert.Equal(t, "Asia/Almaty", group.TZ)
 
 	assert.NoError(t, db.DeleteGroup(group.ID))
+
+	//return groupTZ to Asia/Bishkek for next test
+	update = tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			Entities: &[]tgbotapi.MessageEntity{
+				tgbotapi.MessageEntity{
+					Type:   "bot_command",
+					Offset: 0,
+					Length: 9,
+				},
+			},
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+			Text: "/group_tz Asia/Bishkek",
+		},
+	}
+
+	text, err = bot.ChangeGroupTimeZone(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Group timezone is updated, new TZ is Asia/Bishkek", text)
+
+	group, err = db.FindGroup(update.Message.Chat.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, "Asia/Bishkek", group.TZ)
+
+	assert.NoError(t, db.DeleteGroup(group.ID))
+}
+
+func TestChangeUserTimeZone(t *testing.T) {
+	Test = true
+	conf, err := config.Get()
+	require.NoError(t, err)
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	_, err = bundle.LoadMessageFile("../active.en.toml")
+	require.NoError(t, err)
+
+	db, err := storage.NewMySQL(conf)
+	require.NoError(t, err)
+
+	wch := make(chan *model.Group)
+	var teams []*model.Team
+
+	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+
+	update := tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+		},
+	}
+
+	_, err = bot.JoinStandupers(update)
+	assert.NoError(t, err)
+
+	text, err := bot.ChangeUserTimeZone(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "your timezone is updated, new TZ is Asia/Bishkek", text)
+
+	user, err := db.FindStanduper(update.Message.From.ID, update.Message.Chat.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, "Asia/Bishkek", user.TZ)
+
+	update = tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			Entities: &[]tgbotapi.MessageEntity{
+				tgbotapi.MessageEntity{
+					Type:   "bot_command",
+					Offset: 0,
+					Length: 3,
+				},
+			},
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+			Text: "/tz Asia/Tashkent",
+		},
+	}
+
+	text, err = bot.ChangeUserTimeZone(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "your timezone is updated, new TZ is Asia/Tashkent", text)
+
+	user, err = db.FindStanduper(update.Message.From.ID, update.Message.Chat.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, "Asia/Tashkent", user.TZ)
+
+	assert.NoError(t, db.DeleteStanduper(user.ID))
 }
