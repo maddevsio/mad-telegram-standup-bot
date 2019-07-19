@@ -92,7 +92,6 @@ func TestHelp(t *testing.T) {
 	text, err := bot.Help(update)
 	require.NoError(t, err)
 	require.Equal(t, helpMessage, text)
-
 }
 
 func TestJoinLeaveShowCommands(t *testing.T) {
@@ -678,4 +677,80 @@ func TestChangeUserTimeZone(t *testing.T) {
 	text, err = bot.ChangeUserTimeZone(update)
 	assert.NoError(t, err)
 	assert.Equal(t, "You do not standup yet", text)
+}
+
+func TestChangeAdvisesStatus(t *testing.T) {
+	Test = true
+	conf, err := config.Get()
+	require.NoError(t, err)
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	_, err = bundle.LoadMessageFile("../active.en.toml")
+	require.NoError(t, err)
+
+	db, err := storage.NewMySQL(conf)
+	require.NoError(t, err)
+
+	wch := make(chan *model.Group)
+	var teams []*model.Team
+
+	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+
+	//case OFF
+	update := tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+		},
+	}
+
+	text, err := bot.ChangeAdvisesStatus(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Standup advises are turned OFF", text)
+
+	group, err := db.FindGroup(update.Message.Chat.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, "off", group.Advises)
+
+	//case ON
+	update = tgbotapi.Update{
+		Message: &tgbotapi.Message{
+			Entities: &[]tgbotapi.MessageEntity{
+				tgbotapi.MessageEntity{
+					Type:   "bot_command",
+					Offset: 0,
+					Length: 8,
+				},
+			},
+			From: &tgbotapi.User{
+				ID:           1,
+				UserName:     "Foo",
+				LanguageCode: "en",
+			},
+			Chat: &tgbotapi.Chat{
+				ID:          1,
+				Title:       "Foo chat",
+				Description: "",
+			},
+			Text: "/advises",
+		},
+	}
+
+	text, err = bot.ChangeAdvisesStatus(update)
+	assert.NoError(t, err)
+	assert.Equal(t, "Standup advises are turned ON", text)
+
+	group, err = db.FindGroup(update.Message.Chat.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, "on", group.Advises)
+
+	assert.NoError(t, db.DeleteGroup(group.ID))
 }
