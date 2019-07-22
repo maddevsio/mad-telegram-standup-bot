@@ -56,7 +56,7 @@ func TestSubmittedStandupToday(t *testing.T) {
 	})
 
 	require.True(t, submitted)
-	group, err := mysql.FindGroup(standup.ChatID)
+	group, err := mysql.SelectStandup(standup.ID)
 	assert.NoError(t, err)
 	assert.NoError(t, mysql.DeleteStandup(group.ID))
 }
