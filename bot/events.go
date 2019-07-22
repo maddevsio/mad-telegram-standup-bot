@@ -108,9 +108,9 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		containsPR, prs := containsPullRequests(message.Text)
 		if containsPR {
 			for _, pr := range prs {
-				warnings := b.analyzePullRequest(pr, message.From.LanguageCode)
+				warnings := b.analyzePullRequest(pr, group.Language)
 				if len(warnings) == 0 {
-					localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
+					localizer := i18n.NewLocalizer(b.bundle, group.Language)
 					goodPR, err := localizer.Localize(&i18n.LocalizeConfig{
 						DefaultMessage: &i18n.Message{
 							ID:    "goodPR",
@@ -125,7 +125,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 					msg.DisableWebPagePreview = true
 					b.tgAPI.Send(msg)
 				} else {
-					localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
+					localizer := i18n.NewLocalizer(b.bundle, group.Language)
 					badPR, err := localizer.Localize(&i18n.LocalizeConfig{
 						DefaultMessage: &i18n.Message{
 							ID:    "badPR",
@@ -186,7 +186,7 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 		return nil
 	}
 
-	ok, _ := b.isStandup(message.Text, message.From.LanguageCode)
+	ok, _ := b.isStandup(message.Text, group.Language)
 
 	if !ok {
 		return fmt.Errorf("Message is not a standup")
@@ -208,7 +208,7 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 			return err
 		}
 
-		advises, _ := b.analyzeStandup(message.Text, message.From.LanguageCode)
+		advises, _ := b.analyzeStandup(message.Text, group.Language)
 		if group.Advises == "off" {
 			advises = []string{}
 		}
