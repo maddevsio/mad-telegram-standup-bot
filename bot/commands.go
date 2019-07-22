@@ -858,7 +858,7 @@ func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) (string, error) {
 	tz := event.Message.CommandArguments()
 
 	if strings.TrimSpace(tz) == "" {
-		return "", fmt.Errorf("TZ is empty")
+		tz = "Asia/Bishkek"
 	}
 
 	st, err := b.db.FindStanduper(event.Message.From.ID, event.Message.Chat.ID) // user[1:] to remove leading @

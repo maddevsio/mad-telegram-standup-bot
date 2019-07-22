@@ -5,14 +5,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bouk/monkey"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
 
 	"github.com/BurntSushi/toml"
-	"github.com/bouk/monkey"
 	"github.com/maddevsio/mad-internship-bot/config"
 	"github.com/maddevsio/mad-internship-bot/model"
 	"github.com/maddevsio/mad-internship-bot/storage"
@@ -56,6 +56,9 @@ func TestSubmittedStandupToday(t *testing.T) {
 	})
 
 	require.True(t, submitted)
+	group, err := mysql.SelectStandup(standup.ID)
+	assert.NoError(t, err)
+	assert.NoError(t, mysql.DeleteStandup(group.ID))
 }
 
 func TestStringReplace(t *testing.T) {
