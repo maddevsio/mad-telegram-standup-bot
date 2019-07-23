@@ -882,7 +882,29 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) (string, error) {
 
 //ChangeUserTimeZone assign user a different time zone
 func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) (string, error) {
-	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
+	group, err := b.db.FindGroup(event.Message.Chat.ID)
+	if err != nil {
+		group, err = b.db.CreateGroup(&model.Group{
+			ChatID:          event.Message.Chat.ID,
+			Title:           event.Message.Chat.Title,
+			Description:     event.Message.Chat.Description,
+			StandupDeadline: "",
+			TZ:              "Asia/Bishkek", // default value...
+			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+			Advises:         "on",
+		})
+		if err != nil {
+			return "", err
+		}
+
+		team := &model.Team{
+			Group:    group,
+			QuitChan: make(chan struct{}),
+		}
+		b.teams = append(b.teams, team)
+	}
+
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
 	tz := event.Message.CommandArguments()
 
