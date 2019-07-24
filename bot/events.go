@@ -38,8 +38,6 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 			return err
 		}
 
-		advises, _ := b.analyzeStandup(message.Text, message.From.LanguageCode)
-
 		localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
 		text, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
@@ -49,22 +47,6 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		})
 		if err != nil {
 			log.Error(err)
-		}
-		if len(advises) != 0 {
-			text, err = localizer.Localize(&i18n.LocalizeConfig{
-				DefaultMessage: &i18n.Message{
-					ID:    "checkStandupWithAdvises",
-					One:   "Standup is going to be more usefull with one advise: \n {{.Advises}}",
-					Two:   "Standup is going to be more usefull with two advises: \n {{.Advises}}",
-					Few:   "Standup is going to be more usefull with several advises: \n {{.Advises}}",
-					Many:  "Standup is going to be more usefull with several advises: \n {{.Advises}}",
-					Other: "Standup is going to be more usefull with several advises: \n {{.Advises}}",
-				},
-				TemplateData: map[string]interface{}{
-					"Advises": strings.Join(advises, "\n"),
-				},
-				PluralCount: len(advises),
-			})
 		}
 
 		msg := tgbotapi.NewMessage(message.Chat.ID, text)
@@ -85,7 +67,6 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 			TZ:              "Asia/Bishkek", // default value...
 			Language:        "en",           // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:         "on",
 		})
 		if err != nil {
 			return err
@@ -171,7 +152,6 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 			TZ:              "Asia/Bishkek", // default value...
 			Language:        "en",           // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:         "on",
 		})
 		if err != nil {
 			return err
@@ -208,10 +188,6 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 			return err
 		}
 
-		advises, _ := b.analyzeStandup(message.Text, group.Language)
-		if group.Advises == "off" {
-			advises = []string{}
-		}
 		greatStandup, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "greatStandup",
@@ -221,24 +197,8 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 		if err != nil {
 			log.Error(err)
 		}
-		text := greatStandup
 
-		if len(advises) != 0 {
-			text, err = localizer.Localize(&i18n.LocalizeConfig{
-				DefaultMessage: &i18n.Message{
-					ID:    "acceptStandupWithAdvises",
-					One:   "Standup is accepted, but let me give you one advise: ",
-					Two:   "Standup is accepted, but let me give you couple advises: ",
-					Few:   "Standup is accepted, but let me give you several advises: ",
-					Many:  "Standup is accepted, but let me give you several advises: ",
-					Other: "Standup is accepted, but let me give you several advises: ",
-				},
-				PluralCount: len(advises),
-			})
-			text += "\n" + strings.Join(advises, "\n")
-		}
-
-		msg := tgbotapi.NewMessage(message.Chat.ID, text)
+		msg := tgbotapi.NewMessage(message.Chat.ID, greatStandup)
 		msg.ReplyToMessageID = message.MessageID
 		_, err = b.tgAPI.Send(msg)
 		return err
@@ -323,7 +283,6 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 					TZ:              "Asia/Bishkek", // default value...
 					Language:        "en",           // default value...
 					SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-					Advises:         "on",
 				})
 				if err != nil {
 					return err
@@ -354,7 +313,6 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 				TZ:              "Asia/Bishkek", // default value...
 				Language:        "en",
 				SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-				Advises:         "on",
 			})
 			if err != nil {
 				return err

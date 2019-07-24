@@ -66,11 +66,6 @@ func (b *Bot) HandleCommand(event tgbotapi.Update) (err error) {
 		if err != nil {
 			log.Error("ChangeSubmissionDays failed: ", err)
 		}
-	case "advises":
-		message, err = b.ChangeAdvisesStatus(event)
-		if err != nil {
-			log.Error("ChangeAdvisesStatus failed: ", err)
-		}
 	case "group_tz":
 		message, err = b.ChangeGroupTimeZone(event)
 		if err != nil {
@@ -165,7 +160,6 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) (string, error) {
 			TZ:               "Asia/Bishkek", // default value...
 			OnbordingMessage: "",
 			SubmissionDays:   "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:          "on",
 		})
 		if err != nil {
 			return "", err
@@ -215,7 +209,6 @@ func (b *Bot) Show(event tgbotapi.Update) (string, error) {
 			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:         "on",
 		})
 		if err != nil {
 			return "", err
@@ -450,7 +443,6 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:         "on",
 		})
 		if err != nil {
 			return "", err
@@ -536,7 +528,6 @@ func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) (string, error) {
 			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:         "on",
 		})
 		if err != nil {
 			return "", err
@@ -613,7 +604,6 @@ func (b *Bot) UpdateGroupLanguage(event tgbotapi.Update) (string, error) {
 			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:         "on",
 		})
 		if err != nil {
 			return "", err
@@ -674,7 +664,6 @@ func (b *Bot) ChangeSubmissionDays(event tgbotapi.Update) (string, error) {
 			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:         "on",
 		})
 		if err != nil {
 			return "", err
@@ -709,74 +698,6 @@ func (b *Bot) ChangeSubmissionDays(event tgbotapi.Update) (string, error) {
 	})
 }
 
-//ChangeAdvisesStatus turns off and on advises on standups
-func (b *Bot) ChangeAdvisesStatus(event tgbotapi.Update) (string, error) {
-	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
-	if err != nil {
-		return "", err
-	}
-
-	if !isAdmin {
-		return "", fmt.Errorf("user not admin")
-	}
-
-	group, err := b.db.FindGroup(event.Message.Chat.ID)
-	if err != nil {
-		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "",
-			TZ:              "Asia/Bishkek", // default value...
-			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:         "on",
-		})
-		if err != nil {
-			return "", err
-		}
-
-		team := &model.Team{
-			Group:    group,
-			QuitChan: make(chan struct{}),
-		}
-		b.teams = append(b.teams, team)
-	}
-
-	localizer := i18n.NewLocalizer(b.bundle, group.Language)
-
-	if group.Advises == "on" {
-		group.Advises = "off"
-	} else {
-		group.Advises = "on"
-	}
-
-	_, err = b.db.UpdateGroup(group)
-	if err != nil {
-		return localizer.Localize(&i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "failedUpdateAdvisesStatus",
-				Other: "Could not switch advises",
-			},
-		})
-	}
-
-	if group.Advises == "on" {
-		return localizer.Localize(&i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "updateGroupAdvisesStatusOn",
-				Other: "Standup advises are turned ON",
-			},
-		})
-	}
-
-	return localizer.Localize(&i18n.LocalizeConfig{
-		DefaultMessage: &i18n.Message{
-			ID:    "updateGroupAdvisesStatusOff",
-			Other: "Standup advises are turned OFF",
-		},
-	})
-}
-
 //ChangeGroupTimeZone modifies time zone of the group
 func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) (string, error) {
 
@@ -804,7 +725,6 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) (string, error) {
 			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:         "on",
 		})
 		if err != nil {
 			return "", err
