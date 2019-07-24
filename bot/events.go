@@ -11,7 +11,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (b *Bot) handleUpdate(update tgbotapi.Update) error {
+//HandleUpdate function for private conversion and ...
+func (b *Bot) handleUpdate(update tgbotapi.Update) (string, error) {
 	message := update.Message
 
 	if message == nil {
@@ -35,7 +36,7 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 			msg := tgbotapi.NewMessage(message.Chat.ID, text)
 			msg.ReplyToMessageID = message.MessageID
 			_, err = b.tgAPI.Send(msg)
-			return err
+			return text, err
 		}
 
 		localizer := i18n.NewLocalizer(b.bundle, message.From.LanguageCode)
@@ -52,9 +53,9 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 		msg := tgbotapi.NewMessage(message.Chat.ID, text)
 		msg.ReplyToMessageID = message.MessageID
 		_, err = b.tgAPI.Send(msg)
-		return err
+		return text, err
 	}
-
+	var res string
 	group, err := b.db.FindGroup(message.Chat.ID)
 	if err != nil {
 		log.Info("Could not find the group, creating...")
@@ -69,18 +70,18 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
 		})
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		b.watchersChan <- group
 	}
 
 	if message.From.IsBot {
-		return nil
+		return "", nil
 	}
 
 	if message.IsCommand() {
-		return b.HandleCommand(update)
+		return "", b.HandleCommand(update)
 	}
 
 	if message.Text != "" {
@@ -105,37 +106,41 @@ func (b *Bot) handleUpdate(update tgbotapi.Update) error {
 					msg.ReplyToMessageID = message.MessageID
 					msg.DisableWebPagePreview = true
 					b.tgAPI.Send(msg)
-				} else {
-					localizer := i18n.NewLocalizer(b.bundle, group.Language)
-					badPR, err := localizer.Localize(&i18n.LocalizeConfig{
-						DefaultMessage: &i18n.Message{
-							ID:    "badPR",
-							Other: "- bad PR, pay attention to the following advises: \n",
-						},
-					})
-					if err != nil {
-						log.Error(err)
-					}
-					text := *pr.HTMLURL + badPR
-					text += strings.Join(warnings, "\n")
-					msg := tgbotapi.NewMessage(message.Chat.ID, text)
-					msg.ReplyToMessageID = message.MessageID
-					msg.DisableWebPagePreview = true
-					b.tgAPI.Send(msg)
+					res = goodPR
+					return res, err
 				}
+				localizer := i18n.NewLocalizer(b.bundle, group.Language)
+				badPR, err := localizer.Localize(&i18n.LocalizeConfig{
+					DefaultMessage: &i18n.Message{
+						ID:    "badPR",
+						Other: "- bad PR, pay attention to the following advises: \n",
+					},
+				})
+				if err != nil {
+					log.Error(err)
+				}
+				text := *pr.HTMLURL + badPR
+				text += strings.Join(warnings, "\n")
+				msg := tgbotapi.NewMessage(message.Chat.ID, text)
+				msg.ReplyToMessageID = message.MessageID
+				msg.DisableWebPagePreview = true
+				b.tgAPI.Send(msg)
+				res = badPR
+				return res, err
+
 			}
 		}
 	}
 
 	if message.LeftChatMember != nil {
-		return b.HandleChannelLeftEvent(update)
+		return "", b.HandleChannelLeftEvent(update)
 	}
 
 	if message.NewChatMembers != nil {
-		return b.HandleChannelJoinEvent(update)
+		return "", b.HandleChannelJoinEvent(update)
 	}
 
-	return nil
+	return "", nil
 }
 
 //HandleMessageEvent function to analyze and save standups

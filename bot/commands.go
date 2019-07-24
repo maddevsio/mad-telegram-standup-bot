@@ -389,7 +389,34 @@ func sweep(entries []internInfo, prevPasses int) bool {
 
 //LeaveStandupers standupers
 func (b *Bot) LeaveStandupers(event tgbotapi.Update) (string, error) {
-	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
+	group, err := b.db.FindGroup(event.Message.Chat.ID)
+	if err != nil {
+		group, err = b.db.CreateGroup(&model.Group{
+			ChatID:          event.Message.Chat.ID,
+			Title:           event.Message.Chat.Title,
+			Description:     event.Message.Chat.Description,
+			StandupDeadline: "",
+			TZ:              "Asia/Bishkek", // default value...
+			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+			Advises:         "on",
+		})
+		if err != nil {
+			return "", err
+		}
+
+		team := &model.Team{
+			Group:    group,
+			QuitChan: make(chan struct{}),
+		}
+		b.teams = append(b.teams, team)
+	}
+
+	team := b.findTeam(group.ChatID)
+	if team == nil {
+		return "", fmt.Errorf("team %v not found", group.ChatID)
+	}
+
+	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
 
 	standuper, err := b.db.FindStanduper(event.Message.From.ID, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err != nil {
@@ -773,7 +800,29 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) (string, error) {
 
 //ChangeUserTimeZone assign user a different time zone
 func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) (string, error) {
-	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
+	group, err := b.db.FindGroup(event.Message.Chat.ID)
+	if err != nil {
+		group, err = b.db.CreateGroup(&model.Group{
+			ChatID:          event.Message.Chat.ID,
+			Title:           event.Message.Chat.Title,
+			Description:     event.Message.Chat.Description,
+			StandupDeadline: "",
+			TZ:              "Asia/Bishkek", // default value...
+			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+			Advises:         "on",
+		})
+		if err != nil {
+			return "", err
+		}
+
+		team := &model.Team{
+			Group:    group,
+			QuitChan: make(chan struct{}),
+		}
+		b.teams = append(b.teams, team)
+	}
+
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
 	tz := event.Message.CommandArguments()
 

@@ -86,7 +86,7 @@ func (b *Bot) Start() error {
 
 	log.Info("Listening for updates... \n")
 	for update := range b.updates {
-		err := b.handleUpdate(update)
+		_, err := b.handleUpdate(update)
 		if err != nil {
 			log.Error(err)
 		}
