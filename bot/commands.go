@@ -242,6 +242,9 @@ func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Gro
 		}
 
 		daysOnInternship := time.Now().UTC().Sub(standuper.Created).Hours() / 24
+		if int(daysOnInternship) == 0 {
+			daysOnInternship = 1.0
+		}
 		internshipDuration, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "presenceDuration",
@@ -262,25 +265,6 @@ func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Gro
 
 		info.timeSinceAdded = internshipDuration
 
-		missedStandups, err := localizer.Localize(&i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "missedStandups",
-				One:   "missed only deadline",
-				Two:   "missed standups: {{.missedTimes}} times",
-				Few:   "missed standups: {{.missedTimes}} times",
-				Many:  "missed standups: {{.missedTimes}} times",
-				Other: "missed standups: {{.missedTimes}} times",
-			},
-			PluralCount: standuper.Warnings,
-			TemplateData: map[string]interface{}{
-				"missedTimes": standuper.Warnings,
-			},
-		})
-		if err != nil {
-			log.Error(err)
-		}
-
-		info.missedStandups = missedStandups
 		info.daysOnInternship = int(daysOnInternship)
 
 		interns = append(interns, info)
@@ -289,7 +273,7 @@ func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Gro
 	interns = sortInterns(interns)
 
 	for _, info := range interns {
-		internsInfo += info.internName + info.timeSinceAdded + info.missedStandups + "\n"
+		internsInfo += info.internName + info.timeSinceAdded + "\n"
 	}
 
 	showStandupers, err := localizer.Localize(&i18n.LocalizeConfig{
