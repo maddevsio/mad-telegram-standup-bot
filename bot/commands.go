@@ -244,12 +244,12 @@ func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Gro
 		daysOnInternship := time.Now().UTC().Sub(standuper.Created).Hours() / 24
 		internshipDuration, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
-				ID:    "internshipDuration",
-				One:   "{{.Days}} day on intership, ",
-				Two:   "{{.Days}} days on internship, ",
-				Few:   "{{.Days}} days on internship, ",
-				Many:  "{{.Days}} days on internship, ",
-				Other: "{{.Days}} days on internship, ",
+				ID:    "presenceDuration",
+				One:   "{{.Days}} day in the project, ",
+				Two:   "{{.Days}} days in the project, ",
+				Few:   "{{.Days}} days in the project, ",
+				Many:  "{{.Days}} days in the project, ",
+				Other: "{{.Days}} days in the project, ",
 			},
 			PluralCount: int(daysOnInternship),
 			TemplateData: map[string]interface{}{
@@ -295,7 +295,7 @@ func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Gro
 	showStandupers, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "showStandupers",
-			Other: "Interns:",
+			Other: "Standupers:",
 		},
 	})
 	if err != nil {

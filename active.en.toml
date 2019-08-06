@@ -17,7 +17,6 @@ failedLeaveStanupers = "Could not remove you from standup team"
 failedRecognizeTZ = "Failed to recognize new TZ you entered, double check the tz name and try again"
 failedRemoveOnbordingMessage = "Could not remove remove onbording message"
 failedRemoveStandupDeadline = "Could not remove standup deadline"
-failedUpdateAdvisesStatus = "Could not switch advises"
 failedUpdateLanguage = "Could not edit group language"
 failedUpdateOnbordingMessage = "Could not edit onbording message"
 failedUpdateStandupDeadline = "Could not edit standup deadline"
@@ -37,11 +36,9 @@ notifyNonReporters = "Attention, {{.Intern}}! you have just missed the deadline!
 removeOnbordingMessage = "Onbording message removed"
 removeStandupDeadline = "Standup deadline removed"
 showNoStandupers = "No standupers in the team, /join to start standuping"
-showStandupers = "Interns:"
+showStandupers = "Standupers:"
 standupDeadline = "Standup deadline set at {{.Deadline}} on {{.Weekdays}}"
 standupUpdated = "Standup was successfully updated!"
-updateGroupAdvisesStatusOff = "Standup advises are turned OFF"
-updateGroupAdvisesStatusOn = "Standup advises are turned ON"
 updateGroupLanguage = "Group language updated"
 updateGroupSubmissionDays = "Group Standup submission days updated"
 updateOnbordingMessage = "Onbording message updated"
@@ -55,30 +52,16 @@ welcomePart = "Hello, @{{.Intern}}! Welcome to {{.GroupName}}"
 welcomeWithDedline = "Welcome to the standup team, please, submit your standups no later than {{.Deadline}}"
 youAlreadyStandup = "You already a part of standup team"
 
-[acceptStandupWithAdvises]
-few = "Standup is accepted, but let me give you several advises: "
-many = "Standup is accepted, but let me give you several advises: "
-one = "Standup is accepted, but let me give you one advise: "
-other = "Standup is accepted, but let me give you several advises: "
-two = "Standup is accepted, but let me give you couple advises: "
-
-[checkStandupWithAdvises]
-few = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
-many = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
-one = "Standup is going to be more usefull with one advise: \\n {{.Advises}}"
-other = "Standup is going to be more usefull with several advises: \\n {{.Advises}}"
-two = "Standup is going to be more usefull with two advises: \\n {{.Advises}}"
-
-[internshipDuration]
-few = "{{.Days}} days on internship, "
-many = "{{.Days}} days on internship, "
-one = "{{.Days}} day on intership, "
-other = "{{.Days}} days on internship, "
-two = "{{.Days}} days on internship, "
-
 [missedStandups]
 few = "missed standups: {{.missedTimes}} times"
 many = "missed standups: {{.missedTimes}} times"
 one = "missed only deadline"
 other = "missed standups: {{.missedTimes}} times"
 two = "missed standups: {{.missedTimes}} times"
+
+[presenceDuration]
+few = "{{.Days}} days in the project, "
+many = "{{.Days}} days in the project, "
+one = "{{.Days}} day in the project, "
+other = "{{.Days}} days in the project, "
+two = "{{.Days}} days in the project, "
