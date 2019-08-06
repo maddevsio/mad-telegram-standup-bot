@@ -398,7 +398,6 @@ func (b *Bot) LeaveStandupers(event tgbotapi.Update) (string, error) {
 			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:         "on",
 		})
 		if err != nil {
 			return "", err
@@ -809,7 +808,6 @@ func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) (string, error) {
 			StandupDeadline: "",
 			TZ:              "Asia/Bishkek", // default value...
 			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-			Advises:         "on",
 		})
 		if err != nil {
 			return "", err

@@ -29,7 +29,7 @@ type Bot struct {
 
 var yesterdayWorkKeywords = []string{"yesterday", "friday", "вчера", "пятниц"}
 var todayPlansKeywords = []string{"today", "сегодня"}
-var issuesKeywords = []string{"blocker", "problem", "issue", "мешает", "проблем"}
+var issuesKeywords = []string{"blocker", "problem", "issue", "мешает", "проблем", "сложност", "блок"}
 
 // New creates a new bot instance
 func New(c *config.BotConfig, bundle *i18n.Bundle) (*Bot, error) {
@@ -37,8 +37,6 @@ func New(c *config.BotConfig, bundle *i18n.Bundle) (*Bot, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	newBot.Debug = c.Debug
 
 	u := tgbotapi.NewUpdate(0)
 
