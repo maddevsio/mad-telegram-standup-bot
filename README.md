@@ -35,7 +35,6 @@ update_group_language - set or update your group primary language (format: en, r
 group_tz - update group time zone (default: Asia/Bishkek)
 tz - update individual time zone (default: Asia/Bishkek)
 change_submission_days - changes days people should submit standups at (format: "monday, tuesday, etc)
-advises - turn off/on advises when writing standups
 ```
 
 ## Local usage
