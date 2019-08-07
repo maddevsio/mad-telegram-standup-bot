@@ -38,6 +38,8 @@ func New(c *config.BotConfig, bundle *i18n.Bundle) (*Bot, error) {
 		return nil, err
 	}
 
+	log.Info("authorized with ", newBot.Self.UserName)
+
 	u := tgbotapi.NewUpdate(0)
 
 	u.Timeout = telegramAPIUpdateInterval

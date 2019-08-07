@@ -119,7 +119,7 @@ func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
 		warn, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "warnNonReporters",
-				Other: "Attention, {{.Intern}} {{.Warn}} minutes till deadline, submit standups ASAP. {{.Skips}} skips left",
+				Other: "Attention, {{.Intern}} {{.Warn}} minutes till deadline, submit standups ASAP.",
 			},
 			TemplateData: map[string]interface{}{
 				"Intern": key,
@@ -188,32 +188,33 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 		if b.submittedStandupToday(standuper) {
 			continue
 		}
-		if standuper.Warnings >= allowedSkips {
-			log.Infof("Missed %v standups! Should kick member!", allowedSkips)
-			resp, err := b.tgAPI.KickChatMember(tgbotapi.KickChatMemberConfig{
-				ChatMemberConfig: tgbotapi.ChatMemberConfig{
-					ChatID:             standuper.ChatID,
-					SuperGroupUsername: group.Username,
-					ChannelUsername:    standuper.Username,
-					UserID:             standuper.UserID,
-				},
-				UntilDate: time.Now().Unix(),
-			})
-			if err != nil {
-				log.Error("Failed to kick user: ", err)
-				continue
-			}
-			log.Info(resp)
+		// if standuper.Warnings >= allowedSkips {
+		// 	log.Infof("Missed %v standups! Should kick member!", allowedSkips)
+		// 	resp, err := b.tgAPI.KickChatMember(tgbotapi.KickChatMemberConfig{
+		// 		ChatMemberConfig: tgbotapi.ChatMemberConfig{
+		// 			ChatID:             standuper.ChatID,
+		// 			SuperGroupUsername: group.Username,
+		// 			ChannelUsername:    standuper.Username,
+		// 			UserID:             standuper.UserID,
+		// 		},
+		// 		UntilDate: time.Now().Unix(),
+		// 	})
+		// 	if err != nil {
+		// 		log.Error("Failed to kick user: ", err)
+		// 		continue
+		// 	}
+		// 	log.Info(resp)
 
-			standuper.Status = "removed"
+		// 	standuper.Status = "removed"
 
-			_, err = b.db.UpdateStanduper(standuper)
-			if err != nil {
-				log.Error("Failed to delete standuper after kick ", err)
-			}
-			continue
-		}
-		standuper.Warnings++
+		// 	_, err = b.db.UpdateStanduper(standuper)
+		// 	if err != nil {
+		// 		log.Error("Failed to delete standuper after kick ", err)
+		// 	}
+		// 	continue
+		// }
+		// standuper.Warnings++
+
 		if standuper.Username == "" {
 			username := fmt.Sprintf("[stranger](tg://user?id=%v)", standuper.UserID)
 			missed[username] = standuper.Warnings
@@ -235,7 +236,7 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 		notify, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "notifyNonReporters",
-				Other: "Attention, {{.Intern}}! you have just missed the deadline! submit standups ASAP. {{.Skips}} skips left",
+				Other: "Attention, {{.Intern}}! you have just missed the deadline! submit standups ASAP!",
 			},
 			TemplateData: map[string]interface{}{
 				"Intern": key,
