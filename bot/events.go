@@ -196,7 +196,7 @@ func (b *Bot) HandleMessageEvent(message *tgbotapi.Message) error {
 		greatStandup, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "greatStandup",
-				Other: "Standup accepted and it looks awesome!",
+				Other: "Standup accepted, have a nice day!",
 			},
 		})
 		if err != nil {

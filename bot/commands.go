@@ -103,7 +103,29 @@ func (b *Bot) Help(event tgbotapi.Update) (string, error) {
 
 //JoinStandupers assign user a standuper role
 func (b *Bot) JoinStandupers(event tgbotapi.Update) (string, error) {
-	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
+	group, err := b.db.FindGroup(event.Message.Chat.ID)
+	if err != nil {
+		group, err = b.db.CreateGroup(&model.Group{
+			ChatID:           event.Message.Chat.ID,
+			Title:            event.Message.Chat.Title,
+			Description:      event.Message.Chat.Description,
+			StandupDeadline:  "",
+			TZ:               "Asia/Bishkek", // default value...
+			OnbordingMessage: "",
+			SubmissionDays:   "monday tuesday wednesday thirsday friday saturday sunday",
+		})
+		if err != nil {
+			return "", err
+		}
+
+		team := &model.Team{
+			Group:    group,
+			QuitChan: make(chan struct{}),
+		}
+		b.teams = append(b.teams, team)
+	}
+
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 	standuper, err := b.db.FindStanduper(event.Message.From.ID, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err == nil {
 		switch standuper.Status {
@@ -148,28 +170,6 @@ func (b *Bot) JoinStandupers(event tgbotapi.Update) (string, error) {
 				Other: "Could not add you to standup team",
 			},
 		})
-	}
-
-	group, err := b.db.FindGroup(event.Message.Chat.ID)
-	if err != nil {
-		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:           event.Message.Chat.ID,
-			Title:            event.Message.Chat.Title,
-			Description:      event.Message.Chat.Description,
-			StandupDeadline:  "",
-			TZ:               "Asia/Bishkek", // default value...
-			OnbordingMessage: "",
-			SubmissionDays:   "monday tuesday wednesday thirsday friday saturday sunday",
-		})
-		if err != nil {
-			return "", err
-		}
-
-		team := &model.Team{
-			Group:    group,
-			QuitChan: make(chan struct{}),
-		}
-		b.teams = append(b.teams, team)
 	}
 
 	if group.StandupDeadline == "" {
