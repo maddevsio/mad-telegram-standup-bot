@@ -6,7 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/maddevsio/mad-internship-bot/config"
+	"github.com/maddevsio/mad-telegram-standup-bot/config"
 )
 
 // MySQL provides api for work with mysql database

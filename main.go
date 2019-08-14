@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/BurntSushi/toml"
-	"github.com/maddevsio/mad-internship-bot/bot"
-	"github.com/maddevsio/mad-internship-bot/config"
+	"github.com/maddevsio/mad-telegram-standup-bot/bot"
+	"github.com/maddevsio/mad-telegram-standup-bot/config"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/text/language"

@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/maddevsio/mad-internship-bot/model"
+	"github.com/maddevsio/mad-telegram-standup-bot/model"
 )
 
 // CreateStanduper creates Standuper

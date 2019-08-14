@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/maddevsio/mad-internship-bot/config"
-	"github.com/maddevsio/mad-internship-bot/model"
+	"github.com/maddevsio/mad-telegram-standup-bot/config"
+	"github.com/maddevsio/mad-telegram-standup-bot/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

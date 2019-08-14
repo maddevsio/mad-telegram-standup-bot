@@ -12,9 +12,9 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/BurntSushi/toml"
-	"github.com/maddevsio/mad-internship-bot/config"
-	"github.com/maddevsio/mad-internship-bot/model"
-	"github.com/maddevsio/mad-internship-bot/storage"
+	"github.com/maddevsio/mad-telegram-standup-bot/config"
+	"github.com/maddevsio/mad-telegram-standup-bot/model"
+	"github.com/maddevsio/mad-telegram-standup-bot/storage"
 
 	"github.com/stretchr/testify/require"
 )
@@ -88,7 +88,7 @@ func TestHelp(t *testing.T) {
 		},
 	}
 
-	helpMessage := "In order to submit a standup, tag me and write a message with keywords. Direct message me to see the list of keywords needed. Loking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaviour, submit issues to https://github.com/maddevsio/mad-internship-bot/issues"
+	helpMessage := "In order to submit a standup, tag me and write a message with keywords. Direct message me to see the list of keywords needed. Loking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaviour, submit issues to https://github.com/maddevsio/mad-telegram-standup-bot/issues"
 	text, err := bot.Help(update)
 	require.NoError(t, err)
 	require.Equal(t, helpMessage, text)

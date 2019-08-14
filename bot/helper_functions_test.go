@@ -13,9 +13,9 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/BurntSushi/toml"
-	"github.com/maddevsio/mad-internship-bot/config"
-	"github.com/maddevsio/mad-internship-bot/model"
-	"github.com/maddevsio/mad-internship-bot/storage"
+	"github.com/maddevsio/mad-telegram-standup-bot/config"
+	"github.com/maddevsio/mad-telegram-standup-bot/model"
+	"github.com/maddevsio/mad-telegram-standup-bot/storage"
 	"github.com/stretchr/testify/require"
 )
 

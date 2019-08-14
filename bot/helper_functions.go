@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/maddevsio/mad-internship-bot/model"
+	"github.com/maddevsio/mad-telegram-standup-bot/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/sirupsen/logrus"
 )

@@ -1,8 +1,8 @@
 FROM golang:1.11.4
-COPY . /go/src/github.com/maddevsio/mad-internship-bot/
-WORKDIR /go/src/github.com/maddevsio/mad-internship-bot
+COPY . /go/src/github.com/maddevsio/mad-telegram-standup-bot/
+WORKDIR /go/src/github.com/maddevsio/mad-telegram-standup-bot
 RUN make install_dependencies
-RUN GOOS=linux GOARCH=amd64 go build -o mad-internship-bot main.go
+RUN GOOS=linux GOARCH=amd64 go build -o mad-telegram-standup-bot main.go
 
 FROM debian:9.8
 LABEL maintainer="Anatoliy Fedorenko <fedorenko.tolik@gmail.com>"
@@ -14,9 +14,9 @@ ENV LANG en_US.utf8
 
 COPY active.en.toml  /
 COPY active.ru.toml  / 
-COPY --from=0 /go/src/github.com/maddevsio/mad-internship-bot/mad-internship-bot /
-COPY --from=0 /go/src/github.com/maddevsio/mad-internship-bot/migrations /migrations
-COPY --from=0 /go/src/github.com/maddevsio/mad-internship-bot/goose /
+COPY --from=0 /go/src/github.com/maddevsio/mad-telegram-standup-bot/mad-telegram-standup-bot /
+COPY --from=0 /go/src/github.com/maddevsio/mad-telegram-standup-bot/migrations /migrations
+COPY --from=0 /go/src/github.com/maddevsio/mad-telegram-standup-bot/goose /
 COPY entrypoint.sh /
 
 ENTRYPOINT ["/entrypoint.sh"]

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/maddevsio/mad-internship-bot/model"
+	"github.com/maddevsio/mad-telegram-standup-bot/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 
 	log "github.com/sirupsen/logrus"
@@ -95,7 +95,7 @@ func (b *Bot) Help(event tgbotapi.Update) (string, error) {
 	helpText, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "helpText",
-			Other: `In order to submit a standup, tag me and write a message with keywords. Direct message me to see the list of keywords needed. Loking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaviour, submit issues to https://github.com/maddevsio/mad-internship-bot/issues`,
+			Other: `In order to submit a standup, tag me and write a message with keywords. Direct message me to see the list of keywords needed. Loking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaviour, submit issues to https://github.com/maddevsio/mad-telegram-standup-bot/issues`,
 		},
 	})
 	return helpText, err

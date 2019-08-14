@@ -4,9 +4,9 @@ import (
 	"sync"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/maddevsio/mad-internship-bot/config"
-	"github.com/maddevsio/mad-internship-bot/model"
-	"github.com/maddevsio/mad-internship-bot/storage"
+	"github.com/maddevsio/mad-telegram-standup-bot/config"
+	"github.com/maddevsio/mad-telegram-standup-bot/model"
+	"github.com/maddevsio/mad-telegram-standup-bot/storage"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	log "github.com/sirupsen/logrus"
 )
