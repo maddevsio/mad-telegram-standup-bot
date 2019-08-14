@@ -1,11 +1,11 @@
-# Internship Bot for Telegram
+# Standup Bot for Telegram
 [![Developed by Mad Devs](https://maddevs.io/badge-dark.svg)](https://maddevs.io/)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Go Report Card](https://goreportcard.com/badge/github.com/maddevsio/mad-internship-bot)](https://goreportcard.com/report/github.com/maddevsio/mad-internship-bot)
 [![CircleCI](https://circleci.com/gh/maddevsio/mad-internship-bot.svg?style=svg)](https://circleci.com/gh/maddevsio/mad-internship-bot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Automates workflow of Mad Devs Internship program requiring mentors to spend less time on repeatative tasks and actions
+Automates workflow of async standups meetings
 
 Supported languages: English(default), Russian 
 
@@ -13,12 +13,9 @@ Add @SimpleStandupBot to your telegram channel to start using it right away
 
 ## Bot Skills
 
-- Onbords new interns with predefined, customized message
+- Onbords new members with predefined, customized message
 - Warns about upcomming standup deadline in case intern did not write standup yet
-- Automatic kicks of interns who miss more than 3 standups 
-- Helps interns write more applicable, beneficial standups by analyzing standup text and outlining basic problems
-- Monitors interns pull requests and gives advises on how to improve them. 
-- Interns join and leave standup teams on their own (no time from mentors needed)
+- Members join and leave standup teams on their own (no time from managers needed)
 - Can adjust to different timezones 
 - Detects standups by watching messages with bot tag and defined keywords
 - supports English and Runssian languages. To add more, see https://github.com/nicksnyder/go-i18n for language reference
