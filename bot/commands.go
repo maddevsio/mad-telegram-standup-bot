@@ -29,55 +29,56 @@ func (b *Bot) HandleCommand(event tgbotapi.Update) (err error) {
 	case "help":
 		message, err = b.Help(event)
 		if err != nil {
-			log.Error("Help failed: ", err)
+			log.WithFields(log.Fields{"error": err, "event": event}).Error("Help failed")
 		}
 	case "join":
 		message, err = b.JoinStandupers(event)
 		if err != nil {
-			log.Error("JoinStandupers failed: ", err)
+			log.WithFields(log.Fields{"error": err, "event": event}).Error("JoinStandupers failed")
 		}
 	case "show":
 		message, err = b.Show(event)
 		if err != nil {
-			log.Error("Show failed: ", err)
+			log.WithFields(log.Fields{"error": err, "event": event}).Error("Show failed")
 		}
 	case "leave":
 		message, err = b.LeaveStandupers(event)
 		if err != nil {
-			log.Error("LeaveStandupers failed: ", err)
+			log.WithFields(log.Fields{"error": err, "event": event}).Error("LeaveStandupers failed")
 		}
 	case "edit_deadline":
 		message, err = b.EditDeadline(event)
 		if err != nil {
-			log.Error("EditDeadline failed: ", err)
+			log.WithFields(log.Fields{"error": err, "event": event}).Error("EditDeadline failed")
 		}
 	case "update_onbording_message":
 		message, err = b.UpdateOnbordingMessage(event)
 		if err != nil {
-			log.Error("UpdateOnbordingMessage failed: ", err)
+			log.WithFields(log.Fields{"error": err, "event": event}).Error("UpdateOnbordingMessage failed")
 		}
 	case "update_group_language":
 		message, err = b.UpdateGroupLanguage(event)
 		if err != nil {
-			log.Error("UpdateGroupLanguage failed: ", err)
+			log.WithFields(log.Fields{"error": err, "event": event}).Error("UpdateGroupLanguage failed")
 		}
 	case "change_submission_days":
 		message, err = b.ChangeSubmissionDays(event)
 		if err != nil {
-			log.Error("ChangeSubmissionDays failed: ", err)
+			log.WithFields(log.Fields{"error": err, "event": event}).Error("ChangeSubmissionDays failed")
 		}
 	case "group_tz":
 		message, err = b.ChangeGroupTimeZone(event)
 		if err != nil {
-			log.Error("ChangeGroupTimeZone failed: ", err)
+			log.WithFields(log.Fields{"error": err, "event": event}).Error("ChangeGroupTimeZone failed")
 		}
 	case "tz":
 		message, err = b.ChangeUserTimeZone(event)
 		if err != nil {
-			log.Error("ChangeUserTimeZone failed: ", err)
+			log.WithFields(log.Fields{"error": err, "event": event}).Error("ChangeUserTimeZone failed")
 		}
 	default:
 		message = "I do not know this command..."
+		log.WithFields(log.Fields{"event": event}).Warning("Unrecognized command")
 	}
 
 	if err != nil {
@@ -105,24 +106,7 @@ func (b *Bot) Help(event tgbotapi.Update) (string, error) {
 func (b *Bot) JoinStandupers(event tgbotapi.Update) (string, error) {
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
 	if err != nil {
-		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:           event.Message.Chat.ID,
-			Title:            event.Message.Chat.Title,
-			Description:      event.Message.Chat.Description,
-			StandupDeadline:  "",
-			TZ:               "Asia/Bishkek", // default value...
-			OnbordingMessage: "",
-			SubmissionDays:   "monday tuesday wednesday thirsday friday saturday sunday",
-		})
-		if err != nil {
-			return "", err
-		}
-
-		team := &model.Team{
-			Group:    group,
-			QuitChan: make(chan struct{}),
-		}
-		b.teams = append(b.teams, team)
+		return "", err
 	}
 
 	localizer := i18n.NewLocalizer(b.bundle, group.Language)
@@ -202,23 +186,7 @@ func (b *Bot) Show(event tgbotapi.Update) (string, error) {
 
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
 	if err != nil {
-		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "",
-			TZ:              "Asia/Bishkek", // default value...
-			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-		})
-		if err != nil {
-			return "", err
-		}
-
-		team := &model.Team{
-			Group:    group,
-			QuitChan: make(chan struct{}),
-		}
-		b.teams = append(b.teams, team)
+		return "", err
 	}
 
 	message := b.prepareShowMessage(standupers, group)
@@ -375,23 +343,7 @@ func sweep(entries []internInfo, prevPasses int) bool {
 func (b *Bot) LeaveStandupers(event tgbotapi.Update) (string, error) {
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
 	if err != nil {
-		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "",
-			TZ:              "Asia/Bishkek", // default value...
-			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-		})
-		if err != nil {
-			return "", err
-		}
-
-		team := &model.Team{
-			Group:    group,
-			QuitChan: make(chan struct{}),
-		}
-		b.teams = append(b.teams, team)
+		return "", err
 	}
 
 	team := b.findTeam(group.ChatID)
@@ -446,23 +398,7 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
 	if err != nil {
-		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "",
-			TZ:              "Asia/Bishkek", // default value...
-			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-		})
-		if err != nil {
-			return "", err
-		}
-
-		team := &model.Team{
-			Group:    group,
-			QuitChan: make(chan struct{}),
-		}
-		b.teams = append(b.teams, team)
+		return "", err
 	}
 
 	team := b.findTeam(group.ChatID)
@@ -531,23 +467,7 @@ func (b *Bot) UpdateOnbordingMessage(event tgbotapi.Update) (string, error) {
 
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
 	if err != nil {
-		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "",
-			TZ:              "Asia/Bishkek", // default value...
-			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-		})
-		if err != nil {
-			return "", err
-		}
-
-		team := &model.Team{
-			Group:    group,
-			QuitChan: make(chan struct{}),
-		}
-		b.teams = append(b.teams, team)
+		return "", err
 	}
 
 	localizer := i18n.NewLocalizer(b.bundle, group.Language)
@@ -607,23 +527,7 @@ func (b *Bot) UpdateGroupLanguage(event tgbotapi.Update) (string, error) {
 
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
 	if err != nil {
-		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "",
-			TZ:              "Asia/Bishkek", // default value...
-			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-		})
-		if err != nil {
-			return "", err
-		}
-
-		team := &model.Team{
-			Group:    group,
-			QuitChan: make(chan struct{}),
-		}
-		b.teams = append(b.teams, team)
+		return "", err
 	}
 
 	localizer := i18n.NewLocalizer(b.bundle, language)
@@ -667,23 +571,7 @@ func (b *Bot) ChangeSubmissionDays(event tgbotapi.Update) (string, error) {
 
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
 	if err != nil {
-		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "",
-			TZ:              "Asia/Bishkek", // default value...
-			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-		})
-		if err != nil {
-			return "", err
-		}
-
-		team := &model.Team{
-			Group:    group,
-			QuitChan: make(chan struct{}),
-		}
-		b.teams = append(b.teams, team)
+		return "", err
 	}
 
 	localizer := i18n.NewLocalizer(b.bundle, group.Language)
@@ -728,23 +616,7 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) (string, error) {
 
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
 	if err != nil {
-		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "",
-			TZ:              "Asia/Bishkek", // default value...
-			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-		})
-		if err != nil {
-			return "", err
-		}
-
-		team := &model.Team{
-			Group:    group,
-			QuitChan: make(chan struct{}),
-		}
-		b.teams = append(b.teams, team)
+		return "", err
 	}
 
 	group.TZ = tz
@@ -785,23 +657,7 @@ func (b *Bot) ChangeGroupTimeZone(event tgbotapi.Update) (string, error) {
 func (b *Bot) ChangeUserTimeZone(event tgbotapi.Update) (string, error) {
 	group, err := b.db.FindGroup(event.Message.Chat.ID)
 	if err != nil {
-		group, err = b.db.CreateGroup(&model.Group{
-			ChatID:          event.Message.Chat.ID,
-			Title:           event.Message.Chat.Title,
-			Description:     event.Message.Chat.Description,
-			StandupDeadline: "",
-			TZ:              "Asia/Bishkek", // default value...
-			SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
-		})
-		if err != nil {
-			return "", err
-		}
-
-		team := &model.Team{
-			Group:    group,
-			QuitChan: make(chan struct{}),
-		}
-		b.teams = append(b.teams, team)
+		return "", err
 	}
 
 	localizer := i18n.NewLocalizer(b.bundle, group.Language)

@@ -188,32 +188,6 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 		if b.submittedStandupToday(standuper) {
 			continue
 		}
-		// if standuper.Warnings >= allowedSkips {
-		// 	log.Infof("Missed %v standups! Should kick member!", allowedSkips)
-		// 	resp, err := b.tgAPI.KickChatMember(tgbotapi.KickChatMemberConfig{
-		// 		ChatMemberConfig: tgbotapi.ChatMemberConfig{
-		// 			ChatID:             standuper.ChatID,
-		// 			SuperGroupUsername: group.Username,
-		// 			ChannelUsername:    standuper.Username,
-		// 			UserID:             standuper.UserID,
-		// 		},
-		// 		UntilDate: time.Now().Unix(),
-		// 	})
-		// 	if err != nil {
-		// 		log.Error("Failed to kick user: ", err)
-		// 		continue
-		// 	}
-		// 	log.Info(resp)
-
-		// 	standuper.Status = "removed"
-
-		// 	_, err = b.db.UpdateStanduper(standuper)
-		// 	if err != nil {
-		// 		log.Error("Failed to delete standuper after kick ", err)
-		// 	}
-		// 	continue
-		// }
-		// standuper.Warnings++
 
 		if standuper.Username == "" {
 			username := fmt.Sprintf("[stranger](tg://user?id=%v)", standuper.UserID)
