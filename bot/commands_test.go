@@ -74,22 +74,49 @@ func TestPrepareShowMessage(t *testing.T) {
 func TestHelp(t *testing.T) {
 	conf, err := config.Get()
 	require.NoError(t, err)
+	db, err := storage.NewMySQL(conf)
+	require.NoError(t, err)
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_, err = bundle.LoadMessageFile("../active.en.toml")
 	require.NoError(t, err)
+	_, err = bundle.LoadMessageFile("../active.ru.toml")
+	require.NoError(t, err)
 
-	bot := Bot{c: conf, bundle: bundle}
+	bot := Bot{c: conf, db: db, bundle: bundle}
+	g := &model.Group{
+		ChatID:   int64(11),
+		Language: "en",
+	}
+
+	group, err := db.CreateGroup(g)
+	require.NoError(t, err)
+
 	update := tgbotapi.Update{
 		Message: &tgbotapi.Message{
-			From: &tgbotapi.User{
-				LanguageCode: "en",
+			Chat: &tgbotapi.Chat{
+				ID: group.ChatID,
 			},
 		},
 	}
 
 	helpMessage := "In order to submit a standup, tag me and write a message with keywords. Direct message me to see the list of keywords needed. Loking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaviour, submit issues to https://github.com/maddevsio/mad-telegram-standup-bot/issues"
 	text, err := bot.Help(update)
+	require.NoError(t, err)
+	require.Equal(t, helpMessage, text)
+
+	group, err = db.FindGroup(group.ChatID)
+	require.NoError(t, err)
+	g = &model.Group{
+		ID:       group.ID,
+		Language: "ru",
+	}
+
+	group, err = db.UpdateGroup(g)
+	require.NoError(t, err)
+
+	helpMessage = "Чтобы написать стендап тегни меня в сообщении с ключевыми словами. Напиши мне в личку текст стендапа, чтобы я сказал какие ключевые слова пропущены. Жду ваших стендапов! Напиши @anatoliyfedorenko в случае любых проблем связанных со мной, отправляйте запросы на доработку в этот репозиторий https://github.com/maddevsio/mad-telegram-standup-bot/issues"
+	text, err = bot.Help(update)
 	require.NoError(t, err)
 	require.Equal(t, helpMessage, text)
 }
