@@ -92,7 +92,11 @@ func (b *Bot) HandleCommand(event tgbotapi.Update) (err error) {
 
 //Help displays help message
 func (b *Bot) Help(event tgbotapi.Update) (string, error) {
-	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
+	group, err := b.db.FindGroup(event.Message.Chat.ID)
+	if err != nil {
+		return "", err
+	}
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 	helpText, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "helpText",
