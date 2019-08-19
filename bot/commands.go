@@ -350,12 +350,7 @@ func (b *Bot) LeaveStandupers(event tgbotapi.Update) (string, error) {
 		return "", err
 	}
 
-	team := b.findTeam(group.ChatID)
-	if team == nil {
-		return "", fmt.Errorf("team %v not found", group.ChatID)
-	}
-
-	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
 	standuper, err := b.db.FindStanduper(event.Message.From.ID, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err != nil {
@@ -405,17 +400,12 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 		return "", err
 	}
 
-	team := b.findTeam(group.ChatID)
-	if team == nil {
-		return "", fmt.Errorf("team %v not found", group.ChatID)
-	}
-
-	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
 	if strings.TrimSpace(deadline) == "" {
-		team.Group.StandupDeadline = ""
+		group.StandupDeadline = ""
 
-		_, err = b.db.UpdateGroup(team.Group)
+		_, err = b.db.UpdateGroup(group)
 		if err != nil {
 			return localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
@@ -433,9 +423,9 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 		})
 	}
 
-	team.Group.StandupDeadline = deadline
+	group.StandupDeadline = deadline
 
-	_, err = b.db.UpdateGroup(team.Group)
+	_, err = b.db.UpdateGroup(group)
 	if err != nil {
 		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
