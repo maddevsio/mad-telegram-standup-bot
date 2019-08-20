@@ -92,7 +92,11 @@ func (b *Bot) HandleCommand(event tgbotapi.Update) (err error) {
 
 //Help displays help message
 func (b *Bot) Help(event tgbotapi.Update) (string, error) {
-	localizer := i18n.NewLocalizer(b.bundle, event.Message.From.LanguageCode)
+	group, err := b.db.FindGroup(event.Message.Chat.ID)
+	if err != nil {
+		return "", err
+	}
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 	helpText, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "helpText",
@@ -346,12 +350,7 @@ func (b *Bot) LeaveStandupers(event tgbotapi.Update) (string, error) {
 		return "", err
 	}
 
-	team := b.findTeam(group.ChatID)
-	if team == nil {
-		return "", fmt.Errorf("team %v not found", group.ChatID)
-	}
-
-	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
 	standuper, err := b.db.FindStanduper(event.Message.From.ID, event.Message.Chat.ID) // user[1:] to remove leading @
 	if err != nil {
@@ -385,13 +384,15 @@ func (b *Bot) LeaveStandupers(event tgbotapi.Update) (string, error) {
 
 //EditDeadline modifies standup time
 func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
-	isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
-	if err != nil {
-		return "", err
-	}
+	if Test != true {
+		isAdmin, err := b.senderIsAdminInChannel(event.Message.From.UserName, event.Message.Chat.ID)
+		if err != nil {
+			return "", err
+		}
 
-	if !isAdmin {
-		return "", fmt.Errorf("user not admin")
+		if !isAdmin {
+			return "", fmt.Errorf("user not admin")
+		}
 	}
 
 	deadline := event.Message.CommandArguments()
@@ -401,17 +402,12 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 		return "", err
 	}
 
-	team := b.findTeam(group.ChatID)
-	if team == nil {
-		return "", fmt.Errorf("team %v not found", group.ChatID)
-	}
-
-	localizer := i18n.NewLocalizer(b.bundle, team.Group.Language)
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
 	if strings.TrimSpace(deadline) == "" {
-		team.Group.StandupDeadline = ""
+		group.StandupDeadline = ""
 
-		_, err = b.db.UpdateGroup(team.Group)
+		_, err = b.db.UpdateGroup(group)
 		if err != nil {
 			return localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
@@ -429,9 +425,9 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 		})
 	}
 
-	team.Group.StandupDeadline = deadline
+	group.StandupDeadline = deadline
 
-	_, err = b.db.UpdateGroup(team.Group)
+	_, err = b.db.UpdateGroup(group)
 	if err != nil {
 		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
