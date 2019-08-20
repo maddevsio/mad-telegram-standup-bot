@@ -125,23 +125,13 @@ func (b *Bot) HandleChannelLeftEvent(event tgbotapi.Update) error {
 	member := event.Message.LeftChatMember
 	// if user is a bot
 	if member.UserName == b.tgAPI.Self.UserName {
-		team := b.findTeam(event.Message.Chat.ID)
-		if team == nil {
-			return fmt.Errorf("Could not find sutable team")
-		}
-		team.Stop()
-
 		err := b.db.DeleteGroupStandupers(event.Message.Chat.ID)
 		if err != nil {
 			return err
 		}
-		err = b.db.DeleteGroup(team.Group.ID)
+		err = b.db.DeleteGroup(event.Message.Chat.ID)
 		if err != nil {
 			return err
-		}
-		ok := b.removeTeam(event.Message.Chat.ID)
-		if !ok {
-			log.Error("Could not remove the team from list")
 		}
 		return nil
 	}

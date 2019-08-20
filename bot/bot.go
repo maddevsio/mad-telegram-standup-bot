@@ -96,23 +96,3 @@ func (b *Bot) Start() error {
 
 	return nil
 }
-
-func (b *Bot) findTeam(chatID int64) *model.Team {
-	for _, team := range b.teams {
-		if team.Group.ChatID == chatID {
-			return team
-		}
-	}
-	return nil
-}
-
-func (b *Bot) removeTeam(chatID int64) bool {
-	result := false
-	for i, team := range b.teams {
-		if team.Group.ChatID == chatID {
-			b.teams = append(b.teams[:i], b.teams[i+1:]...)
-			result = true
-		}
-	}
-	return result
-}
