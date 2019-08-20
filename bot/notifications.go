@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"fmt"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/maddevsio/mad-telegram-standup-bot/model"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -13,7 +14,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const allowedSkips = 3
 const warnPeriod = 10 // 10 minutes before the deadline
 
 //StartWatchers looks for new gropus from the channel and start watching it
@@ -115,7 +115,7 @@ func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
 
 	var text string
 
-	for key, value := range stillDidNotSubmit {
+	for key := range stillDidNotSubmit {
 		warn, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "warnNonReporters",
@@ -124,7 +124,6 @@ func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
 			TemplateData: map[string]interface{}{
 				"Intern": key,
 				"Warn":   warnPeriod,
-				"Skips":  allowedSkips - value,
 			},
 		})
 		if err != nil {
@@ -206,7 +205,7 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 
 	var text string
 
-	for key, value := range missed {
+	for key := range missed {
 		notify, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "notifyNonReporters",
@@ -214,7 +213,6 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 			},
 			TemplateData: map[string]interface{}{
 				"Intern": key,
-				"Skips":  allowedSkips - value,
 			},
 		})
 		if err != nil {
