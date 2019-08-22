@@ -57,4 +57,5 @@ type NotificationThread struct {
 	GroupID          int64     `db:"group_id" json:"group_id"`
 	UserID           int       `db:"user_id" json:"user_id"`
 	NotificationTime time.Time `db:"notification_time" json:"notification_time"`
+	AlreadyReminded  int       `db:"already_reminded" json:"already_reminded"`
 }
