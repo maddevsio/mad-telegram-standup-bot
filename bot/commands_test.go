@@ -15,21 +15,19 @@ import (
 	"github.com/maddevsio/mad-telegram-standup-bot/config"
 	"github.com/maddevsio/mad-telegram-standup-bot/model"
 	"github.com/maddevsio/mad-telegram-standup-bot/storage"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestPrepareShowMessage(t *testing.T) {
 	conf, err := config.Get()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_, err = bundle.LoadMessageFile("../active.en.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	bot := Bot{c: conf, bundle: bundle}
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	group := &model.Group{
 		StandupDeadline: "10:00",
@@ -51,7 +49,7 @@ func TestPrepareShowMessage(t *testing.T) {
 	}
 
 	text = bot.prepareShowMessage(standuper, group)
-	assert.Equal(t, "Interns:\n@foo, 1 day on intership, missed standups: 0 times\n\nStandup deadline set at 10:00 on monday", text)
+	assert.Equal(t, "Standupers:\n@foo, 1 day in the project, \n\nStandup deadline set at 10:00 on monday", text)
 
 	standupers := []*model.Standuper{
 		&model.Standuper{
@@ -68,20 +66,20 @@ func TestPrepareShowMessage(t *testing.T) {
 	}
 
 	text = bot.prepareShowMessage(standupers, group)
-	assert.Equal(t, "Interns:\n@bar, 5 days on internship, missed standups: 2 times\n@foo, 1 day on intership, missed standups: 0 times\n\nStandup deadline set at 10:00 on monday", text)
+	assert.Equal(t, "Standupers:\n@bar, 5 days in the project, \n@foo, 1 day in the project, \n\nStandup deadline set at 10:00 on monday", text)
 }
 
 func TestHelp(t *testing.T) {
 	conf, err := config.Get()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	db, err := storage.NewMySQL(conf)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_, err = bundle.LoadMessageFile("../active.en.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	_, err = bundle.LoadMessageFile("../active.ru.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	bot := Bot{c: conf, db: db, bundle: bundle}
 	g := &model.Group{
@@ -90,7 +88,7 @@ func TestHelp(t *testing.T) {
 	}
 
 	group, err := db.CreateGroup(g)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	update := tgbotapi.Update{
 		Message: &tgbotapi.Message{
@@ -102,35 +100,36 @@ func TestHelp(t *testing.T) {
 
 	helpMessage := "In order to submit a standup, tag me and write a message with keywords. Direct message me to see the list of keywords needed. Loking forward for your standups! Message @anatoliyfedorenko in case of any unexpected behaviour, submit issues to https://github.com/maddevsio/mad-telegram-standup-bot/issues"
 	text, err := bot.Help(update)
-	require.NoError(t, err)
-	require.Equal(t, helpMessage, text)
+	assert.NoError(t, err)
+	assert.Equal(t, helpMessage, text)
 
 	group, err = db.FindGroup(group.ChatID)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	g = &model.Group{
 		ID:       group.ID,
 		Language: "ru",
 	}
 
 	group, err = db.UpdateGroup(g)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	helpMessage = "Чтобы написать стендап тегни меня в сообщении с ключевыми словами. Напиши мне в личку текст стендапа, чтобы я сказал какие ключевые слова пропущены. Жду ваших стендапов! Напиши @anatoliyfedorenko в случае любых проблем связанных со мной, отправляйте запросы на доработку в этот репозиторий https://github.com/maddevsio/mad-telegram-standup-bot/issues"
 	text, err = bot.Help(update)
-	require.NoError(t, err)
-	require.Equal(t, helpMessage, text)
+	assert.NoError(t, err)
+	assert.Equal(t, helpMessage, text)
+	assert.NoError(t, db.DeleteGroup(group.ID))
 }
 
 func TestJoinLeaveShowCommands(t *testing.T) {
 	conf, err := config.Get()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_, err = bundle.LoadMessageFile("../active.en.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	db, err := storage.NewMySQL(conf)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	bot := Bot{c: conf, db: db, bundle: bundle}
 
@@ -142,11 +141,24 @@ func TestJoinLeaveShowCommands(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          int64(11),
 				Title:       "Foo chat",
 				Description: "",
 			},
 		},
+	}
+
+	group, err := db.CreateGroup(&model.Group{
+		ChatID:   int64(11),
+		Language: "en",
+	})
+	assert.NoError(t, err)
+
+	standupers, err := db.ListChatStandupers(group.ChatID)
+	assert.NoError(t, err)
+
+	for _, stnd := range standupers {
+		assert.NoError(t, db.DeleteStanduper(stnd.ID))
 	}
 
 	text, err := bot.LeaveStandupers(update)
@@ -173,33 +185,36 @@ func TestJoinLeaveShowCommands(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Welcome back! Glad to see you again, and looking forward to your standups", text)
 
-	standuper, err := db.FindStanduper(1, 1)
+	standupers, err = db.ListChatStandupers(group.ChatID)
 	assert.NoError(t, err)
+	assert.Equal(t, 1, len(standupers))
 
-	assert.NoError(t, db.DeleteStanduper(standuper.ID))
-
-	group, err := db.FindGroup(1)
-	assert.NoError(t, err)
-
+	assert.NoError(t, db.DeleteStanduper(standupers[0].ID))
 	assert.NoError(t, db.DeleteGroup(group.ID))
 }
 
 func TestDeadlines(t *testing.T) {
 	Test = true
 	conf, err := config.Get()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_, err = bundle.LoadMessageFile("../active.en.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	db, err := storage.NewMySQL(conf)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	wch := make(chan *model.Group)
 	var teams []*model.Team
 
 	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+
+	group, err := db.CreateGroup(&model.Group{
+		ChatID:   int64(11),
+		Language: "en",
+	})
+	assert.NoError(t, err)
 
 	update := tgbotapi.Update{
 		Message: &tgbotapi.Message{
@@ -209,7 +224,7 @@ func TestDeadlines(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -235,7 +250,7 @@ func TestDeadlines(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -247,28 +262,31 @@ func TestDeadlines(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Edited standup deadline, new deadline is 12:00", text)
 
-	group, err := db.FindGroup(1)
-	assert.NoError(t, err)
-
 	assert.NoError(t, db.DeleteGroup(group.ID))
 }
 
 func TestUpdateOnbordingMessage(t *testing.T) {
 	Test = true
 	conf, err := config.Get()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_, err = bundle.LoadMessageFile("../active.en.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	db, err := storage.NewMySQL(conf)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	wch := make(chan *model.Group)
 	var teams []*model.Team
 
 	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+
+	group, err := db.CreateGroup(&model.Group{
+		ChatID:   int64(11),
+		Language: "en",
+	})
+	assert.NoError(t, err)
 
 	update := tgbotapi.Update{
 		Message: &tgbotapi.Message{
@@ -278,7 +296,7 @@ func TestUpdateOnbordingMessage(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -304,7 +322,7 @@ func TestUpdateOnbordingMessage(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -316,28 +334,31 @@ func TestUpdateOnbordingMessage(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Onbording message updated", text)
 
-	group, err := db.FindGroup(1)
-	assert.NoError(t, err)
-
 	assert.NoError(t, db.DeleteGroup(group.ID))
 }
 
 func TestUpdateGroupLanguage(t *testing.T) {
 	Test = true
 	conf, err := config.Get()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_, err = bundle.LoadMessageFile("../active.en.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	db, err := storage.NewMySQL(conf)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	wch := make(chan *model.Group)
 	var teams []*model.Team
 
 	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+
+	group, err := db.CreateGroup(&model.Group{
+		ChatID:   int64(11),
+		Language: "en",
+	})
+	assert.NoError(t, err)
 
 	update := tgbotapi.Update{
 		Message: &tgbotapi.Message{
@@ -347,7 +368,7 @@ func TestUpdateGroupLanguage(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -358,7 +379,7 @@ func TestUpdateGroupLanguage(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Group language updated", text)
 
-	group, err := db.FindGroup(1)
+	group, err = db.FindGroup(group.ChatID)
 	assert.NoError(t, err)
 	assert.Equal(t, "en", group.Language)
 
@@ -377,7 +398,7 @@ func TestUpdateGroupLanguage(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -389,7 +410,7 @@ func TestUpdateGroupLanguage(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Group language updated", text)
 
-	group, err = db.FindGroup(1)
+	group, err = db.FindGroup(group.ChatID)
 	assert.NoError(t, err)
 	assert.Equal(t, "ru", group.Language)
 
@@ -399,19 +420,25 @@ func TestUpdateGroupLanguage(t *testing.T) {
 func TestChangeSubmissionDays(t *testing.T) {
 	Test = true
 	conf, err := config.Get()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_, err = bundle.LoadMessageFile("../active.en.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	db, err := storage.NewMySQL(conf)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	wch := make(chan *model.Group)
 	var teams []*model.Team
 
 	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+
+	group, err := db.CreateGroup(&model.Group{
+		ChatID:   int64(11),
+		Language: "en",
+	})
+	assert.NoError(t, err)
 
 	update := tgbotapi.Update{
 		Message: &tgbotapi.Message{
@@ -421,7 +448,7 @@ func TestChangeSubmissionDays(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -432,7 +459,7 @@ func TestChangeSubmissionDays(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Group Standup submission days updated", text)
 
-	group, err := db.FindGroup(1)
+	group, err = db.FindGroup(group.ChatID)
 	assert.NoError(t, err)
 	assert.Equal(t, "", group.SubmissionDays)
 
@@ -451,7 +478,7 @@ func TestChangeSubmissionDays(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -463,7 +490,7 @@ func TestChangeSubmissionDays(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Group Standup submission days updated", text)
 
-	group, err = db.FindGroup(1)
+	group, err = db.FindGroup(group.ChatID)
 	assert.NoError(t, err)
 	assert.Equal(t, "monday tuesday", group.SubmissionDays)
 
@@ -473,19 +500,25 @@ func TestChangeSubmissionDays(t *testing.T) {
 func TestChangeGroupTimeZone(t *testing.T) {
 	Test = true
 	conf, err := config.Get()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_, err = bundle.LoadMessageFile("../active.en.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	db, err := storage.NewMySQL(conf)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	wch := make(chan *model.Group)
 	var teams []*model.Team
 
 	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+
+	group, err := db.CreateGroup(&model.Group{
+		ChatID:   int64(11),
+		Language: "en",
+	})
+	assert.NoError(t, err)
 
 	update := tgbotapi.Update{
 		Message: &tgbotapi.Message{
@@ -495,7 +528,7 @@ func TestChangeGroupTimeZone(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -506,7 +539,7 @@ func TestChangeGroupTimeZone(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Group timezone is updated, new TZ is Asia/Bishkek", text)
 
-	group, err := db.FindGroup(1)
+	group, err = db.FindGroup(group.ChatID)
 	assert.NoError(t, err)
 	assert.Equal(t, "Asia/Bishkek", group.TZ)
 
@@ -526,7 +559,7 @@ func TestChangeGroupTimeZone(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -558,7 +591,7 @@ func TestChangeGroupTimeZone(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -576,19 +609,24 @@ func TestChangeGroupTimeZone(t *testing.T) {
 func TestChangeUserTimeZone(t *testing.T) {
 	Test = true
 	conf, err := config.Get()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_, err = bundle.LoadMessageFile("../active.en.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	db, err := storage.NewMySQL(conf)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	wch := make(chan *model.Group)
 	var teams []*model.Team
 
 	bot := Bot{c: conf, db: db, bundle: bundle, watchersChan: wch, teams: teams}
+	group, err := db.CreateGroup(&model.Group{
+		ChatID:   int64(11),
+		Language: "en",
+	})
+	assert.NoError(t, err)
 
 	update := tgbotapi.Update{
 		Message: &tgbotapi.Message{
@@ -598,7 +636,7 @@ func TestChangeUserTimeZone(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -632,7 +670,7 @@ func TestChangeUserTimeZone(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -664,7 +702,7 @@ func TestChangeUserTimeZone(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -693,7 +731,7 @@ func TestChangeUserTimeZone(t *testing.T) {
 				LanguageCode: "en",
 			},
 			Chat: &tgbotapi.Chat{
-				ID:          1,
+				ID:          group.ChatID,
 				Title:       "Foo chat",
 				Description: "",
 			},
@@ -704,21 +742,22 @@ func TestChangeUserTimeZone(t *testing.T) {
 	text, err = bot.ChangeUserTimeZone(update)
 	assert.NoError(t, err)
 	assert.Equal(t, "You do not standup yet", text)
+	assert.NoError(t, db.DeleteGroup(group.ID))
 }
 
 func TestLeaveStandupers(t *testing.T) {
 	Test = true
 	conf, err := config.Get()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_, err = bundle.LoadMessageFile("../active.en.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	_, err = bundle.LoadMessageFile("../active.ru.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	db, err := storage.NewMySQL(conf)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	bot := Bot{c: conf, db: db, bundle: bundle}
 
@@ -728,7 +767,7 @@ func TestLeaveStandupers(t *testing.T) {
 	}
 
 	group, err := db.CreateGroup(g)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	team := &model.Team{
 		Group:    group,
@@ -748,8 +787,9 @@ func TestLeaveStandupers(t *testing.T) {
 	}
 
 	text, err := bot.LeaveStandupers(update)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, "You do not standup yet", text)
+	assert.NoError(t, db.DeleteGroup(group.ID))
 
 	g = &model.Group{
 		ChatID:   int64(18),
@@ -757,7 +797,7 @@ func TestLeaveStandupers(t *testing.T) {
 	}
 
 	group, err = db.CreateGroup(g)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	team = &model.Team{
 		Group:    group,
@@ -777,22 +817,23 @@ func TestLeaveStandupers(t *testing.T) {
 	}
 
 	text, err = bot.LeaveStandupers(update)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, "Вы еще не стендапите", text)
+	assert.NoError(t, db.DeleteGroup(group.ID))
 }
 
 func TestEditDeadlines(t *testing.T) {
 	Test = true
 	conf, err := config.Get()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	db, err := storage.NewMySQL(conf)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	_, err = bundle.LoadMessageFile("../active.en.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	_, err = bundle.LoadMessageFile("../active.ru.toml")
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	bot := Bot{c: conf, db: db, bundle: bundle}
 	g := &model.Group{
@@ -801,10 +842,13 @@ func TestEditDeadlines(t *testing.T) {
 	}
 
 	group, err := db.CreateGroup(g)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	update := tgbotapi.Update{
 		Message: &tgbotapi.Message{
+			From: &tgbotapi.User{
+				ID: 3,
+			},
 			Chat: &tgbotapi.Chat{
 				ID: group.ChatID,
 			},
@@ -813,22 +857,22 @@ func TestEditDeadlines(t *testing.T) {
 
 	infoMessage := "Standup deadline removed"
 	text, err := bot.EditDeadline(update)
-	require.NoError(t, err)
-	require.Equal(t, infoMessage, text)
+	assert.NoError(t, err)
+	assert.Equal(t, infoMessage, text)
 
 	group, err = db.FindGroup(group.ChatID)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	g = &model.Group{
 		ID:       group.ID,
 		Language: "ru",
 	}
 
 	group, err = db.UpdateGroup(g)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	infoMessage = "Крайний срок сдачи стендапов отменён"
 	text, err = bot.EditDeadline(update)
-	require.NoError(t, err)
-	require.Equal(t, infoMessage, text)
-
+	assert.NoError(t, err)
+	assert.Equal(t, infoMessage, text)
+	assert.NoError(t, db.DeleteGroup(group.ID))
 }

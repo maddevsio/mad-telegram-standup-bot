@@ -6,6 +6,7 @@ import (
 	"github.com/maddevsio/mad-telegram-standup-bot/model"
 
 	"github.com/maddevsio/mad-telegram-standup-bot/config"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,43 +26,42 @@ func TestGroups(t *testing.T) {
 		Language:         "en",
 		OnbordingMessage: "Hello, user",
 		SubmissionDays:   "Everyday",
-		Advises:          "No standup bypass",
 	}
 
 	group, err := mysql.CreateGroup(g)
-	require.NoError(t, err)
-	require.Equal(t, "User", group.Username)
-	require.Equal(t, int64(15), group.ChatID)
-	require.Equal(t, "GMT +6", group.TZ)
+	assert.NoError(t, err)
+	assert.Equal(t, "User", group.Username)
+	assert.Equal(t, int64(15), group.ChatID)
+	assert.Equal(t, "GMT +6", group.TZ)
 
 	g.TZ = "Asia/Bishkek"
 
 	_, err = mysql.UpdateGroup(group)
-	require.NoError(t, err)
-	require.Equal(t, "Asia/Bishkek", group.TZ)
+	assert.NoError(t, err)
+	assert.Equal(t, "Asia/Bishkek", group.TZ)
 
 	group, err = mysql.SelectGroup(g.ID)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	group, err = mysql.FindGroup(g.ChatID)
-	require.Equal(t, int64(15), g.ChatID)
+	assert.Equal(t, int64(15), g.ChatID)
 
 	group2, err := mysql.CreateGroup(g)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	groups, err := mysql.ListGroups()
-	require.NoError(t, err)
-	require.Equal(t, 2, len(groups))
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(groups))
 
 	err = mysql.DeleteGroup(group.ID)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	err = mysql.DeleteGroup(group2.ID)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	_, err = mysql.SelectGroup(group.ID)
-	require.Error(t, err)
+	assert.Error(t, err)
 
 	_, err = mysql.SelectGroup(group2.ID)
-	require.Error(t, err)
+	assert.Error(t, err)
 }

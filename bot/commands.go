@@ -96,6 +96,7 @@ func (b *Bot) Help(event tgbotapi.Update) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 	helpText, err := localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
