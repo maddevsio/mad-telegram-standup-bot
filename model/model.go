@@ -50,3 +50,11 @@ type Standup struct {
 	Text      string    `db:"text" json:"text"`
 	ChatID    int64     `db:"chat_id" json:"chat_id"`
 }
+
+// NotificationThread ...
+type NotificationThread struct {
+	ID               int64     `db:"id" json:"id"`
+	GroupID          int64     `db:"group_id" json:"group_id"`
+	UserID           int       `db:"user_id" json:"user_id"`
+	NotificationTime time.Time `db:"notification_time" json:"notification_time"`
+}
