@@ -5,17 +5,17 @@ import (
 )
 
 // CreateNotification create notifications
-func (m *MySQL) CreateNotification(s *model.NotificationThread) (*model.NotificationThread, error) {
+func (m *MySQL) CreateNotification(s model.NotificationThread) (model.NotificationThread, error) {
 	res, err := m.conn.Exec(
 		"INSERT INTO `notifications_thread` (group_id, user_id, notification_time, already_reminded) VALUES (?, ?, ?, ?)",
 		s.GroupID, s.UserID, s.NotificationTime, s.AlreadyReminded,
 	)
 	if err != nil {
-		return nil, err
+		return s, err
 	}
 	id, err := res.LastInsertId()
 	if err != nil {
-		return nil, err
+		return s, err
 	}
 	s.ID = id
 	return s, nil

@@ -14,7 +14,7 @@ func TestNotification(t *testing.T) {
 	mysql, err := NewMySQL(conf)
 	require.NoError(t, err)
 
-	n := &model.NotificationThread{
+	n := model.NotificationThread{
 		GroupID:          int64(1),
 		UserID:           (1),
 		NotificationTime: "10",
@@ -35,12 +35,13 @@ func TestNotification(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 2, len(notifications))
 
-	err = mysql.DeleteNotification(notification.ID)
-	require.NoError(t, err)
 	err = mysql.DeleteNotification(notification2.ID)
+	require.NoError(t, err)
+
+	err = mysql.DeleteNotification(notification.ID)
 	require.NoError(t, err)
 
 	notifications, err = mysql.ListNotifications()
 	require.NoError(t, err)
-	require.Equal(t, 1, len(notifications))
+	require.Equal(t, 0, len(notifications))
 }
