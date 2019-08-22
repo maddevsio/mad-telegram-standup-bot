@@ -28,10 +28,6 @@ jobs:
             pwd
             ls -lah /go/src/github.com/maddevsio/mad-telegram-standup-bot
 
-      - run:
-          name: Run test
-          command: make test
-
   build_push_image:
     docker:
       - image: circleci/buildpack-deps:latest-dind
