@@ -20,6 +20,7 @@ jobs:
     steps:
       - checkout
       - run: go get -u github.com/mattn/goveralls
+      - run: go get ./...
       - run:
           name: run test
           command: |
