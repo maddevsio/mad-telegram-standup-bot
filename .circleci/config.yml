@@ -15,20 +15,13 @@ jobs:
 
   test:
     docker:
-      - image: circleci/golang:1.12
+      - image: circleci/buildpack-deps:latest-dind
     working_directory: /go/src/github.com/maddevsio/mad-telegram-standup-bot
     steps:
       - checkout
-      - run: go get -u github.com/mattn/goveralls
-      - run: go get ./...
       - run:
-          name: run test
-          command: |
-            go test -v -cover -race ./... -coverprofile=coverage.out
-      - run:
-          name: send report to coveralls
-          command: |
-            goveralls -coverprofile=coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
+          name: Run test
+          command: make test
 
   build_push_image:
     docker:
@@ -69,10 +62,10 @@ jobs:
       - run:
           name: Run docker-compose-prod
           command: |
-            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose pull $SERVICE -f docker-compose-prod.yml"
-            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose stop $SERVICE -f docker-compose-prod.yml"
-            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose rm -f $SERVICE -f docker-compose-prod.yml"
-            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose up -d -f docker-compose-prod.yml"
+            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose -f docker-compose-prod.yml pull $SERVICE"
+            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose -f docker-compose-prod.yml stop $SERVICE"
+            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose -f docker-compose-prod.yml rm -f $SERVICE"
+            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose -f docker-compose-prod.yml up -d"
 
 workflows:
   version: 2
