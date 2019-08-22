@@ -7,8 +7,8 @@ import (
 // CreateNotification create notifications
 func (m *MySQL) CreateNotification(s *model.NotificationThread) (*model.NotificationThread, error) {
 	res, err := m.conn.Exec(
-		"INSERT INTO `notifications_thread` (group_id, user_id, notification_time) VALUES (?, ?, ?)",
-		s.GroupID, s.UserID, s.NotificationTime,
+		"INSERT INTO `notifications_thread` (group_id, user_id, notification_time, already_reminded) VALUES (?, ?, ?, ?)",
+		s.GroupID, s.UserID, s.NotificationTime, s.AlreadyReminded,
 	)
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func (m *MySQL) CreateNotification(s *model.NotificationThread) (*model.Notifica
 
 // DeleteNotification deletes notification entry from database
 func (m *MySQL) DeleteNotification(id int64) error {
-	_, err := m.conn.Exec("DELETE FROM `notification_thread` WHERE id=?", id)
+	_, err := m.conn.Exec("DELETE FROM `notifications_thread` WHERE id=?", id)
 	return err
 }
 
