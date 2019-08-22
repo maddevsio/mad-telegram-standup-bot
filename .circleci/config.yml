@@ -12,6 +12,7 @@ jobs:
           command: |
             dep ensure
             go build -v
+
   test:
     docker:
       - image: circleci/golang:1.12
@@ -27,3 +28,72 @@ jobs:
           name: send report to coveralls
           command: |
             goveralls -coverprofile=coverage.out -service=circle-ci -repotoken=$COVERALLS_TOKEN
+
+  build_push_image:
+    docker:
+      - image: circleci/buildpack-deps:latest-dind
+    working_directory: /go/src/github.com/maddevsio/mad-telegram-standup-bot
+    steps:
+      - checkout
+      - run:
+          name: Run build docker image
+          command: docker build -t $REPO:latest .
+      - run:
+          name: Login in docker hub
+          command: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+      - run:
+          name: Push build image
+          command: docker push $REPO:latest
+
+  deploy_prod:
+    docker:
+      - image: circleci/buildpack-deps:latest
+    working_directory: /go/src/github.com/maddevsio/mad-telegram-standup-bot
+    steps:
+      - checkout
+      - run:
+          name: Add known hosts
+          command: ssh-keyscan -H $DEPLOY_SERVER_PROD >> ~/.ssh/known_hosts
+      - add_ssh_keys:
+          fingerprints:
+            - "44:c5:67:d3:75:b0:28:2f:86:d6:17:7f:d9:a5:2d:08"
+      - run:
+          name: Login in docker hub
+          command: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+
+      - run:
+          name: Copy docker-compose-prod.yml
+          command: rsync -zavP /go/src/github.com/maddevsio/mad-telegram-standup-bot/docker-compose-prod.yml $DEPLOY_USER@$DEPLOY_SERVER_PROD:/opt/docker/mad-telegram-standup-bot
+
+      - run:
+          name: Run docker-compose-prod
+          command: |
+            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose pull $SERVICE -f docker-compose-prod.yml"
+            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose stop $SERVICE -f docker-compose-prod.yml"
+            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose rm -f $SERVICE -f docker-compose-prod.yml"
+            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose up -d -f docker-compose-prod.yml"
+
+workflows:
+  version: 2
+  build-and-test-build_push_image-and-deploy_prod:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: master
+      - test:
+          filters:
+            branches:
+              only: master
+      - build_push_image:
+          filters:
+            branches:
+              only: master
+          requires:
+            - test
+      - deploy_prod:
+          filters:
+            branches:
+              only: master
+          requires:
+            - build_push_image
