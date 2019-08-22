@@ -15,10 +15,12 @@ jobs:
 
   test:
     docker:
-      - image: circleci/buildpack-deps:latest-dind
+      - image: circleci/golang:1.12
     working_directory: /go/src/github.com/maddevsio/mad-telegram-standup-bot
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: Run test
           command: make test
