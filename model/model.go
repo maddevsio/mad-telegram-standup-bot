@@ -53,9 +53,9 @@ type Standup struct {
 
 // NotificationThread ...
 type NotificationThread struct {
-	ID               int64     `db:"id" json:"id"`
-	GroupID          int64     `db:"group_id" json:"group_id"`
-	UserID           int       `db:"user_id" json:"user_id"`
-	NotificationTime time.Time `db:"notification_time" json:"notification_time"`
-	AlreadyReminded  int       `db:"already_reminded" json:"already_reminded"`
+	ID               int64  `db:"id" json:"id"`
+	GroupID          int64  `db:"group_id" json:"group_id"`
+	UserID           int    `db:"user_id" json:"user_id"`
+	NotificationTime string `db:"notification_time" json:"notification_time"`
+	AlreadyReminded  int    `db:"already_reminded" json:"already_reminded"`
 }
