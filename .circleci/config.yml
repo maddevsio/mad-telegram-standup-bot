@@ -14,12 +14,10 @@ jobs:
             go build -v
 
   test:
-    docker:
-      - image: circleci/golang:1.12
-    working_directory: /go/src/github.com/maddevsio/mad-telegram-standup-bot
+    machine:
+      image: ubuntu-1604:201903-01
+      docker_layer_caching: true
     steps:
-      - setup_remote_docker:
-          docker_layer_caching: true
       - checkout
       - run:
           name: Run test
@@ -30,6 +28,7 @@ jobs:
           name: Setup test
           command: |
             docker-compose -f docker-compose.test-setup.yml up --build
+            docker-compose -f docker-compose.test.yml down --remove-orphans
 
   build_push_image:
     docker:
