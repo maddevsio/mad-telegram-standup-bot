@@ -28,7 +28,7 @@ jobs:
           name: Setup test
           command: |
             docker-compose -f docker-compose.test-setup.yml up --build
-            docker-compose -f docker-compose.test.yml down --remove-orphans
+            docker-compose -f docker-compose.test-setup.yml down --remove-orphans
 
   build_push_image:
     docker:
