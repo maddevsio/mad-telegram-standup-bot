@@ -56,11 +56,12 @@ jobs:
           name: Login in docker hub
           command: |
             ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin"
-
+      - run:
+         name: Add rsync
+           command: sudo apt update && sudo apt install rsync
       - run:
           name: Copy docker-compose-prod.yml
           command: rsync -zavP docker-compose-prod.yml $DEPLOY_USER@$DEPLOY_SERVER_PROD:/opt/docker/mad-telegram-standup-bot
-
       - run:
           name: Run docker-compose-prod
           command: |
