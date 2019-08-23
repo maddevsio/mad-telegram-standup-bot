@@ -24,16 +24,16 @@ jobs:
       - run:
           name: check directory
           command: |
-            ls -lah
-            pwd
-            ls -lah /go/src/github.com/maddevsio/mad-telegram-standup-bot
+            make test
 
   build_push_image:
     docker:
-      - image: circleci/buildpack-deps:latest-dind
+      - image: circleci/buildpack-deps:latest
     working_directory: /go/src/github.com/maddevsio/mad-telegram-standup-bot
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: Run build docker image
           command: docker build -t $REPO:latest .
@@ -58,7 +58,8 @@ jobs:
             - "44:c5:67:d3:75:b0:28:2f:86:d6:17:7f:d9:a5:2d:08"
       - run:
           name: Login in docker hub
-          command: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+          command: |
+            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin"
 
       - run:
           name: Copy docker-compose-prod.yml
