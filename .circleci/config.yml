@@ -15,6 +15,10 @@ jobs:
 
   test:
     machine:
+      environment:
+        GOPATH: /home/circleci/go
+        GOROOT: /usr/local/go1.11.4
+        PATH: '$GOROOT/bin:$GOPATH/bin:$PATH'
       image: ubuntu-1604:201903-01
       docker_layer_caching: true
     steps:
@@ -26,25 +30,18 @@ jobs:
             wget https://dl.google.com/go/go1.11.4.linux-amd64.tar.gz
             tar -xf go1.11.4.linux-amd64.tar.gz
             sudo mv go /usr/local/go1.11.4
-      - run:
-          name: Export variable
-          command: |
-            export GOROOT=/usr/local/go1.11.4
-            export GOPATH=$HOME/go
-            export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-            source ~/.bash_profile
-            ls -lah ~/
-            pwd
-            go version
       - checkout
       - run:
           name: Install dependencies
           command: |
-            cd ~/
+            go version
+            cd /home/circleci
+            ls -lah
             go get -v ./...
       - run:
           name: Run test
           command: |
+            ls -lah
             cd ~/project
             make test
 
