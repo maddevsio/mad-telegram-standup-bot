@@ -2,7 +2,7 @@ version: '2'
 
 networks:
   bot_local:
-    external: true
+    driver: bridge
 
 services:
   adminer:
