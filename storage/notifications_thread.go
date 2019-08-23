@@ -7,8 +7,8 @@ import (
 // CreateNotification create notifications
 func (m *MySQL) CreateNotification(s model.NotificationThread) (model.NotificationThread, error) {
 	res, err := m.conn.Exec(
-		"INSERT INTO `notifications_thread` (group_id, user_id, notification_time, already_reminded) VALUES (?, ?, ?, ?)",
-		s.GroupID, s.UserID, s.NotificationTime, s.AlreadyReminded,
+		"INSERT INTO `notifications_thread` (chat_id, user_id, notification_time, reminder_counter) VALUES (?, ?, ?, ?)",
+		s.ChatID, s.UserID, s.NotificationTime, s.ReminderCounter,
 	)
 	if err != nil {
 		return s, err
@@ -28,8 +28,8 @@ func (m *MySQL) DeleteNotification(id int64) error {
 }
 
 // ListNotifications returns array of notifications entries from database
-func (m *MySQL) ListNotifications() ([]*model.NotificationThread, error) {
-	items := []*model.NotificationThread{}
+func (m *MySQL) ListNotifications() ([]model.NotificationThread, error) {
+	items := []model.NotificationThread{}
 	err := m.conn.Select(&items, "SELECT * FROM `notifications_thread`")
 	return items, err
 }
