@@ -16,9 +16,7 @@ jobs:
   test:
     machine:
       environment:
-        GOPATH: /home/circleci/go
-        GOROOT: /usr/local/go1.11.4
-        PATH: '$GOROOT/bin:$GOPATH/bin:$PATH'
+        BASH_ENV: ~/.bashrc
       image: ubuntu-1604:201903-01
       docker_layer_caching: true
     steps:
@@ -32,6 +30,12 @@ jobs:
             sudo mv go /usr/local/go1.11.4
       - checkout
       - run:
+          name: Export
+          command: |
+            echo 'export GOROOT=/usr/local/go1.11.4' >> $BASH_ENV
+            echo 'export GOPATH=$HOME/project/go' >> $BASH_ENV
+            echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' >> $BASH_ENV
+      - run:
           name: Install dependencies
           command: |
             go version
@@ -44,6 +48,7 @@ jobs:
             ls -lah
             cd ~/project
             make test
+
 
   build_push_image:
     docker:
