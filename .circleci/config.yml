@@ -77,20 +77,20 @@ workflows:
       - build:
           filters:
             branches:
-              only: testcircleci
+              only: master
       - test:
           filters:
             branches:
-              only: testcircleci
+              only: master
       - build_push_image:
           filters:
             branches:
-              only: testcircleci
+              only: master
           requires:
             - test
       - deploy_prod:
           filters:
             branches:
-              only: testcircleci
+              only: master
           requires:
             - build_push_image
