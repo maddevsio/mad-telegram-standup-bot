@@ -6,19 +6,15 @@ networks:
 
 services:
   adminer:
-    container_name: adminer
+    container_name: mad-telegram-standup-bot-adminer
     image: adminer:4.7.0
     restart: always
-    ports:
-      - 8080:8080
     networks:
       - bot_local
 
   db:
-    container_name: mysql-db
+    container_name: mad-telegram-standup-bot-mysql
     image: mysql:5.7
-    ports:
-      - 3306:3306
     volumes:
       - "/opt/docker/mad-internship-bot/volume/mysql:/var/lib/mysql"
     environment:
@@ -30,12 +26,12 @@ services:
       - bot_local
 
   bot:
-    container_name: bot
+    container_name: mad-telegram-standup-bot
     image: maddevsio/mad-telegram-standup-bot:latest
     restart: on-failure
     environment:
       TZ: Asia/Bishkek
-      DATABASE_URL: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(mysql-db:3306)/${MYSQL_DATABASE}?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci
+      DATABASE_URL: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(mad-telegram-standup-bot-mysql:3306)/${MYSQL_DATABASE}?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci
       TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
       DEBUG: ${DEBUG}
     depends_on:
