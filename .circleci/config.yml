@@ -26,8 +26,6 @@ jobs:
             wget https://dl.google.com/go/go1.11.4.linux-amd64.tar.gz
             tar -xf go1.11.4.linux-amd64.tar.gz
             sudo mv go /usr/local/go1.11.4
-            pwd
-            ls -lah
       - run:
           name: Export variable
           command: |
@@ -35,16 +33,19 @@ jobs:
             export GOPATH=$HOME/project/go
             export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
             source ~/.profile
-            ls -lah
+            ls -lah ~/
             pwd
             go version
       - checkout
       - run:
           name: Install dependencies
-          command: go get -v ./...
+          command: |
+            ls -lah
+            go get -v ./...
       - run:
           name: Run test
           command: |
+            cd mad-telegram-standup-bot
             make test
 
   build_push_image:
@@ -101,11 +102,11 @@ workflows:
       - build:
           filters:
             branches:
-              only: master
+              only: testcircleci
       - test:
           filters:
             branches:
-              only: master
+              only: testcircleci
       - build_push_image:
           filters:
             branches:
