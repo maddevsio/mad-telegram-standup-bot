@@ -18,17 +18,28 @@ jobs:
       image: ubuntu-1604:201903-01
       docker_layer_caching: true
     steps:
+      - run:
+          name: Download go
+          command: |
+            cd /tmp
+            wget https://dl.google.com/go/go1.11.4.linux-amd64.tar.gz
+      - run:
+          name: Install go
+          command: |
+            sudo tar -xvf go1.11.4.linux-amd64.tar.gz
+            sudo mv go /usr/local
+      - run:
+          name: Export variable
+          command: |
+            export GOROOT=/usr/local/go
+            export GOPATH=$HOME/go
+            export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+            source ~/.profile
       - checkout
       - run:
           name: Run test
           command: |
-            docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit
-            docker-compose -f docker-compose.test.yml down --remove-orphans
-      - run:
-          name: Setup test
-          command: |
-            docker-compose -f docker-compose.test-setup.yml up --build
-            docker-compose -f docker-compose.test-setup.yml down --remove-orphans
+            make test
 
   build_push_image:
     docker:
