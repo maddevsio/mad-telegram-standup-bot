@@ -86,12 +86,12 @@ workflows:
       - build_push_image:
           filters:
             branches:
-              only: master
+              only: testcircleci
           requires:
             - test
       - deploy_prod:
           filters:
             branches:
-              only: master
+              only: testcircleci
           requires:
             - build_push_image
