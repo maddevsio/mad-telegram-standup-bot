@@ -23,9 +23,6 @@ jobs:
           command: |
             cd /tmp
             wget https://dl.google.com/go/go1.11.4.linux-amd64.tar.gz
-      - run:
-          name: Install go
-          command: |
             sudo tar -xvf go1.11.4.linux-amd64.tar.gz
             sudo mv go /usr/local
       - run:
