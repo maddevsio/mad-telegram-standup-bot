@@ -16,7 +16,7 @@ services:
     container_name: mad-telegram-standup-bot-mysql
     image: mysql:5.7
     volumes:
-      - "/opt/docker/mad-internship-bot/volume/mysql:/var/lib/mysql"
+      - "/opt/docker/mad-telegram-standup-bot/volume/mysql:/var/lib/mysql"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
