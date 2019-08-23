@@ -18,9 +18,9 @@ jobs:
       - image: circleci/golang:1.12
     working_directory: /go/src/github.com/maddevsio/mad-telegram-standup-bot
     steps:
-      - checkout
       - setup_remote_docker:
           docker_layer_caching: true
+      - checkout
       - run:
           name: check directory
           command: |
