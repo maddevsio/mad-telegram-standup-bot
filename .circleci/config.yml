@@ -27,7 +27,6 @@ jobs:
   build_push_image:
     docker:
       - image: circleci/buildpack-deps:latest
-    working_directory: /go/src/github.com/maddevsio/mad-telegram-standup-bot
     steps:
       - checkout
       - setup_remote_docker:
@@ -45,7 +44,6 @@ jobs:
   deploy_prod:
     docker:
       - image: circleci/buildpack-deps:latest
-    working_directory: /go/src/github.com/maddevsio/mad-telegram-standup-bot
     steps:
       - checkout
       - run:
@@ -61,7 +59,7 @@ jobs:
 
       - run:
           name: Copy docker-compose-prod.yml
-          command: rsync -zavP /go/src/github.com/maddevsio/mad-telegram-standup-bot/docker-compose-prod.yml $DEPLOY_USER@$DEPLOY_SERVER_PROD:/opt/docker/mad-telegram-standup-bot
+          command: rsync -zavP docker-compose-prod.yml $DEPLOY_USER@$DEPLOY_SERVER_PROD:/opt/docker/mad-telegram-standup-bot
 
       - run:
           name: Run docker-compose-prod
