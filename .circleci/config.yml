@@ -26,13 +26,17 @@ jobs:
             wget https://dl.google.com/go/go1.11.4.linux-amd64.tar.gz
             tar -xf go1.11.4.linux-amd64.tar.gz
             sudo mv go /usr/local/go1.11.4
+            pwd
+            ls -lah
       - run:
           name: Export variable
           command: |
             export GOROOT=/usr/local/go1.11.4
-            export GOPATH=$HOME/go
+            export GOPATH=$HOME/project/go
             export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
             source ~/.profile
+            ls -lah
+            pwd
             go version
       - checkout
       - run:
