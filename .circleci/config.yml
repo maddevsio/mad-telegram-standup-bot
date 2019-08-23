@@ -30,9 +30,9 @@ jobs:
           name: Export variable
           command: |
             export GOROOT=/usr/local/go1.11.4
-            export GOPATH=$HOME/project/go
+            export GOPATH=$HOME/go
             export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-            source ~/.profile
+            source ~/.bash_profile
             ls -lah ~/
             pwd
             go version
@@ -40,12 +40,12 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            ls -lah
+            cd ~/
             go get -v ./...
       - run:
           name: Run test
           command: |
-            cd mad-telegram-standup-bot
+            cd ~/project
             make test
 
   build_push_image:
