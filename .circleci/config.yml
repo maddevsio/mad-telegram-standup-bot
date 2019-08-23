@@ -24,20 +24,20 @@ jobs:
           command: |
             cd /tmp
             wget https://dl.google.com/go/go1.11.4.linux-amd64.tar.gz
-            sudo tar -xf go1.11.4.linux-amd64.tar.gz
-            sudo mv go ~/
+            tar -xf go1.11.4.linux-amd64.tar.gz
+            sudo mv go /usr/local/go1.11.4
       - run:
           name: Export variable
           command: |
-            export GOROOT=~/go
+            export GOROOT=/usr/local/go1.11.4
             export GOPATH=$HOME/go
             export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
             source ~/.profile
             go version
+      - checkout
       - run:
           name: Install dependencies
           command: go get -v ./...
-      - checkout
       - run:
           name: Run test
           command: |
