@@ -19,16 +19,16 @@ jobs:
       docker_layer_caching: true
     steps:
       - run:
-          name: Download go
+          name: Install go
           command: |
             cd /tmp
             wget https://dl.google.com/go/go1.11.4.linux-amd64.tar.gz
             sudo tar -xvf go1.11.4.linux-amd64.tar.gz
-            sudo mv go /usr/local
+            sudo mv go ~/
       - run:
           name: Export variable
           command: |
-            export GOROOT=/usr/local/go
+            export GOROOT=~/go
             export GOPATH=$HOME/go
             export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
             source ~/.profile
