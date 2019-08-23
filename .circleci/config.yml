@@ -20,34 +20,7 @@ jobs:
       image: ubuntu-1604:201903-01
       docker_layer_caching: true
     steps:
-      - run: go version
-      - run:
-          name: Install go
-          command: |
-            cd /tmp
-            wget https://dl.google.com/go/go1.11.4.linux-amd64.tar.gz
-            tar -xf go1.11.4.linux-amd64.tar.gz
-            sudo mv go /usr/local/go1.11.4
-      - checkout
-      - run:
-          name: Export
-          command: |
-            echo 'export GOROOT=/usr/local/go1.11.4' >> $BASH_ENV
-            echo 'export GOPATH=$HOME/project/go' >> $BASH_ENV
-            echo 'export PATH=$GOPATH/bin:$GOROOT/bin:$PATH' >> $BASH_ENV
-      - run:
-          name: Install dependencies
-          command: |
-            go version
-            cd /home/circleci
-            ls -lah
-            go get -v ./...
-      - run:
-          name: Run test
-          command: |
-            ls -lah
-            cd ~/project
-            make test
+      - run: make test
 
 
   build_push_image:
