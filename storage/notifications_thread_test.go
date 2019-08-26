@@ -2,6 +2,7 @@ package storage
 
 import (
 	"testing"
+	"time"
 
 	"github.com/maddevsio/mad-telegram-standup-bot/config"
 	"github.com/maddevsio/mad-telegram-standup-bot/model"
@@ -18,15 +19,17 @@ func TestNotification(t *testing.T) {
 	n := model.NotificationThread{
 		ChatID:           int64(1),
 		UserID:           (1),
-		NotificationTime: "10",
+		NotificationTime: time.Now(),
 		ReminderCounter:  0,
 	}
+
+	time := n.NotificationTime
 
 	notification, err := mysql.CreateNotification(n)
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), notification.ChatID)
 	assert.Equal(t, 1, notification.UserID)
-	assert.Equal(t, "10", notification.NotificationTime)
+	assert.Equal(t, time, notification.NotificationTime)
 	assert.Equal(t, 0, notification.ReminderCounter)
 
 	notification2, err := mysql.CreateNotification(n)
