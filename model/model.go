@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"errors"
+	"strings"
+	"time"
+)
 
 //Group represents separate chat that bot was added to to handle standups
 type Group struct {
@@ -49,4 +53,30 @@ type Standup struct {
 	Username  string    `db:"username" json:"userName"`
 	Text      string    `db:"text" json:"text"`
 	ChatID    int64     `db:"chat_id" json:"chat_id"`
+}
+
+// NotificationThread ...
+type NotificationThread struct {
+	ID               int64     `db:"id" json:"id"`
+	ChatID           int64     `db:"chat_id" json:"chat_id"`
+	UserID           int       `db:"user_id" json:"user_id"`
+	NotificationTime time.Time `db:"notification_time" json:"notification_time"`
+	ReminderCounter  int       `db:"reminder_counter" json:"reminder_counter"`
+}
+
+// Validate ...
+func Validate(nt NotificationThread) error {
+	if nt.ChatID == 0 {
+		return errors.New("Field ChatID is empty")
+	}
+	if nt.UserID == 0 {
+		return errors.New("Field UserID is empty")
+	}
+	if strings.TrimSpace(nt.NotificationTime.String()) == "" {
+		return errors.New("Field NotificationTime is empty")
+	}
+	if nt.ReminderCounter < 0 {
+		return errors.New("Field ReminderCounter is empty")
+	}
+	return nil
 }
