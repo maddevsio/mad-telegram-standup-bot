@@ -194,7 +194,6 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 		} else {
 			missed["@"+standuper.Username] = standuper.Warnings
 		}
-
 		b.db.UpdateStanduper(standuper)
 	}
 
@@ -227,4 +226,61 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 	if err != nil {
 		log.Error(err)
 	}
+}
+
+// ExecuteThread function ...
+func (b *Bot) ExecuteThread() {
+	groups, err := b.db.ListGroups()
+	if err != nil {
+		log.Error(err)
+	}
+
+	var chatID int64
+
+	for _, group := range groups {
+		chatID = group.ChatID
+	}
+
+	standupers, err := b.db.ListChatStandupers(chatID)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	if len(standupers) == 0 {
+		return
+	}
+
+	missed := map[string]int{}
+	var chatID2 int64
+	var userID int
+	for _, standuper := range standupers {
+		if b.submittedStandupToday(standuper) {
+			continue
+		}
+		chatID2 = standuper.ChatID
+		userID = standuper.UserID
+		if standuper.Username == "" {
+			username := fmt.Sprintf("[stranger](tg://user?id=%v)", standuper.UserID)
+			missed[username] = standuper.Warnings
+		} else {
+			missed["@"+standuper.Username] = standuper.Warnings
+		}
+		b.db.UpdateStanduper(standuper)
+	}
+
+	if len(missed) == 0 {
+		return
+	}
+
+	nt, err := b.db.CreateNotification(model.NotificationThread{
+		ChatID:           chatID2,
+		UserID:           userID,
+		NotificationTime: time.Now(),
+		ReminderCounter:  3,
+	})
+	if err != nil {
+		log.Error(err)
+	}
+
 }
