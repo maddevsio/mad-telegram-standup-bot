@@ -42,6 +42,7 @@ func (b *Bot) trackStandupersIn(team *model.Team) {
 				continue
 			}
 			b.WarnGroup(team.Group, time.Now().In(loc))
+			//b.CheckNotificationThreads(team.Group, time.Now().In(loc))
 			b.NotifyGroup(team.Group, time.Now().In(loc))
 		case <-team.QuitChan:
 			log.Info("Finish working with the group: ", team.QuitChan)
@@ -195,7 +196,8 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 			missed["@"+standuper.Username] = standuper.Warnings
 		}
 
-		b.db.UpdateStanduper(standuper)
+		//create notification thread
+
 	}
 
 	//? if everything is fine, should not bother the team...
