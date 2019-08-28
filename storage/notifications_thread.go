@@ -43,8 +43,6 @@ func (m *MySQL) SelectNotificationThread(userID int, chatID int64) (*model.Notif
 
 // UpdateNotificationThread update field reminder counter
 func (m *MySQL) UpdateNotificationThread(id int64) error {
-	//nt := &model.NotificationThread{}
 	_, err := m.conn.Exec("UPDATE `notifications_thread` SET reminder_counter=reminder_counter+1 WHERE id=?", id)
-
 	return err
 }

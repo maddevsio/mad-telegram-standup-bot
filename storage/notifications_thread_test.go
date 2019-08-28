@@ -59,6 +59,16 @@ func TestNotification(t *testing.T) {
 	nt, err := mysql.CreateNotificationThread(n)
 	require.NoError(t, err)
 
+	n2 := model.NotificationThread{
+		ChatID:           int64(2),
+		UserID:           1,
+		NotificationTime: time.Now(),
+		ReminderCounter:  0,
+	}
+
+	notification3, err := mysql.CreateNotificationThread(n2)
+	require.NoError(t, err)
+
 	nThread, err := mysql.SelectNotificationThread(1, int64(1))
 	require.NoError(t, err)
 	assert.Equal(t, nThread.ID, nt.ID)
@@ -78,4 +88,6 @@ func TestNotification(t *testing.T) {
 	err = mysql.DeleteNotificationThread(nThread.ID)
 	require.NoError(t, err)
 
+	err = mysql.DeleteNotificationThread(notification3.ID)
+	require.NoError(t, err)
 }
