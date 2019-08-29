@@ -418,7 +418,6 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 		}
 		for _, v := range b.teams {
 			if v.Group.ID == gr.ID {
-				log.Info("FOUND")
 				v.Group.StandupDeadline = gr.StandupDeadline
 			}
 		}
@@ -444,7 +443,6 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 	}
 	for _, v := range b.teams {
 		if v.Group.ID == gr.ID {
-			log.Info("FOUND")
 			v.Group.StandupDeadline = gr.StandupDeadline
 		}
 	}
