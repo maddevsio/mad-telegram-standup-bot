@@ -203,7 +203,7 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 			missed["@"+standuper.Username] = standuper.Warnings
 		}
 
-		t = t.Add(notificationTime * time.Minute)
+    t = t.Add(notificationTime * time.Minute)
 
 		_, err := b.db.CreateNotificationThread(model.NotificationThread{
 			ChatID:           standuper.ChatID,
