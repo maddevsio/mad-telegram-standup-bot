@@ -1,6 +1,8 @@
 package storage
 
 import (
+	"time"
+
 	"github.com/maddevsio/mad-telegram-standup-bot/model"
 )
 
@@ -42,7 +44,7 @@ func (m *MySQL) SelectNotificationThread(userID int, chatID int64) (*model.Notif
 }
 
 // UpdateNotificationThread update field reminder counter
-func (m *MySQL) UpdateNotificationThread(id int64) error {
-	_, err := m.conn.Exec("UPDATE `notifications_thread` SET reminder_counter=reminder_counter+1 WHERE id=?", id)
+func (m *MySQL) UpdateNotificationThread(id int, t time.Time) error {
+	_, err := m.conn.Exec("UPDATE `notifications_thread` SET reminder_counter=reminder_counter+1, notification_time=? WHERE user_id=?", t, id)
 	return err
 }
