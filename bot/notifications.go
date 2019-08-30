@@ -203,7 +203,7 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 			missed["@"+standuper.Username] = standuper.Warnings
 		}
 
-    t = t.Add(notificationTime * time.Minute)
+		t = t.Add(notificationTime * time.Minute)
 
 		_, err := b.db.CreateNotificationThread(model.NotificationThread{
 			ChatID:           standuper.ChatID,
@@ -249,105 +249,77 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 
 //CheckNotificationThread notify users
 func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
-	if maxReminder == reminderCounter {
-		return
-	}
-
 	if strings.TrimSpace(group.StandupDeadline) == "" {
-		return
-	}
-	loc, err := time.LoadLocation(group.TZ)
-	if err != nil {
-		return
-	}
-
-	localizer := i18n.NewLocalizer(b.bundle, group.Language)
-	var timeInDB time.Time
-	notifications, err := b.db.ListNotificationsThread()
-	if err != nil {
-		log.Error(err)
-	}
-
-	for _, notification := range notifications {
-		timeInDB = notification.NotificationTime
-	}
-
-	if t.Hour() != timeInDB.In(loc).Hour() || t.Minute() != timeInDB.In(loc).Minute() {
-		return
-	}
-
-	standupers, err := b.db.ListChatStandupers(group.ChatID)
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	if len(standupers) == 0 {
-		return
-	}
-
-	missed := map[string]int{}
-
-	for _, standuper := range standupers {
-		if b.submittedStandupToday(standuper) {
-			thread, err := b.db.SelectNotificationThread(standuper.UserID, standuper.ChatID)
+		threads, err := b.db.ListNotificationsThread(group) // добавить группу, чтобы получать треды только по ней.
+		if err != nil {
+			log.Error("БАЗА ОБЪЕБАЛАСЬ в CheckNotificationThread! ", err) //ФАТАЛЬНАЯ ОШИБКА! ПРИЛОЖЕНИЕ УПАДЁТ!!!!!!
+		}
+		for _, thread := range threads {
+			err = b.db.DeleteNotificationThread(thread.ID) //
 			if err != nil {
 				log.Error(err)
 			}
-			err = b.db.DeleteNotificationThread(thread.ID)
+			return
+		}
+	}
+
+	threads, err := b.db.ListNotificationsThread(group) // добавить группу, чтобы получать треды только по ней.
+	if err != nil {
+		log.Error("БАЗА ОБЪЕБАЛАСЬ в CheckNotificationThread! ", err) //ФАТАЛЬНАЯ ОШИБКА! ПРИЛОЖЕНИЕ УПАДЁТ!!!!!!
+		return
+	}
+
+	for _, thread := range threads {
+
+		// Check TIME! if now == thread.NotificationTime
+		// if not continue
+
+		// Check MAX REMINDERS! if thread.ReminderCounter >= max reminders
+		// err = b.db.DeleteNotificationThread(thread.ID) //
+		// 	if err != nil {
+		// 		log.Error(err)
+		// 	}
+		// 	continue
+
+		// найти пользователя, либо обновить инфу в треде.
+		if b.submittedStandupToday(&model.Standuper{
+			Username: thread.Username,
+			ChatID:   thread.ChatID,
+			TZ:       group.TZ,
+		}) {
+			err = b.db.DeleteNotificationThread(thread.ID) //
 			if err != nil {
 				log.Error(err)
 			}
 			continue
 		}
-		timeInDB = timeInDB.Add(notificationTime * time.Minute)
 
-		err = b.db.UpdateNotificationThread(standuper.UserID, timeInDB)
+		err = b.db.UpdateNotificationThread(thread.ID, time.Now().In(group.TZ)+notificationTime) //
 		if err != nil {
 			log.Error(err)
+			return
 		}
 
-		thread, err := b.db.SelectNotificationThread(standuper.UserID, standuper.ChatID)
-		if err != nil {
-			log.Error(err)
-		}
-
-		reminderCounter = thread.ReminderCounter
-
-		if standuper.Username == "" {
-			username := fmt.Sprintf("[stranger](tg://user?id=%v)", standuper.UserID)
-			missed[username] = standuper.Warnings
-		} else {
-			missed["@"+standuper.Username] = standuper.Warnings
-		}
-	}
-
-	if len(missed) == 0 {
-		return
-	}
-
-	var text string
-
-	for key := range missed {
 		notify, err := localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
-				ID:    "notifyNonReporters",
-				Other: "Attention, {{.Intern}}! you have just missed the deadline! submit standups ASAP!",
+				ID:    "remindNonReporter",
+				Other: "Attention, {{.Intern}}! ТЫ ДО СИХ ПОР НАХУЙ НЕ НАПИСАЛ !ЁБАНЫЙ СТЭНДАП!!!! ПИШИ БЫСТРЕЕ МРАЗЬ!",
 			},
 			TemplateData: map[string]interface{}{
-				"Intern": key,
+				"Intern": thread.UserID,
 			},
 		})
 		if err != nil {
 			log.Error(err)
+			return
 		}
-		text += notify
-	}
 
-	msg := tgbotapi.NewMessage(group.ChatID, text)
-	msg.ParseMode = "Markdown"
-	_, err = b.tgAPI.Send(msg)
-	if err != nil {
-		log.Error(err)
+		msg := tgbotapi.NewMessage(group.ChatID, notify)
+		msg.ParseMode = "Markdown"
+		_, err = b.tgAPI.Send(msg)
+		if err != nil {
+			log.Error(err)
+		}
+
 	}
 }
