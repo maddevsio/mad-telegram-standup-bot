@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -19,7 +18,7 @@ func TestNotification(t *testing.T) {
 
 	n := model.NotificationThread{
 		ChatID:           int64(1),
-		UserID:           (1),
+		Username:         "User1",
 		NotificationTime: time.Now(),
 		ReminderCounter:  0,
 	}
@@ -29,14 +28,14 @@ func TestNotification(t *testing.T) {
 	notification, err := mysql.CreateNotificationThread(n)
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), notification.ChatID)
-	assert.Equal(t, 1, notification.UserID)
+	assert.Equal(t, "User1", notification.Username)
 	assert.Equal(t, timeTest, notification.NotificationTime)
 	assert.Equal(t, 0, notification.ReminderCounter)
 
 	notification2, err := mysql.CreateNotificationThread(n)
 	require.NoError(t, err)
 
-	notifications, err := mysql.ListNotificationsThread()
+	notifications, err := mysql.ListNotificationsThread(notification2.ChatID)
 	require.NoError(t, err)
 	assert.Equal(t, 2, len(notifications))
 
@@ -46,13 +45,9 @@ func TestNotification(t *testing.T) {
 	err = mysql.DeleteNotificationThread(notification.ID)
 	require.NoError(t, err)
 
-	notifications, err = mysql.ListNotificationsThread()
-	require.NoError(t, err)
-	assert.Equal(t, 0, len(notifications))
-
 	n = model.NotificationThread{
 		ChatID:           int64(1),
-		UserID:           1,
+		Username:         "User2",
 		NotificationTime: time.Now(),
 		ReminderCounter:  0,
 	}
@@ -60,22 +55,15 @@ func TestNotification(t *testing.T) {
 	nt, err := mysql.CreateNotificationThread(n)
 	require.NoError(t, err)
 
-	nThread, err := mysql.SelectNotificationThread(1, int64(1))
-	require.NoError(t, err)
-	assert.Equal(t, nThread.ID, nt.ID)
-	fmt.Println(nThread.UserID, "SADASDASD")
-	err = mysql.UpdateNotificationThread(nThread.UserID, time.Now())
+	err = mysql.UpdateNotificationThread(nt.ID, nt.ChatID, time.Now())
 	require.NoError(t, err)
 
-	nThread, err = mysql.SelectNotificationThread(1, int64(1))
-	assert.Equal(t, 1, nThread.ReminderCounter)
-
-	err = mysql.UpdateNotificationThread(nThread.UserID, time.Now())
+	notifications, err = mysql.ListNotificationsThread(nt.ChatID)
 	require.NoError(t, err)
+	for _, thread := range notifications {
+		assert.Equal(t, 1, thread.ReminderCounter)
+	}
 
-	nThread, err = mysql.SelectNotificationThread(1, int64(1))
-	assert.Equal(t, 2, nThread.ReminderCounter)
-
-	err = mysql.DeleteNotificationThread(nThread.ID)
+	err = mysql.DeleteNotificationThread(nt.ID)
 	require.NoError(t, err)
 }
