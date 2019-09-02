@@ -15,11 +15,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const warnPeriod = 10      // 10 minutes before the deadline
-const notificationTime = 1 // 30 minutes after deadline
-const maxReminder = 3
-
-var reminderCounter int
+const warnPeriod = 10 // 10 minutes before the deadline
 
 //StartWatchers looks for new gropus from the channel and start watching it
 func (b *Bot) StartWatchers() {
@@ -295,7 +291,7 @@ func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
 				continue
 			}
 
-			thread.NotificationTime = thread.NotificationTime.Add(notificationTime * time.Minute)
+			thread.NotificationTime = thread.NotificationTime.Add(time.Duration(b.c.NotificationTime) * time.Minute)
 			err = b.db.UpdateNotificationThread(thread.ID, thread.ChatID, thread.NotificationTime)
 			if err != nil {
 				log.Error(err)
