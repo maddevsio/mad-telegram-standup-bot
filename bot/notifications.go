@@ -208,7 +208,7 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 			ReminderCounter:  0,
 		})
 		if err != nil {
-			log.Error(err)
+			log.Error("Error on executing CreateNotificationThread ", err)
 		}
 	}
 
@@ -249,21 +249,21 @@ func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
 	if strings.TrimSpace(group.StandupDeadline) == "" {
 		threads, err := b.db.ListNotificationsThread(group.ChatID)
 		if err != nil {
-			log.Error("Error on executing CheckNotificationThread! ", err)
+			log.Error("Error on executing ListNotificationsThread! ", err)
 			return
 		}
 		for _, thread := range threads {
 			err = b.db.DeleteNotificationThread(thread.ID)
 			if err != nil {
-				log.Error("Error on executing DeleteNotificationsThread! ", err)
-				return
+				log.Error("Error on executing DeleteNotificationsThread! ", err, "Thread ID: ", thread.ID)
+				continue
 			}
 		}
 	}
 
 	threads, err := b.db.ListNotificationsThread(group.ChatID)
 	if err != nil {
-		log.Error("Error on ListNotificationThread! ", err)
+		log.Error("Error on executing ListNotificationThread! ", err)
 		return
 	}
 
@@ -273,10 +273,9 @@ func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
 			if thread.ReminderCounter >= b.c.MaxReminder {
 				err = b.db.DeleteNotificationThread(thread.ID)
 				if err != nil {
-					log.Error("Error on executing DeleteNotificationsThread! ", err)
-					return
+					log.Error("Error on executing DeleteNotificationsThread! ", err, "Thread ID: ", thread.ID)
+					continue
 				}
-				continue
 			}
 			if b.submittedStandupToday(&model.Standuper{
 				Username: thread.Username,
@@ -285,17 +284,16 @@ func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
 			}) {
 				err = b.db.DeleteNotificationThread(thread.ID)
 				if err != nil {
-					log.Error("Error on executing DeleteNotificationsThread! ", err)
-					return
+					log.Error("Error on executing DeleteNotificationsThread! ", err, "Thread ID: ", thread.ID)
+					continue
 				}
-				continue
 			}
 
 			thread.NotificationTime = thread.NotificationTime.Add(time.Duration(b.c.NotificationTime) * time.Minute)
 			err = b.db.UpdateNotificationThread(thread.ID, thread.ChatID, thread.NotificationTime)
 			if err != nil {
-				log.Error(err)
-				return
+				log.Error("Error on executing UpdateNotificatiobThread! ", err, "Thread ID: ", thread.ID)
+				continue
 			}
 
 			notify, err := localizer.Localize(&i18n.LocalizeConfig{
@@ -308,14 +306,14 @@ func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
 				},
 			})
 			if err != nil {
-				log.Error("Error on localize ", err)
+				log.Error("Error on localize, CheckNotificationThread! ", err)
 			}
 
 			msg := tgbotapi.NewMessage(group.ChatID, notify)
 			msg.ParseMode = "Markdown"
 			_, err = b.tgAPI.Send(msg)
 			if err != nil {
-				log.Error(err)
+				log.Error("Error sending message, CheckNotificationThread! ", err)
 			}
 		}
 	}
