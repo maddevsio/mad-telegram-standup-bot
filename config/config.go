@@ -16,7 +16,7 @@ type BotConfig struct {
 func Get() (*BotConfig, error) {
 	var c = BotConfig{
 		MaxReminder:      3,
-		NotificationTime: 1,
+		NotificationTime: 30,
 	}
 	err := envconfig.Process("", &c)
 	return &c, err
