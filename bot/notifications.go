@@ -15,8 +15,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const warnPeriod = 10       // 10 minutes before the deadline
-const notificationTime = 30 // 30 minutes after deadline
+const warnPeriod = 10      // 10 minutes before the deadline
+const notificationTime = 1 // 30 minutes after deadline
 const maxReminder = 3
 
 var reminderCounter int
@@ -203,11 +203,11 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 			missed["@"+standuper.Username] = standuper.Warnings
 		}
 
-		t = t.Add(notificationTime * time.Minute)
+		t = t.Add(time.Duration(b.c.NotificationTime) * time.Minute)
 
 		_, err := b.db.CreateNotificationThread(model.NotificationThread{
 			ChatID:           standuper.ChatID,
-			UserID:           standuper.UserID,
+			Username:         standuper.Username,
 			NotificationTime: t,
 			ReminderCounter:  0,
 		})
@@ -249,77 +249,78 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 
 //CheckNotificationThread notify users
 func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
+	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 	if strings.TrimSpace(group.StandupDeadline) == "" {
-		threads, err := b.db.ListNotificationsThread(group) // добавить группу, чтобы получать треды только по ней.
+		threads, err := b.db.ListNotificationsThread(group.ChatID)
 		if err != nil {
-			log.Error("БАЗА ОБЪЕБАЛАСЬ в CheckNotificationThread! ", err) //ФАТАЛЬНАЯ ОШИБКА! ПРИЛОЖЕНИЕ УПАДЁТ!!!!!!
+			log.Error("Error on executing CheckNotificationThread! ", err)
+			return
 		}
 		for _, thread := range threads {
-			err = b.db.DeleteNotificationThread(thread.ID) //
+			err = b.db.DeleteNotificationThread(thread.ID)
 			if err != nil {
-				log.Error(err)
+				log.Error("Error on executing DeleteNotificationsThread! ", err)
+				return
 			}
-			return
 		}
 	}
 
-	threads, err := b.db.ListNotificationsThread(group) // добавить группу, чтобы получать треды только по ней.
+	threads, err := b.db.ListNotificationsThread(group.ChatID)
 	if err != nil {
-		log.Error("БАЗА ОБЪЕБАЛАСЬ в CheckNotificationThread! ", err) //ФАТАЛЬНАЯ ОШИБКА! ПРИЛОЖЕНИЕ УПАДЁТ!!!!!!
+		log.Error("Error on ListNotificationThread! ", err)
 		return
 	}
 
 	for _, thread := range threads {
+		loc, err := time.LoadLocation(group.TZ)
+		if t.Hour() == thread.NotificationTime.In(loc).Hour() || t.Minute() == thread.NotificationTime.In(loc).Minute() {
+			if thread.ReminderCounter >= b.c.MaxReminder {
+				err = b.db.DeleteNotificationThread(thread.ID)
+				if err != nil {
+					log.Error("Error on executing DeleteNotificationsThread! ", err)
+					return
+				}
+				continue
+			}
+			if b.submittedStandupToday(&model.Standuper{
+				Username: thread.Username,
+				ChatID:   thread.ChatID,
+				TZ:       group.TZ,
+			}) {
+				err = b.db.DeleteNotificationThread(thread.ID)
+				if err != nil {
+					log.Error("Error on executing DeleteNotificationsThread! ", err)
+					return
+				}
+				continue
+			}
 
-		// Check TIME! if now == thread.NotificationTime
-		// if not continue
+			thread.NotificationTime = thread.NotificationTime.Add(notificationTime * time.Minute)
+			err = b.db.UpdateNotificationThread(thread.ID, thread.ChatID, thread.NotificationTime)
+			if err != nil {
+				log.Error(err)
+				return
+			}
 
-		// Check MAX REMINDERS! if thread.ReminderCounter >= max reminders
-		// err = b.db.DeleteNotificationThread(thread.ID) //
-		// 	if err != nil {
-		// 		log.Error(err)
-		// 	}
-		// 	continue
+			notify, err := localizer.Localize(&i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "remindNonReporter",
+					Other: "Attention, @{{.Intern}}! you still haven't written a standup! Write a standup!",
+				},
+				TemplateData: map[string]interface{}{
+					"Intern": thread.Username,
+				},
+			})
+			if err != nil {
+				log.Error("Error on localize ", err)
+			}
 
-		// найти пользователя, либо обновить инфу в треде.
-		if b.submittedStandupToday(&model.Standuper{
-			Username: thread.Username,
-			ChatID:   thread.ChatID,
-			TZ:       group.TZ,
-		}) {
-			err = b.db.DeleteNotificationThread(thread.ID) //
+			msg := tgbotapi.NewMessage(group.ChatID, notify)
+			msg.ParseMode = "Markdown"
+			_, err = b.tgAPI.Send(msg)
 			if err != nil {
 				log.Error(err)
 			}
-			continue
 		}
-
-		err = b.db.UpdateNotificationThread(thread.ID, time.Now().In(group.TZ)+notificationTime) //
-		if err != nil {
-			log.Error(err)
-			return
-		}
-
-		notify, err := localizer.Localize(&i18n.LocalizeConfig{
-			DefaultMessage: &i18n.Message{
-				ID:    "remindNonReporter",
-				Other: "Attention, {{.Intern}}! ТЫ ДО СИХ ПОР НАХУЙ НЕ НАПИСАЛ !ЁБАНЫЙ СТЭНДАП!!!! ПИШИ БЫСТРЕЕ МРАЗЬ!",
-			},
-			TemplateData: map[string]interface{}{
-				"Intern": thread.UserID,
-			},
-		})
-		if err != nil {
-			log.Error(err)
-			return
-		}
-
-		msg := tgbotapi.NewMessage(group.ChatID, notify)
-		msg.ParseMode = "Markdown"
-		_, err = b.tgAPI.Send(msg)
-		if err != nil {
-			log.Error(err)
-		}
-
 	}
 }

@@ -12,10 +12,10 @@ var tests = []struct {
 	n   NotificationThread
 	exp error
 }{
-	{NotificationThread{ChatID: int64(0), UserID: 1, NotificationTime: time.Now(), ReminderCounter: 0}, errors.New("Field ChatID is empty")},
-	{NotificationThread{ChatID: int64(1), UserID: 0, NotificationTime: time.Now(), ReminderCounter: 0}, errors.New("Field UserID is empty")},
-	{NotificationThread{ChatID: int64(1), UserID: 1, NotificationTime: time.Now(), ReminderCounter: -1}, errors.New("Field ReminderCounter is empty")},
-	{NotificationThread{ChatID: int64(1), UserID: 1, NotificationTime: time.Now(), ReminderCounter: 1}, nil},
+	{NotificationThread{ChatID: int64(0), Username: "User1", NotificationTime: time.Now(), ReminderCounter: 0}, errors.New("Field ChatID is empty")},
+	{NotificationThread{ChatID: int64(1), Username: "", NotificationTime: time.Now(), ReminderCounter: 0}, errors.New("Field Username is empty")},
+	{NotificationThread{ChatID: int64(1), Username: "User1", NotificationTime: time.Now(), ReminderCounter: -1}, errors.New("Field ReminderCounter is empty")},
+	{NotificationThread{ChatID: int64(1), Username: "User1", NotificationTime: time.Now(), ReminderCounter: 1}, nil},
 }
 
 func TestValidateNotificationThread(t *testing.T) {
