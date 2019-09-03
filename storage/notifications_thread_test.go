@@ -45,6 +45,10 @@ func TestNotification(t *testing.T) {
 	err = mysql.DeleteNotificationThread(notification.ID)
 	require.NoError(t, err)
 
+	notifications, err = mysql.ListNotificationsThread(notification2.ChatID)
+	require.NoError(t, err)
+	assert.Equal(t, 0, len(notifications))
+
 	n = model.NotificationThread{
 		ChatID:           int64(1),
 		Username:         "User2",
