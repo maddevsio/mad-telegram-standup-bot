@@ -274,7 +274,7 @@ func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
 			continue
 		}
 
-		if thread.ReminderCounter >= b.c.MaxReminder {
+		if thread.ReminderCounter >= b.c.MaxReminders {
 			err = b.db.DeleteNotificationThread(thread.ID)
 			if err != nil {
 				log.Error("Error on executing DeleteNotificationsThread! ", err, "Thread ID: ", thread.ID)
