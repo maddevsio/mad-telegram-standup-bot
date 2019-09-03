@@ -407,7 +407,7 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 	if strings.TrimSpace(deadline) == "" {
 		group.StandupDeadline = ""
 
-		_, err = b.db.UpdateGroup(group)
+		gr, err := b.db.UpdateGroup(group)
 		if err != nil {
 			return localizer.Localize(&i18n.LocalizeConfig{
 				DefaultMessage: &i18n.Message{
@@ -415,6 +415,11 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 					Other: "Could not remove standup deadline",
 				},
 			})
+		}
+		for _, v := range b.teams {
+			if v.Group.ID == gr.ID {
+				v.Group.StandupDeadline = gr.StandupDeadline
+			}
 		}
 
 		return localizer.Localize(&i18n.LocalizeConfig{
@@ -427,7 +432,7 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 
 	group.StandupDeadline = deadline
 
-	_, err = b.db.UpdateGroup(group)
+	gr, err := b.db.UpdateGroup(group)
 	if err != nil {
 		return localizer.Localize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
@@ -436,7 +441,11 @@ func (b *Bot) EditDeadline(event tgbotapi.Update) (string, error) {
 			},
 		})
 	}
-
+	for _, v := range b.teams {
+		if v.Group.ID == gr.ID {
+			v.Group.StandupDeadline = gr.StandupDeadline
+		}
+	}
 	return localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "updateStandupDeadline",

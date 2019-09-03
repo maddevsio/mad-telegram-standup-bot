@@ -18,34 +18,56 @@ func TestNotification(t *testing.T) {
 
 	n := model.NotificationThread{
 		ChatID:           int64(1),
-		UserID:           (1),
+		Username:         "User1",
 		NotificationTime: time.Now(),
 		ReminderCounter:  0,
 	}
 
-	time := n.NotificationTime
+	timeTest := n.NotificationTime
 
-	notification, err := mysql.CreateNotification(n)
+	notification, err := mysql.CreateNotificationThread(n)
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), notification.ChatID)
-	assert.Equal(t, 1, notification.UserID)
-	assert.Equal(t, time, notification.NotificationTime)
+	assert.Equal(t, "User1", notification.Username)
+	assert.Equal(t, timeTest, notification.NotificationTime)
 	assert.Equal(t, 0, notification.ReminderCounter)
 
-	notification2, err := mysql.CreateNotification(n)
+	notification2, err := mysql.CreateNotificationThread(n)
 	require.NoError(t, err)
 
-	notifications, err := mysql.ListNotifications()
+	notifications, err := mysql.ListNotificationsThread(notification2.ChatID)
 	require.NoError(t, err)
 	assert.Equal(t, 2, len(notifications))
 
-	err = mysql.DeleteNotification(notification2.ID)
+	err = mysql.DeleteNotificationThread(notification2.ID)
 	require.NoError(t, err)
 
-	err = mysql.DeleteNotification(notification.ID)
+	err = mysql.DeleteNotificationThread(notification.ID)
 	require.NoError(t, err)
 
-	notifications, err = mysql.ListNotifications()
+	notifications, err = mysql.ListNotificationsThread(notification2.ChatID)
 	require.NoError(t, err)
 	assert.Equal(t, 0, len(notifications))
+
+	n = model.NotificationThread{
+		ChatID:           int64(1),
+		Username:         "User2",
+		NotificationTime: time.Now(),
+		ReminderCounter:  0,
+	}
+
+	nt, err := mysql.CreateNotificationThread(n)
+	require.NoError(t, err)
+
+	err = mysql.UpdateNotificationThread(nt.ID, nt.ChatID, time.Now())
+	require.NoError(t, err)
+
+	notifications, err = mysql.ListNotificationsThread(nt.ChatID)
+	require.NoError(t, err)
+	for _, thread := range notifications {
+		assert.Equal(t, 1, thread.ReminderCounter)
+	}
+
+	err = mysql.DeleteNotificationThread(nt.ID)
+	require.NoError(t, err)
 }

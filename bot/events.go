@@ -167,7 +167,7 @@ func (b *Bot) HandleChannelJoinEvent(event tgbotapi.Update) error {
 					StandupDeadline: "",
 					TZ:              "Asia/Bishkek",
 					Language:        "en",
-					SubmissionDays:  "monday tuesday wednesday thirsday friday saturday sunday",
+					SubmissionDays:  "monday tuesday wednesday thursday friday saturday sunday",
 				})
 				if err != nil {
 					return err

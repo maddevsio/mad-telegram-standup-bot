@@ -59,7 +59,7 @@ type Standup struct {
 type NotificationThread struct {
 	ID               int64     `db:"id" json:"id"`
 	ChatID           int64     `db:"chat_id" json:"chat_id"`
-	UserID           int       `db:"user_id" json:"user_id"`
+	Username         string    `db:"username" json:"username"`
 	NotificationTime time.Time `db:"notification_time" json:"notification_time"`
 	ReminderCounter  int       `db:"reminder_counter" json:"reminder_counter"`
 }
@@ -69,8 +69,8 @@ func Validate(nt NotificationThread) error {
 	if nt.ChatID == 0 {
 		return errors.New("Field ChatID is empty")
 	}
-	if nt.UserID == 0 {
-		return errors.New("Field UserID is empty")
+	if strings.TrimSpace(nt.Username) == "" {
+		return errors.New("Field Username is empty")
 	}
 	if strings.TrimSpace(nt.NotificationTime.String()) == "" {
 		return errors.New("Field NotificationTime is empty")
