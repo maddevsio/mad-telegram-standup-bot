@@ -272,7 +272,7 @@ func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
 		if t.Hour() != thread.NotificationTime.In(loc).Hour() || t.Minute() != thread.NotificationTime.In(loc).Minute() {
 			return
 		}
-		log.Info("Maxreminder: ", b.c.MaxReminder)
+
 		if thread.ReminderCounter >= b.c.MaxReminder {
 			err = b.db.DeleteNotificationThread(thread.ID)
 			if err != nil {
