@@ -1,30 +1,10 @@
 version: '2'
 
 networks:
-  bot_local:
-    driver: bridge
+  comedian_comedian:
+    external: true
 
 services:
-  adminer:
-    container_name: mad-telegram-standup-bot-adminer
-    image: adminer:4.7.0
-    restart: always
-    networks:
-      - bot_local
-
-  db:
-    container_name: mad-telegram-standup-bot-mysql
-    image: mysql:5.7
-    volumes:
-      - "/opt/docker/mad-telegram-standup-bot/volume/mysql:/var/lib/mysql"
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    networks:
-      - bot_local
-
   bot:
     container_name: mad-telegram-standup-bot
     image: maddevsio/mad-telegram-standup-bot:latest
@@ -34,7 +14,5 @@ services:
       DATABASE_URL: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(mad-telegram-standup-bot-mysql:3306)/${MYSQL_DATABASE}?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci
       TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
       DEBUG: ${DEBUG}
-    depends_on:
-      - db
     networks:
-      - bot_local
+      - comedian_comedian
