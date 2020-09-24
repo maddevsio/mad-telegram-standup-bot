@@ -9,7 +9,8 @@ Automates workflow of async standups meetings
 
 Supported languages: English(default), Russian 
 
-Add @SimpleStandupBot to your telegram channel to start using it right away
+Add @SimpleStandupBot to your telegram channel to start using it right away.
+IMPORTANT NOTE: First you should run the code, then add bot to a channel, only then it would work as expected
 
 ## Bot Skills
 
