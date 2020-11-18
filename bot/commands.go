@@ -24,6 +24,10 @@ var Test bool
 
 //HandleCommand handles imcomming commands
 func (b *Bot) HandleCommand(event tgbotapi.Update) (err error) {
+	if event.Message == nil {
+		// if the event does not have message it means it is just an update of a previously sent message
+		event.Message = event.EditedMessage
+	}
 	var message string
 	switch event.Message.Command() {
 	case "help":

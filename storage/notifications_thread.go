@@ -32,7 +32,7 @@ func (m *MySQL) DeleteNotificationThread(id int64) error {
 // ListNotificationsThread returns array of notifications entries from database
 func (m *MySQL) ListNotificationsThread(chatID int64) ([]model.NotificationThread, error) {
 	items := []model.NotificationThread{}
-	err := m.conn.Select(&items, "SELECT * FROM `notifications_thread` WHERE chat_id= ?", chatID)
+	err := m.conn.Select(&items, "SELECT * FROM `notifications_thread` WHERE chat_id=?", chatID)
 	return items, err
 }
 
