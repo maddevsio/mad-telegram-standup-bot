@@ -268,6 +268,27 @@ func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
 	}
 
 	for _, thread := range threads {
+		stillSubmitStandups := false
+
+		standupers, err := b.db.ListChatStandupers(thread.ChatID)
+		if err != nil {
+			log.Error("ListChatStandupers ", err, "Chat ID: ", thread.ChatID)
+		}
+
+		for _, standuper := range standupers {
+			if standuper.Username == thread.Username {
+				stillSubmitStandups = true
+			}
+		}
+
+		if !stillSubmitStandups {
+			err = b.db.DeleteNotificationThread(thread.ID)
+			if err != nil {
+				log.Error("Error on executing DeleteNotificationsThread! ", err, "Thread ID: ", thread.ID)
+			}
+			continue
+		}
+
 		loc, err := time.LoadLocation(group.TZ)
 
 		if t.Hour() != thread.NotificationTime.In(loc).Hour() || t.Minute() != thread.NotificationTime.In(loc).Minute() {
