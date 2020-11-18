@@ -82,7 +82,7 @@ docker push <youraccount>/mad-telegram-standup-bot
 2. Enter server, install `docker` and `docker-compose` there. Create `docker-compose.yaml` file by the example from this repo
 3. Create `.env` file with variables needed to run bot:
 ```
-TELEGRAM_TOKEN=603860531:AAEB95f4tq18RWZtKLFJDFLKFDFfdsfds
+TELEGRAM_TOKEN=603860531:AAEB95f4tq18RWZtKLFJDFLKFDFfdsfd
 DEBUG=false
 ```
 4. Pull image from registry and run it in the backgroud with
