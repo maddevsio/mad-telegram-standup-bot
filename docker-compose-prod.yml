@@ -16,3 +16,8 @@ services:
       DEBUG: ${DEBUG}
     networks:
       - comedian_comedian
+    logging:
+      driver: syslog
+      options:
+        tag: "docker/mad-telegram-standup-bot"
+

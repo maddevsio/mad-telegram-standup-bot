@@ -23,7 +23,6 @@ jobs:
       - checkout
       - run: make test
 
-
   build_push_image:
     docker:
       - image: circleci/buildpack-deps:latest
@@ -48,27 +47,27 @@ jobs:
       - checkout
       - run:
           name: Add known hosts
-          command: ssh-keyscan -H $DEPLOY_SERVER_PROD >> ~/.ssh/known_hosts
+          command: ssh-keyscan -p 34325 -H $DEPLOY_SERVER_PROD >> ~/.ssh/known_hosts
       - add_ssh_keys:
           fingerprints:
             - "44:c5:67:d3:75:b0:28:2f:86:d6:17:7f:d9:a5:2d:08"
       - run:
           name: Login in docker hub
           command: |
-            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin"
+            ssh -T -p 34325 $DEPLOY_USER@$DEPLOY_SERVER_PROD "echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin"
       - run:
           name: Add rsync
           command: sudo apt update && sudo apt install rsync
       - run:
           name: Copy docker-compose-prod.yml
-          command: rsync -zavP docker-compose-prod.yml $DEPLOY_USER@$DEPLOY_SERVER_PROD:/opt/docker/mad-telegram-standup-bot
+          command: rsync -zavP -e 'ssh -p 34325' docker-compose-prod.yml $DEPLOY_USER@$DEPLOY_SERVER_PROD:/opt/docker/mad-telegram-standup-bot
       - run:
           name: Run docker-compose-prod
           command: |
-            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose -f docker-compose-prod.yml pull $SERVICE"
-            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose -f docker-compose-prod.yml stop $SERVICE"
-            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose -f docker-compose-prod.yml rm -f $SERVICE"
-            ssh -T $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose -f docker-compose-prod.yml up -d"
+            ssh -T -p 34325 $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose -f docker-compose-prod.yml pull $SERVICE"
+            ssh -T -p 34325 $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose -f docker-compose-prod.yml stop $SERVICE"
+            ssh -T -p 34325 $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose -f docker-compose-prod.yml rm -f $SERVICE"
+            ssh -T -p 34325 $DEPLOY_USER@$DEPLOY_SERVER_PROD "cd /opt/docker/mad-telegram-standup-bot && docker-compose -f docker-compose-prod.yml up -d"
 
 workflows:
   version: 2
