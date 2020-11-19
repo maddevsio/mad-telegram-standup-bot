@@ -203,7 +203,7 @@ func (b *Bot) Show(event tgbotapi.Update) (string, error) {
 	return message, nil
 }
 
-func (b *Bot) prepareShowMessage(standupers []*model.Standuper, group *model.Group) string {
+func (b *Bot) prepareShowMessage(standupers []model.Standuper, group *model.Group) string {
 
 	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 

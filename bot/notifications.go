@@ -12,6 +12,7 @@ import (
 	"github.com/olebedev/when"
 	"github.com/olebedev/when/rules/en"
 	"github.com/olebedev/when/rules/ru"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -139,7 +140,11 @@ func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
 	msg.ParseMode = "Markdown"
 	_, err = b.tgAPI.Send(msg)
 	if err != nil {
-		log.Error(err)
+		log.WithFields(logrus.Fields{
+			"msg":   msg,
+			"func":  "WarnGroup",
+			"group": group,
+		}).Error("tgAPI.Send failed")
 	}
 }
 
@@ -149,10 +154,17 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
 	if !shouldSubmitStandupIn(group, t) {
+		log.WithFields(logrus.Fields{
+			"t":     t.String(),
+			"group": group,
+		}).Info("shouldSubmitStandupIn not")
 		return
 	}
 
 	if group.StandupDeadline == "" {
+		log.WithFields(logrus.Fields{
+			"group": group,
+		}).Info("Standup deadline not set")
 		return
 	}
 
@@ -177,7 +189,10 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 
 	standupers, err := b.db.ListChatStandupers(group.ChatID)
 	if err != nil {
-		log.Error(err)
+		log.WithFields(logrus.Fields{
+			"group": group,
+			"err":   err,
+		}).Error("ListChatStandupers failed")
 		return
 	}
 
@@ -239,7 +254,11 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 	msg.ParseMode = "Markdown"
 	_, err = b.tgAPI.Send(msg)
 	if err != nil {
-		log.Error(err)
+		log.WithFields(logrus.Fields{
+			"msg":   msg,
+			"func":  "NotifyGroup",
+			"group": group,
+		}).Error("tgAPI.Send failed")
 	}
 }
 
@@ -303,7 +322,7 @@ func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
 			continue
 		}
 
-		if b.submittedStandupToday(&model.Standuper{
+		if b.submittedStandupToday(model.Standuper{
 			Username: thread.Username,
 			ChatID:   thread.ChatID,
 			TZ:       group.TZ,
@@ -341,7 +360,23 @@ func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
 		msg.ParseMode = "Markdown"
 		_, err = b.tgAPI.Send(msg)
 		if err != nil {
-			log.Error("Error sending message, CheckNotificationThread! ", err, "ChatID: ", group.ChatID, "GroupTitle: ", group.Title)
+			log.WithFields(logrus.Fields{
+				"msg":    msg,
+				"group":  group,
+				"notify": notify,
+			}).Error("tgAPI.Send failed")
+			if strings.Contains(err.Error(), "bot was kicked from the group chat") {
+
+				err := b.db.DeleteGroupStandupers(group.ChatID)
+				if err != nil {
+					return
+				}
+				err = b.db.DeleteGroup(group.ChatID)
+				if err != nil {
+					return
+				}
+				return
+			}
 		}
 	}
 }

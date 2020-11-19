@@ -39,8 +39,8 @@ func (m *MySQL) FindStanduper(userID int, chatID int64) (*model.Standuper, error
 }
 
 // ListChatStandupers returns array of Standuper entries from database filtered by chat
-func (m *MySQL) ListChatStandupers(chatID int64) ([]*model.Standuper, error) {
-	standupers := []*model.Standuper{}
+func (m *MySQL) ListChatStandupers(chatID int64) ([]model.Standuper, error) {
+	standupers := []model.Standuper{}
 	err := m.conn.Select(&standupers, "SELECT * FROM `standupers` where chat_id=? and status=?", chatID, "active")
 	return standupers, err
 }

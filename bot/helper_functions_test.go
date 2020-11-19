@@ -49,7 +49,7 @@ func TestSubmittedStandupToday(t *testing.T) {
 	d = time.Date(2019, 6, 17, 10, 0, 0, 0, time.Local)
 	monkey.Patch(time.Now, func() time.Time { return d })
 
-	submitted := bot.submittedStandupToday(&model.Standuper{
+	submitted := bot.submittedStandupToday(model.Standuper{
 		Username: "Foo",
 		ChatID:   int64(12345),
 		TZ:       "Asia/Bishkek",
