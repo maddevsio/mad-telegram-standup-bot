@@ -137,10 +137,10 @@ func (b *Bot) WarnGroup(group *model.Group, t time.Time) {
 	}
 
 	msg := tgbotapi.NewMessage(group.ChatID, text)
-	msg.ParseMode = "Markdown"
 	_, err = b.tgAPI.Send(msg)
 	if err != nil {
 		log.WithFields(logrus.Fields{
+			"err":   err,
 			"msg":   msg,
 			"func":  "WarnGroup",
 			"group": group,
@@ -251,10 +251,10 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 	}
 
 	msg := tgbotapi.NewMessage(group.ChatID, text)
-	msg.ParseMode = "Markdown"
 	_, err = b.tgAPI.Send(msg)
 	if err != nil {
 		log.WithFields(logrus.Fields{
+			"err":   err,
 			"msg":   msg,
 			"func":  "NotifyGroup",
 			"group": group,
@@ -357,10 +357,10 @@ func (b *Bot) CheckNotificationThread(group *model.Group, t time.Time) {
 		}
 
 		msg := tgbotapi.NewMessage(group.ChatID, notify)
-		msg.ParseMode = "Markdown"
 		_, err = b.tgAPI.Send(msg)
 		if err != nil {
 			log.WithFields(logrus.Fields{
+				"err":    err,
 				"msg":    msg,
 				"group":  group,
 				"notify": notify,
