@@ -379,6 +379,20 @@ func (b *Bot) LeaveStandupers(event tgbotapi.Update) (string, error) {
 		})
 	}
 
+	threads, err := b.db.ListNotificationsThread(event.Message.Chat.ID)
+	if err != nil {
+		log.Error("ListNotificationsThread failed: ", err)
+	}
+
+	for _, thr := range threads {
+		if thr.Username != standuper.Username {
+			continue
+		}
+		if err := b.db.DeleteNotificationThread(thr.ID); err != nil {
+			log.Error("DeleteNotificationThread failed: ", err)
+		}
+	}
+
 	return localizer.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "leaveStanupers",
