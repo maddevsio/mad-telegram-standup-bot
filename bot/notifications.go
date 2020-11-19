@@ -154,17 +154,11 @@ func (b *Bot) NotifyGroup(group *model.Group, t time.Time) {
 	localizer := i18n.NewLocalizer(b.bundle, group.Language)
 
 	if !shouldSubmitStandupIn(group, t) {
-		log.WithFields(logrus.Fields{
-			"t":     t.String(),
-			"group": group,
-		}).Info("shouldSubmitStandupIn not")
 		return
 	}
 
 	if group.StandupDeadline == "" {
-		log.WithFields(logrus.Fields{
-			"group": group,
-		}).Info("Standup deadline not set")
+
 		return
 	}
 
