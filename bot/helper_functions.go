@@ -161,17 +161,20 @@ func (b *Bot) analyzeStandup(standup, language string) ([]string, int) {
 	return advises, pB + qB + mB + lB + sB
 }
 
-func (b *Bot) submittedStandupToday(standuper *model.Standuper) bool {
+func (b *Bot) submittedStandupToday(standuper model.Standuper) bool {
 	standup, err := b.db.LastStandupFor(standuper.Username, standuper.ChatID)
 	if err != nil {
+		logrus.Error("LastStandupFor failed ", err)
 		return false
 	}
 	loc, err := time.LoadLocation(standuper.TZ)
 	if err != nil {
-		logrus.Error("failed to load location for ", standuper)
-		return true
+		logrus.Error("failed to load location for ", err)
+		return false
 	}
-	if standup.Created.In(loc).Day() == time.Now().Day() {
+	if standup.Created.In(loc).Day() == time.Now().In(loc).Day() &&
+		standup.Created.In(loc).Year() == time.Now().In(loc).Year() &&
+		standup.Created.In(loc).Month() == time.Now().In(loc).Month() {
 		return true
 	}
 	return false

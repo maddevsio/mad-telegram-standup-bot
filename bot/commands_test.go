@@ -37,11 +37,11 @@ func TestPrepareShowMessage(t *testing.T) {
 	d := time.Date(2019, 7, 15, 0, 0, 0, 0, time.Local)
 	monkey.Patch(time.Now, func() time.Time { return d })
 
-	text := bot.prepareShowMessage([]*model.Standuper{}, group)
+	text := bot.prepareShowMessage([]model.Standuper{}, group)
 	assert.Equal(t, "No standupers in the team, /join to start standuping\n\nStandup deadline set at 10:00 on monday", text)
 
-	standuper := []*model.Standuper{
-		&model.Standuper{
+	standuper := []model.Standuper{
+		model.Standuper{
 			Username: "foo",
 			Created:  time.Date(2019, 7, 14, 0, 0, 0, 0, time.Local),
 			Warnings: 0,
@@ -51,14 +51,14 @@ func TestPrepareShowMessage(t *testing.T) {
 	text = bot.prepareShowMessage(standuper, group)
 	assert.Equal(t, "Standupers:\n@foo, 1 day in the project, \n\nStandup deadline set at 10:00 on monday", text)
 
-	standupers := []*model.Standuper{
-		&model.Standuper{
+	standupers := []model.Standuper{
+		model.Standuper{
 			Username: "foo",
 			Created:  time.Date(2019, 7, 14, 0, 0, 0, 0, time.Local),
 			Warnings: 0,
 		},
 
-		&model.Standuper{
+		model.Standuper{
 			Username: "bar",
 			Created:  time.Date(2019, 7, 10, 0, 0, 0, 0, time.Local),
 			Warnings: 2,
